@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${patient.name} + ' | Healix Admin'">Patient Details | Healix Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Admin Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a href="/admin/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/admin/patients" class="nav-item active"><i class="bi bi-people nav-icon"></i> Patients</a>
+            <a href="/admin/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Doctors</a>
+            <a href="/admin/departments" class="nav-item"><i class="bi bi-building nav-icon"></i> Departments</a>
+            <a href="/admin/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> Appointments</a>
+            <div class="nav-section-label">Analytics</div>
+            <a href="/admin/reports" class="nav-item"><i class="bi bi-graph-up nav-icon"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title" th:text="${patient.name} + ' (Patient File)'">Patient File</div>
+                <div class="header-subtitle">Administrative view and patient profile</div>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/admin/patients/edit/{id}(id=${patient.id})}" class="btn btn-outline btn-sm"><i class="bi bi-pencil"></i> Edit Patient</a>
+                <a href="/admin/patients" class="btn btn-primary btn-sm"><i class="bi bi-arrow-left"></i> Back to Roster</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div class="card mb-4">
+                <div class="card-body" style="padding: 28px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div class="avatar avatar-xl" style="background:#0D9488; color:#fff; font-size: 2rem;"
+                             th:text="${#strings.substring(patient.name, 0, 1)}">P</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                                <h3 style="font-size: 1.4rem; font-weight: 800; color: #0F2042; margin: 0;" th:text="${patient.name}">Patient Name</h3>
+                                <span class="badge" th:classappend="${patient.active ? 'badge-confirmed' : 'badge-cancelled'}"
+                                      th:text="${patient.active ? 'ACTIVE' : 'DEACTIVATED'}">ACTIVE</span>
+                                <span class="badge badge-teal" th:text="${patient.bloodGroup != null ? patient.bloodGroup.displayName : 'Blood Group N/A'}">O+</span>
+                            </div>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.88rem; color: #475569; margin-top: 10px;">
+                                <span><i class="bi bi-envelope"></i> <strong th:text="${patient.email}">Email</strong></span>
+                                <span><i class="bi bi-telephone"></i> <strong th:text="${patient.phone}">Phone</strong></span>
+                                <span><i class="bi bi-gender-ambiguous"></i> <span th:text="${patient.gender}">Gender</span></span>
+                                <span th:if="${patient.dateOfBirth != null}"><i class="bi bi-calendar"></i> DOB: <span th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy')}">DOB</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2" style="gap: 20px;">
+                <!-- Contact and Address -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-geo-alt" style="color:#3B82F6;"></i> Address &amp; Emergency Details</h5>
+                    </div>
+                    <div class="card-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem;">
+                        <div>
+                            <div style="font-size: 0.76rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Residential Address</div>
+                            <div style="color: #1E293B; margin-top: 4px;" th:text="${patient.address != null and !patient.address.isBlank() ? patient.address : 'No address provided'}">Address</div>
+                        </div>
+                        <div style="border-top: 1px solid #E2E8F0; padding-top: 12px;">
+                            <div style="font-size: 0.76rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Emergency Contact</div>
+                            <div style="color: #1E293B; margin-top: 4px; font-weight: 600;" th:text="${patient.emergencyContactName != null ? patient.emergencyContactName : 'None specified'}">Emergency Contact</div>
+                            <div style="color: #EF4444; font-size: 0.85rem;" th:text="${patient.emergencyContact}">Phone</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Details -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-clock-history" style="color:#3B82F6;"></i> Account History</h5>
+                    </div>
+                    <div class="card-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem;">
+                        <div>
+                            <div style="font-size: 0.76rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Account Created</div>
+                            <div style="color: #1E293B; margin-top: 4px;" th:text="${#temporals.format(patient.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</div>
+                        </div>
+                        <div style="border-top: 1px solid #E2E8F0; padding-top: 12px;">
+                            <div style="font-size: 0.76rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Portal Status</div>
+                            <div style="color: #1E293B; margin-top: 4px;">Registered Patient with Active Login Role</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

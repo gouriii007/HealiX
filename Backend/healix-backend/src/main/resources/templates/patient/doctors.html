@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Find Doctors | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item active"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Our Medical Specialists</div>
+                <div class="header-subtitle">Find experienced doctors and book consultations</div>
+            </div>
+            <div class="header-actions">
+                <a href="/patient/book-appointment" class="btn btn-teal btn-sm"><i class="bi bi-calendar2-plus"></i> Book Appointment</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- Search & Filter Card -->
+            <div class="card mb-4">
+                <div class="card-body" style="padding: 20px 24px;">
+                    <form th:action="@{/patient/doctors}" method="get" style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+                        <div class="form-group" style="margin:0; flex: 2; min-width: 220px;">
+                            <label class="form-label" style="margin-bottom: 4px;">Search by Name or Specialization</label>
+                            <div style="position:relative;">
+                                <input type="text" name="search" th:value="${search}" class="form-control" placeholder="e.g. Dr. Sarah, Cardiology..."/>
+                                <i class="bi bi-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9CA3AF;"></i>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin:0; flex: 1; min-width: 200px;">
+                            <label class="form-label" style="margin-bottom: 4px;">Filter by Department</label>
+                            <select name="departmentId" class="form-control form-select">
+                                <option value="">All Departments</option>
+                                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == selectedDept}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-teal"><i class="bi bi-funnel"></i> Apply Filter</button>
+                        <a href="/patient/doctors" class="btn btn-outline">Reset</a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Doctors Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                <div th:each="doc : ${doctors}" class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                    <div class="card-body" style="padding: 24px;">
+                        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                            <div class="avatar avatar-lg" style="background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.4rem;"
+                                 th:text="${#strings.substring(doc.name, 0, 1)}">D</div>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #0F2042; margin-bottom: 4px;" th:text="'Dr. ' + ${doc.name}">Dr. Name</h4>
+                                <span class="badge badge-indigo" th:text="${doc.department != null ? doc.department.name : doc.specialization}">Specialty</span>
+                                <div style="font-size: 0.8rem; color: #6B7280; margin-top: 4px;" th:text="${doc.qualification}">MBBS, MD</div>
+                            </div>
+                        </div>
+
+                        <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px;" th:text="${doc.bio != null and !doc.bio.isBlank() ? doc.bio : 'Dedicated specialist committed to delivering exceptional patient care.'}">
+                            Doctor description.
+                        </p>
+
+                        <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                            <div>
+                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Experience</div>
+                                <div style="font-weight: 700; color: #1E293B;" th:text="${doc.experienceYears != null ? doc.experienceYears + ' Years' : '5+ Years'}">5 Years</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Consultation Fee</div>
+                                <div style="font-weight: 700; color: #0D9488;" th:text="${doc.consultationFee != null ? '₹' + doc.consultationFee : '₹500'}">₹500</div>
+                            </div>
+                            <div style="grid-column: span 2;" th:if="${doc.availability != null}">
+                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Timings</div>
+                                <div style="font-size: 0.82rem; font-weight: 600; color: #334155;" th:text="${doc.availability}">Mon-Fri: 9 AM - 4 PM</div>
+                            </div>
+                        </div>
+
+                        <a th:href="@{/patient/book-appointment(doctorId=${doc.id})}" class="btn btn-teal btn-block">
+                            <i class="bi bi-calendar2-plus"></i> Book Consultation
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${doctors == null or doctors.isEmpty()}" class="card">
+                <div class="card-body">
+                    <div class="empty-state" style="padding: 48px 24px;">
+                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-person-x"></i></div>
+                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No doctors found matching criteria</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem;">Try selecting a different department or clearing the search query.</p>
+                        <a href="/patient/doctors" class="btn btn-teal btn-sm mt-3"><i class="bi bi-arrow-clockwise"></i> View All Doctors</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

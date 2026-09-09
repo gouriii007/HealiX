@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${patient.name} + ' - Patient History | Healix Doctor'">Patient History | Healix Doctor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-doctor">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#6366F1;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Doctor Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/doctor/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/doctor/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> Appointments</a>
+            <a href="/doctor/patients" class="nav-item active"><i class="bi bi-people nav-icon"></i> My Patients</a>
+            <a href="/doctor/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/doctor/schedule" class="nav-item"><i class="bi bi-clock nav-icon"></i> Schedule</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/doctor/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/doctor/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title" th:text="${patient.name} + ' (Medical History)'">Patient Medical File</div>
+                <div class="header-subtitle">Comprehensive consultation history and records</div>
+            </div>
+            <div class="header-actions">
+                <a href="/doctor/patients" class="btn btn-outline btn-sm"><i class="bi bi-arrow-left"></i> Back to Patients</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- Patient Summary Banner -->
+            <div class="card mb-4" style="background: linear-gradient(135deg, #EEF2FF, #F8FAFC); border: 1px solid #C7D2FE;">
+                <div class="card-body" style="padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div class="avatar avatar-xl" style="background: #6366F1; color: #fff; font-size: 1.8rem;"
+                             th:text="${#strings.substring(patient.name, 0, 1)}">P</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                                <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F2042; margin: 0;" th:text="${patient.name}">Patient Name</h3>
+                                <span class="badge badge-teal" th:text="${patient.bloodGroup != null ? patient.bloodGroup.displayName : 'Blood Group N/A'}">O+</span>
+                            </div>
+                            <div style="display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.86rem; color: #475569;">
+                                <span><i class="bi bi-telephone"></i> <span th:text="${patient.phone}">Phone</span></span>
+                                <span><i class="bi bi-envelope"></i> <span th:text="${patient.email}">Email</span></span>
+                                <span><i class="bi bi-gender-ambiguous"></i> <span th:text="${patient.gender}">Gender</span></span>
+                                <span th:if="${patient.dateOfBirth != null}"><i class="bi bi-calendar"></i> DOB: <span th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy')}">DOB</span></span>
+                            </div>
+                            <div th:if="${patient.emergencyContact != null}" style="margin-top: 8px; font-size: 0.82rem; color: #DC2626;">
+                                <i class="bi bi-exclamation-triangle"></i> Emergency Contact: <strong th:text="${patient.emergencyContactName}">Name</strong> (<span th:text="${patient.emergencyContact}">Phone</span>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Records Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-clipboard2-pulse" style="color:#6366F1;"></i> Past Medical Records</h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" th:if="${medicalRecords != null and !medicalRecords.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Doctor</th>
+                            <th>Diagnosis</th>
+                            <th>Prescriptions</th>
+                            <th>Follow-up</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="mr : ${medicalRecords}">
+                            <td style="font-weight: 600;" th:text="${#temporals.format(mr.createdAt, 'dd MMM yyyy')}">Date</td>
+                            <td th:text="'Dr. ' + ${mr.doctor.name}">Dr. Doctor</td>
+                            <td style="font-weight: 600; color: #0F2042;" th:text="${mr.diagnosis}">Diagnosis</td>
+                            <td>
+                                <span class="badge badge-indigo" th:text="${mr.prescriptions != null ? mr.prescriptions.size() + ' Meds' : '0'}">2 Meds</span>
+                            </td>
+                            <td th:text="${mr.followUpDate != null ? #temporals.format(mr.followUpDate, 'dd MMM yyyy') : '-'}">-</td>
+                            <td>
+                                <a th:href="@{/doctor/medical-records/view/{id}(id=${mr.id})}" class="btn btn-sm btn-outline">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div th:if="${medicalRecords == null or medicalRecords.isEmpty()}" class="empty-state" style="padding: 36px;">
+                        <p style="color: #64748B; margin: 0;">No previous medical records found for this patient.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments with this Doctor -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-calendar-check" style="color:#6366F1;"></i> Appointments with You</h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" th:if="${appointments != null and !appointments.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${appointments}">
+                            <td style="color:#94A3B8;" th:text="'#' + ${a.id}">#1</td>
+                            <td style="font-weight:600;" th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy')}">Date</td>
+                            <td style="font-weight:600; color:#6366F1;" th:text="${#temporals.format(a.appointmentTime, 'hh:mm a')}">Time</td>
+                            <td th:text="${a.reason}">Reason</td>
+                            <td>
+                                <span th:class="'badge badge-' + ${#strings.toLowerCase(a.status.name())}" th:text="${a.status.name()}">STATUS</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

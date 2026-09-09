@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Patient Dashboard | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item active"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item">
+                <i class="bi bi-bell nav-icon"></i> Notifications
+                <span class="badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">0</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Welcome, <span th:text="${patient.name}">Patient</span>!</div>
+                <div class="header-subtitle" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}">Today</div>
+            </div>
+            <div class="header-actions">
+                <a href="/patient/notifications" class="header-btn" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                    <span class="notif-dot" th:if="${unreadCount != null and unreadCount > 0}"></span>
+                </a>
+                <a href="/patient/book-appointment" class="btn btn-teal btn-sm"><i class="bi bi-calendar2-plus"></i> Book Appointment</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- Welcome Banner -->
+            <div style="background:linear-gradient(135deg,#0D9488,#059669);border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+                <div>
+                    <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:8px;">Your Health at a Glance</div>
+                    <p style="color:rgba(255,255,255,0.75);font-size:0.875rem;margin:0;">
+                        Manage your appointments, view medical records, and stay on top of your health.
+                    </p>
+                </div>
+                <a href="/patient/book-appointment" class="btn btn-lg" style="background:#fff;color:#0D9488;font-weight:700;">
+                    <i class="bi bi-calendar2-plus"></i> Book Appointment
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));">
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="bi bi-calendar2-check-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalAppointments ?: 0}">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                </div>
+                <div class="stat-card" th:if="${nextAppointment != null}">
+                    <div class="stat-icon blue"><i class="bi bi-clock-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" style="font-size:1.1rem;" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMM')}">Soon</div>
+                        <div class="stat-label">Next Appointment</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2" style="gap:20px;">
+
+                <!-- Next Appointment -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-calendar-event" style="color:#0D9488;"></i> Upcoming Appointment</h5>
+                        <a href="/patient/appointments" class="btn btn-sm btn-outline">View All</a>
+                    </div>
+                    <div class="card-body" th:if="${nextAppointment != null}">
+                        <div style="background:#F0FDFA;border:1px solid #99F6E4;border-radius:12px;padding:20px;">
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+                                <div class="avatar avatar-md" style="background:#0D9488;color:#fff;"
+                                     th:text="${#strings.substring(nextAppointment.doctor.name, 0, 1)}">D</div>
+                                <div>
+                                    <div style="font-weight:700;font-size:0.95rem;" th:text="'Dr. ' + ${nextAppointment.doctor.name}">Doctor</div>
+                                    <div style="color:#0D9488;font-size:0.82rem;font-weight:600;" th:text="${nextAppointment.doctor.specialization}">Spec</div>
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <div style="background:#fff;border-radius:8px;padding:10px 14px;">
+                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Date</div>
+                                    <div style="font-weight:700;color:#374151;" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMM yyyy')}">Date</div>
+                                </div>
+                                <div style="background:#fff;border-radius:8px;padding:10px 14px;">
+                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Time</div>
+                                    <div style="font-weight:700;color:#374151;" th:text="${#temporals.format(nextAppointment.appointmentTime, 'hh:mm a')}">Time</div>
+                                </div>
+                                <div style="background:#fff;border-radius:8px;padding:10px 14px;grid-column:span 2;">
+                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Status</div>
+                                    <span th:class="'badge badge-' + ${#strings.toLowerCase(nextAppointment.status.name())}"
+                                          th:text="${nextAppointment.status.name()}">Status</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" th:unless="${nextAppointment != null}">
+                        <div class="empty-state" style="padding:30px 20px;">
+                            <div class="empty-state-icon" style="font-size:2.5rem;"><i class="bi bi-calendar-plus"></i></div>
+                            <h3 style="font-size:0.95rem;">No upcoming appointments</h3>
+                            <a href="/patient/book-appointment" class="btn btn-teal mt-3 btn-sm">
+                                <i class="bi bi-plus-circle"></i> Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Medical Record -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-clipboard2-pulse" style="color:#0D9488;"></i> Recent Medical Record</h5>
+                        <a href="/patient/medical-records" class="btn btn-sm btn-outline">View All</a>
+                    </div>
+                    <div class="card-body" th:if="${recentRecord != null}">
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div>
+                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Diagnosis</div>
+                                <div style="font-weight:600;" th:text="${recentRecord.diagnosis ?: 'N/A'}">Diagnosis</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Doctor</div>
+                                <div th:text="'Dr. ' + ${recentRecord.doctor.name}">Doctor</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Date</div>
+                                <div th:text="${#temporals.format(recentRecord.createdAt, 'dd MMM yyyy')}">Date</div>
+                            </div>
+                            <a th:href="@{/patient/medical-records/{id}(id=${recentRecord.id})}" class="btn btn-teal btn-sm">
+                                <i class="bi bi-eye"></i> View Full Record
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body" th:unless="${recentRecord != null}">
+                        <div class="empty-state" style="padding:30px 20px;">
+                            <div class="empty-state-icon" style="font-size:2.5rem;"><i class="bi bi-clipboard2-x"></i></div>
+                            <h3 style="font-size:0.95rem;">No medical records</h3>
+                            <p style="font-size:0.8rem;">Your medical records will appear here after consultations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header"><h5><i class="bi bi-lightning-charge" style="color:#F59E0B;"></i> Quick Actions</h5></div>
+                <div class="card-body">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <a href="/patient/book-appointment" class="btn btn-teal"><i class="bi bi-calendar2-plus"></i> Book Appointment</a>
+                        <a href="/patient/doctors" class="btn btn-outline"><i class="bi bi-person-badge"></i> Find Doctors</a>
+                        <a href="/patient/medical-records" class="btn btn-outline"><i class="bi bi-clipboard2-pulse"></i> My Records</a>
+                        <a href="/patient/prescriptions" class="btn btn-outline"><i class="bi bi-capsule"></i> Prescriptions</a>
+                        <a href="/patient/profile" class="btn btn-outline"><i class="bi bi-person-circle"></i> My Profile</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

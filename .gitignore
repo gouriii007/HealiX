@@ -1,0 +1,29 @@
+# Java / Maven / Spring Boot
+Backend/healix-backend/target/
+Backend/healix-backend/.classpath
+Backend/healix-backend/.project
+Backend/healix-backend/.settings/
+Backend/healix-backend/.factorypath
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database temp data
+**/mariadb-data/
+**/data/
+
+# Node / front-end artifacts if any
+Frontend/node_modules/
+
+# Generic build outputs
+build/
+out/

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reports | Healix Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Admin Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a href="/admin/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/admin/patients" class="nav-item"><i class="bi bi-people nav-icon"></i> Patients</a>
+            <a href="/admin/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Doctors</a>
+            <a href="/admin/departments" class="nav-item"><i class="bi bi-building nav-icon"></i> Departments</a>
+            <a href="/admin/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> Appointments</a>
+            <div class="nav-section-label">Analytics</div>
+            <a href="/admin/reports" class="nav-item active"><i class="bi bi-graph-up nav-icon"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div><div class="header-title">Reports &amp; Analytics</div><div class="header-subtitle">Hospital performance reports (JDBC-powered)</div></div>
+        </header>
+        <div class="page-content">
+
+            <!-- Date filter for daily report -->
+            <div class="card mb-4">
+                <div class="card-body" style="padding:16px 22px;">
+                    <form th:action="@{/admin/reports}" method="get" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" style="margin-bottom:4px;">Daily Report Date</label>
+                            <input type="date" name="date" class="form-control" th:value="${reportDate}"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search"></i> Generate Report</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Appointment Status Stats -->
+            <div class="stat-grid">
+                <div class="stat-card" th:each="entry : ${statusStats}">
+                    <div class="stat-icon"
+                         th:classappend="${entry.key == 'PENDING'} ? 'amber' : (${entry.key == 'CONFIRMED'} ? 'blue' : (${entry.key == 'COMPLETED'} ? 'green' : (${entry.key == 'CANCELLED'} ? 'red' : 'indigo')))">
+                        <i class="bi"
+                           th:classappend="${entry.key == 'PENDING'} ? 'bi-hourglass-split' : (${entry.key == 'CONFIRMED'} ? 'bi-calendar-check' : (${entry.key == 'COMPLETED'} ? 'bi-check-circle' : (${entry.key == 'CANCELLED'} ? 'bi-x-circle' : 'bi-arrow-repeat')))"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${entry.value}">0</div>
+                        <div class="stat-label" th:text="${entry.key}">STATUS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2" style="gap:20px;">
+
+                <!-- Daily Report (JDBC) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <i class="bi bi-calendar-day" style="color:#3B82F6;"></i>
+                            Daily Report —
+                            <span th:text="${reportDate}">Date</span>
+                            <span style="font-size:0.7rem;font-weight:400;background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:10px;margin-left:8px;">JDBC</span>
+                        </h5>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table"
+                               th:if="${dailyReport != null and dailyReport['appointments'] != null and !#lists.isEmpty(dailyReport['appointments'])}">
+                            <thead><tr>
+                                <th>Patient</th><th>Doctor</th><th>Dept</th><th>Time</th><th>Status</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:each="row : ${dailyReport['appointments']}">
+                                <td th:text="${row['patientName']}">Patient</td>
+                                <td th:text="'Dr. ' + ${row['doctorName']}">Doctor</td>
+                                <td th:text="${row['department'] ?: '—'}">Dept</td>
+                                <td th:text="${row['time']}">Time</td>
+                                <td>
+                                    <span th:class="'badge badge-' + ${#strings.toLowerCase(row['status'] ?: 'pending')}"
+                                          th:text="${row['status']}">Status</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="empty-state" th:if="${dailyReport == null or dailyReport['appointments'] == null or #lists.isEmpty(dailyReport['appointments'])}">
+                            <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+                            <h3>No appointments</h3>
+                            <p>No appointments found for the selected date.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor-wise Report (JDBC) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <i class="bi bi-person-badge" style="color:#6366F1;"></i> Doctor-wise Report
+                            <span style="font-size:0.7rem;font-weight:400;background:#EEF2FF;color:#3730A3;padding:2px 8px;border-radius:10px;margin-left:8px;">JDBC</span>
+                        </h5>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table"
+                               th:if="${doctorReport != null and doctorReport['doctorStats'] != null and !#lists.isEmpty(doctorReport['doctorStats'])}">
+                            <thead><tr>
+                                <th>Doctor</th><th>Specialization</th><th>Total</th><th>Completed</th><th>Pending</th><th>Cancelled</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:each="row : ${doctorReport['doctorStats']}">
+                                <td th:text="'Dr. ' + ${row['doctorName']}">Doctor</td>
+                                <td th:text="${row['specialization']}">Spec</td>
+                                <td><strong th:text="${row['total']}">0</strong></td>
+                                <td style="color:#10B981;font-weight:600;" th:text="${row['completed']}">0</td>
+                                <td style="color:#F59E0B;font-weight:600;" th:text="${row['pending']}">0</td>
+                                <td style="color:#EF4444;font-weight:600;" th:text="${row['cancelled']}">0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="empty-state" th:if="${doctorReport == null or doctorReport['doctorStats'] == null or #lists.isEmpty(doctorReport['doctorStats'])}">
+                            <div class="empty-state-icon"><i class="bi bi-person-badge"></i></div>
+                            <h3>No data</h3>
+                            <p>No doctor statistics available.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Stats (JDBC) -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>
+                        <i class="bi bi-building" style="color:#10B981;"></i> Department Statistics
+                        <span style="font-size:0.7rem;font-weight:400;background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:10px;margin-left:8px;">JDBC</span>
+                    </h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table"
+                           th:if="${departmentStats != null and departmentStats['departmentStats'] != null and !#lists.isEmpty(departmentStats['departmentStats'])}">
+                        <thead><tr><th>Department</th><th>Doctors</th><th>Total Appointments</th></tr></thead>
+                        <tbody>
+                        <tr th:each="row : ${departmentStats['departmentStats']}">
+                            <td style="font-weight:600;" th:text="${row['departmentName']}">Dept</td>
+                            <td th:text="${row['doctorCount']}">0</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="flex:1;height:6px;background:#F3F4F6;border-radius:10px;overflow:hidden;">
+                                        <div style="background:#3B82F6;height:100%;border-radius:10px;"
+                                             th:style="'width:' + ${row['appointmentCount']} + '%;'"></div>
+                                    </div>
+                                    <span th:text="${row['appointmentCount']}">0</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="empty-state" th:if="${departmentStats == null}">
+                        <div class="empty-state-icon"><i class="bi bi-building"></i></div>
+                        <h3>No data</h3>
+                        <p>No department statistics available.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Dashboard | Healix HMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">H</div>
+            <div>
+                <div class="sidebar-title">Healix</div>
+                <div class="sidebar-subtitle">Admin Portal</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a href="/admin/dashboard" class="nav-item active"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/admin/patients" class="nav-item"><i class="bi bi-people nav-icon"></i> Patients</a>
+            <a href="/admin/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Doctors</a>
+            <a href="/admin/departments" class="nav-item"><i class="bi bi-building nav-icon"></i> Departments</a>
+            <a href="/admin/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> Appointments</a>
+            <div class="nav-section-label">Analytics</div>
+            <a href="/admin/reports" class="nav-item"><i class="bi bi-graph-up nav-icon"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);">
+                <i class="bi bi-box-arrow-left nav-icon"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Admin Dashboard</div>
+                <div class="header-subtitle" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}">Today</div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/reports" class="header-btn" title="Reports">
+                    <i class="bi bi-graph-up"></i>
+                </a>
+                <div class="user-avatar" title="Admin">A</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="page-content">
+
+            <!-- Flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-auto-dismiss">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error alert-auto-dismiss">
+                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1>Hospital Overview</h1>
+                    <p>Real-time statistics and hospital performance metrics</p>
+                </div>
+                <a href="/admin/appointments" class="btn btn-navy">
+                    <i class="bi bi-calendar2-plus"></i> Manage Appointments
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalPatients ?: 0}">0</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon indigo"><i class="bi bi-person-badge-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalDoctors ?: 0}">0</div>
+                        <div class="stat-label">Active Doctors</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon navy"><i class="bi bi-building-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalDepartments ?: 0}">0</div>
+                        <div class="stat-label">Departments</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-calendar2-check-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalAppointments ?: 0}">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="bi bi-clock-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${todayAppointments ?: 0}">0</div>
+                        <div class="stat-label">Today's Appointments</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${pendingAppointments ?: 0}">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${completedAppointments ?: 0}">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="bi bi-x-circle-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${cancelledAppointments ?: 0}">0</div>
+                        <div class="stat-label">Cancelled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two columns: Today's appointments + Chart -->
+            <div class="grid-2" style="gap:20px;">
+
+                <!-- Today's Appointments Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-calendar-day" style="color:#3B82F6;"></i> Today's Appointments</h5>
+                        <a href="/admin/appointments" class="btn btn-sm btn-outline">View All</a>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" th:if="${recentAppointments != null and !recentAppointments.isEmpty()}">
+                            <thead><tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:each="appt : ${recentAppointments}">
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:10px;">
+                                        <div class="avatar avatar-sm avatar-teal"
+                                             th:text="${#strings.substring(appt.patient.name, 0, 1)}">P</div>
+                                        <span style="font-weight:500;" th:text="${appt.patient.name}">Patient</span>
+                                    </div>
+                                </td>
+                                <td th:text="'Dr. ' + ${appt.doctor.name}">Doctor</td>
+                                <td th:text="${#temporals.format(appt.appointmentTime, 'hh:mm a')}">10:00 AM</td>
+                                <td>
+                                    <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
+                                          th:text="${appt.status.name()}">PENDING</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="empty-state" th:if="${recentAppointments == null or recentAppointments.isEmpty()}">
+                            <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+                            <h3>No appointments today</h3>
+                            <p>There are no appointments scheduled for today.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointment Status Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-pie-chart" style="color:#6366F1;"></i> Appointment Status</h5>
+                    </div>
+                    <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+                        <canvas id="statusChart"
+                                data-labels='["Pending","Confirmed","Completed","Cancelled","Rescheduled"]'
+                                th:data-values='[[(${pendingAppointments ?: 0}),(${confirmedAppointments ?: 0}),(${completedAppointments ?: 0}),(${cancelledAppointments ?: 0}),0]]'
+                                style="max-height:220px;"></canvas>
+                        <!-- Legend -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;">
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B;flex-shrink:0;"></div>
+                                <span style="color:#4B5563;">Pending: <strong th:text="${pendingAppointments ?: 0}">0</strong></span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:#3B82F6;flex-shrink:0;"></div>
+                                <span style="color:#4B5563;">Confirmed: <strong th:text="${confirmedAppointments ?: 0}">0</strong></span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:#10B981;flex-shrink:0;"></div>
+                                <span style="color:#4B5563;">Completed: <strong th:text="${completedAppointments ?: 0}">0</strong></span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;flex-shrink:0;"></div>
+                                <span style="color:#4B5563;">Cancelled: <strong th:text="${cancelledAppointments ?: 0}">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header"><h5><i class="bi bi-lightning-charge" style="color:#F59E0B;"></i> Quick Actions</h5></div>
+                <div class="card-body">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <a href="/admin/patients/add" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Patient</a>
+                        <a href="/admin/doctors/add" class="btn btn-indigo"><i class="bi bi-person-badge"></i> Add Doctor</a>
+                        <a href="/admin/departments" class="btn btn-outline"><i class="bi bi-building-add"></i> Manage Departments</a>
+                        <a href="/admin/appointments" class="btn btn-outline"><i class="bi bi-calendar2-check"></i> View Appointments</a>
+                        <a href="/admin/reports" class="btn btn-success"><i class="bi bi-graph-up"></i> View Reports</a>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-content -->
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+    // Fix Chart.js data parsing
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('statusChart');
+        if (canvas && window.Chart) {
+            const rawValues = canvas.getAttribute('data-values');
+            let values = [];
+            try {
+                const parsed = JSON.parse(rawValues.replace(/\[\[/,'[').replace(/\]\]/,']'));
+                values = parsed;
+            } catch(e) { values = [0,0,0,0,0]; }
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending','Confirmed','Completed','Cancelled','Rescheduled'],
+                    datasets: [{ data: values, backgroundColor: ['#F59E0B','#3B82F6','#10B981','#EF4444','#6366F1'], borderWidth: 0, hoverOffset: 6 }]
+                },
+                options: { responsive: true, cutout: '68%', plugins: { legend: { display: false } } }
+            });
+        }
+    });
+</script>
+</body>
+</html>
