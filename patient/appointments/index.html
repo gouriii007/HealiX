@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Appointments | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item active"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">My Appointments</div>
+                <div class="header-subtitle">View your past, pending, and confirmed appointments</div>
+            </div>
+            <div class="header-actions">
+                <a href="/patient/book-appointment" class="btn btn-teal btn-sm"><i class="bi bi-calendar2-plus"></i> New Appointment</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div th:if="${success}" class="alert alert-success alert-auto-dismiss">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error alert-auto-dismiss">
+                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-calendar-range" style="color:#0D9488;"></i> Appointment History
+                        <span style="font-size:0.8rem; font-weight:400; color:#9CA3AF; margin-left:8px;"
+                              th:text="'(' + ${appointments != null ? appointments.size() : 0} + ' Total)'"></span>
+                    </h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" th:if="${appointments != null and !appointments.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Doctor &amp; Specialty</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="appt : ${appointments}">
+                            <td style="font-weight:600; color:#94A3B8;" th:text="'#' + ${appt.id}">#1</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="avatar avatar-sm" style="background:#0D9488; color:#fff;"
+                                         th:text="${#strings.substring(appt.doctor.name, 0, 1)}">D</div>
+                                    <div>
+                                        <div style="font-weight:600;" th:text="'Dr. ' + ${appt.doctor.name}">Doctor</div>
+                                        <div style="font-size:0.75rem; color:#6B7280;" th:text="${appt.doctor.department != null ? appt.doctor.department.name : appt.doctor.specialization}">Cardiology</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="font-weight:600;" th:text="${#temporals.format(appt.appointmentDate, 'dd MMM yyyy')}">12 Oct 2026</td>
+                            <td style="font-weight:600; color:#0D9488;" th:text="${#temporals.format(appt.appointmentTime, 'hh:mm a')}">10:00 AM</td>
+                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.85rem;" th:text="${appt.reason}">Reason</td>
+                            <td>
+                                <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
+                                      th:text="${appt.status.name()}">CONFIRMED</span>
+                            </td>
+                            <td>
+                                <div th:if="${appt.status.name() == 'PENDING' or appt.status.name() == 'CONFIRMED'}">
+                                    <form th:action="@{/patient/appointments/{id}/cancel(id=${appt.id})}" method="post"
+                                          onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                        
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Cancel Appointment">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                                <div th:if="${appt.status.name() == 'COMPLETED'}">
+                                    <a href="/patient/medical-records" class="btn btn-sm btn-outline" title="View Records">
+                                        <i class="bi bi-file-medical"></i> Record
+                                    </a>
+                                </div>
+                                <div th:if="${appt.status.name() == 'CANCELLED'}">
+                                    <span style="font-size:0.78rem; color:#9CA3AF;">Cancelled</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Empty State -->
+                    <div th:if="${appointments == null or appointments.isEmpty()}" class="empty-state" style="padding: 48px 24px;">
+                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-calendar-x"></i></div>
+                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No appointments found</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem;">You haven't scheduled any doctor appointments yet.</p>
+                        <a href="/patient/book-appointment" class="btn btn-teal btn-sm mt-3"><i class="bi bi-calendar-plus"></i> Book First Appointment</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

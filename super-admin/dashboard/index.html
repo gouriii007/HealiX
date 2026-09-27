@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Platform Super Admin Dashboard | MediCare Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/super-admin/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">Super Admin</span>
+    </a>
+    <div class="public-nav-links">
+        <a href="/super-admin/dashboard" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/super-admin/hospitals"><i class="bi bi-hospital"></i> Manage Hospitals</a>
+        <a href="/hospitals" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Public Directory</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/logout" class="btn" style="border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; font-weight: 800; color: #111827;">Platform Operations Dashboard</h2>
+        <p style="color: #6B7280; font-size: 0.95rem;">Multi-hospital network management across Thiruvananthapuram district.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.85rem; color: #6B7280; margin-bottom: 0.25rem;">Total Hospitals</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #8070A6;" th:text="${totalHospitals}">3</div>
+            <span style="font-size: 0.78rem; color: #10B981; font-weight: 600;" th:text="${activeHospitals} + ' Active Institutions'">3 Active</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.85rem; color: #6B7280; margin-bottom: 0.25rem;">Central Patients</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #3B82F6;" th:text="${totalPatients}">12</div>
+            <span style="font-size: 0.78rem; color: #6B7280;">Across all hospitals</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.85rem; color: #6B7280; margin-bottom: 0.25rem;">Specialist Doctors</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #10B981;" th:text="${totalDoctors}">5</div>
+            <span style="font-size: 0.78rem; color: #6B7280;">In all departments</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.85rem; color: #6B7280; margin-bottom: 0.25rem;">AI Health Assistant</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #EC4899;">Online</div>
+            <span style="font-size: 0.78rem; color: #10B981; font-weight: 600;">Active Triage Model</span>
+        </div>
+    </div>
+
+    <!-- Registered Hospitals Table -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827;">Hospital Network</h3>
+            <a href="/super-admin/hospitals" class="ref-pill-btn" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                <i class="bi bi-plus-lg"></i> Register New Hospital
+            </a>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
+                        <th style="padding: 0.75rem;">Code</th>
+                        <th style="padding: 0.75rem;">Hospital Name</th>
+                        <th style="padding: 0.75rem;">Location</th>
+                        <th style="padding: 0.75rem;">Reg Fee</th>
+                        <th style="padding: 0.75rem;">Status</th>
+                        <th style="padding: 0.75rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="hosp : ${hospitals}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" th:text="${hosp.hospitalCode}">TRV-HOSP-01</span></td>
+                        <td style="padding: 0.75rem; font-weight: 600; color: #111827;" th:text="${hosp.hospitalName}">Hospital Name</td>
+                        <td style="padding: 0.75rem; color: #6B7280;" th:text="${hosp.city}">Trivandrum</td>
+                        <td style="padding: 0.75rem; font-weight: 600;" th:text="'₹' + ${hosp.registrationFee}">₹250</td>
+                        <td style="padding: 0.75rem;">
+                            <span style="font-size: 0.78rem; font-weight: 600; color: #10B981; background: #D1FAE5; padding: 2px 8px; border-radius: 9999px;" th:text="${hosp.status}">ACTIVE</span>
+                        </td>
+                        <td style="padding: 0.75rem;">
+                            <a th:href="@{/hospital-admin/dashboard(hospitalId=${hosp.id})}" class="btn" style="border: 1px solid #D1D5DB; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem;">
+                                Manage Scope
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

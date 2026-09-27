@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Book Appointment | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+    <style>
+        .slot-pill {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 16px; border: 1.5px solid #E2E8F0; border-radius: 8px;
+            cursor: pointer; font-size: 0.84rem; font-weight: 600; color: #334155;
+            transition: all 0.15s ease; background: #fff;
+        }
+        .slot-pill:hover { border-color: #0D9488; color: #0D9488; background: #F0FDFA; }
+        .slot-radio:checked + .slot-pill {
+            border-color: #0D9488; background: #0D9488; color: #fff;
+            box-shadow: 0 2px 4px rgba(13, 148, 136, 0.25);
+        }
+        .slot-radio { display: none; }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item active"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Book an Appointment</div>
+                <div class="header-subtitle">Choose a doctor, date, and preferred time slot</div>
+            </div>
+            <div class="header-actions">
+                <a href="/patient/doctors" class="btn btn-outline btn-sm"><i class="bi bi-people"></i> View Doctors Directory</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div th:if="${error}" class="alert alert-error mb-4">
+                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <div class="grid-2" style="gap: 24px; align-items: flex-start;">
+
+                <!-- Form Card -->
+                <div class="card" style="flex: 1;">
+                    <div class="card-header">
+                        <h5><i class="bi bi-calendar-check" style="color:#0D9488;"></i> Appointment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/patient/book-appointment" th:object="${appointmentDto}" method="post">
+                            
+
+                            <!-- Doctor Selection -->
+                            <div class="form-group">
+                                <label class="form-label">Select Medical Specialist <span class="required">*</span></label>
+                                <select th:field="*{doctorId}" class="form-control form-select" required id="doctorSelect">
+                                    <option value="">-- Choose Specialist --</option>
+                                    <option th:each="doc : ${doctors}"
+                                            th:value="${doc.id}"
+                                            th:text="'Dr. ' + ${doc.name} + ' (' + (${doc.department != null ? doc.department.name : doc.specialization}) + ') - ₹' + ${doc.consultationFee}">
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('doctorId')}" class="form-error" th:errors="*{doctorId}"></div>
+                            </div>
+
+                            <!-- Date Selection -->
+                            <div class="form-group">
+                                <label class="form-label">Preferred Date <span class="required">*</span></label>
+                                <input type="date" th:field="*{appointmentDate}" class="form-control" required
+                                       id="appointmentDate"
+                                       th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"/>
+                                <div th:if="${#fields.hasErrors('appointmentDate')}" class="form-error" th:errors="*{appointmentDate}"></div>
+                            </div>
+
+                            <!-- Time Slots Selection -->
+                            <div class="form-group">
+                                <label class="form-label">Select Time Slot <span class="required">*</span></label>
+                                <div th:if="${#fields.hasErrors('appointmentTime')}" class="form-error" th:errors="*{appointmentTime}"></div>
+
+                                <div style="margin-top: 10px;">
+                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Morning Slots</div>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+                                        <label th:each="slot : ${timeSlots}">
+                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio" required/>
+                                            <span class="slot-pill" th:text="${slot}">09:00</span>
+                                        </label>
+                                    </div>
+
+                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Afternoon Slots</div>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+                                        <label th:each="slot : ${afternoonSlots}">
+                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio"/>
+                                            <span class="slot-pill" th:text="${slot}">14:00</span>
+                                        </label>
+                                    </div>
+
+                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Evening Slots</div>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <label th:each="slot : ${eveningSlots}">
+                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio"/>
+                                            <span class="slot-pill" th:text="${slot}">17:00</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reason / Symptoms -->
+                            <div class="form-group">
+                                <label class="form-label">Reason for Consultation / Symptoms <span class="required">*</span></label>
+                                <textarea th:field="*{reason}" class="form-control" rows="3"
+                                          placeholder="Briefly describe your symptoms or reason for visit..." required></textarea>
+                                <div th:if="${#fields.hasErrors('reason')}" class="form-error" th:errors="*{reason}"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-teal btn-block btn-lg" style="margin-top: 10px;">
+                                <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div style="display: flex; flex-direction: column; gap: 18px;">
+                    <div class="card" style="background: linear-gradient(135deg, #F0FDFA, #E6FFFA); border: 1px solid #99F6E4;">
+                        <div class="card-body" style="padding: 22px;">
+                            <h5 style="color: #0F766E; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-info-circle-fill"></i> Booking Guidelines
+                            </h5>
+                            <ul style="padding-left: 18px; color: #334155; font-size: 0.86rem; line-height: 1.7;">
+                                <li>Appointments must be booked at least 1 hour in advance.</li>
+                                <li>Cancellations are allowed up to 2 hours before the scheduled time slot.</li>
+                                <li>Please arrive 10 minutes prior to your allocated appointment time.</li>
+                                <li>Carry any prior medical reports or medication history with you.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card" th:if="${selectedDoctor != null}">
+                        <div class="card-header">
+                            <h5><i class="bi bi-person-badge" style="color:#0D9488;"></i> Selected Doctor</h5>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                                <div class="avatar avatar-md" style="background: #0D9488; color: #fff;"
+                                     th:text="${#strings.substring(selectedDoctor.name, 0, 1)}">D</div>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 1rem;" th:text="'Dr. ' + ${selectedDoctor.name}">Doctor Name</div>
+                                    <div style="color: #0D9488; font-size: 0.82rem; font-weight: 600;" th:text="${selectedDoctor.specialization}">Specialization</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.84rem; color: #4B5563; line-height: 1.5; margin-bottom: 12px;" th:text="${selectedDoctor.bio}">Doctor Bio</div>
+                            <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between;">
+                                <span style="font-size: 0.82rem; color: #64748B;">Consultation Fee:</span>
+                                <span style="font-weight: 700; color: #0D9488;" th:text="'₹' + ${selectedDoctor.consultationFee}">₹500</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="/js/main.js"></script>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const hospital = document.querySelector('select[name="hospitalId"]') ? document.querySelector('select[name="hospitalId"]').options[document.querySelector('select[name="hospitalId"]').selectedIndex].text : 'MediCare City Hospital';
+        const doctor = document.querySelector('select[name="doctorId"]') ? document.querySelector('select[name="doctorId"]').options[document.querySelector('select[name="doctorId"]').selectedIndex].text : 'Dr. Rajesh Kumar (Cardiology)';
+        const date = document.querySelector('input[type="date"]').value || 'Tomorrow';
+        const time = document.querySelector('select[name="appointmentTime"]') ? document.querySelector('select[name="appointmentTime"]').value : '10:00 AM';
+
+        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Registration slip generated.');
+        window.location.href = '/patient/appointments';
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Hospitals Directory | MediCare Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F9FAFB;">
+
+<!-- Header -->
+<nav class="public-nav">
+    <a href="/" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">Trivandrum</span>
+    </a>
+    <div class="public-nav-links">
+        <a href="/"><i class="bi bi-house"></i> Home</a>
+        <a href="/hospitals" class="active"><i class="bi bi-hospital"></i> Hospitals</a>
+        <a href="/patient/ai-assistant"><i class="bi bi-robot"></i> AI Symptom Assistant</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/login" class="btn" style="border: 1px solid #D1D5DB; color: #374151; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">Sign In</a>
+        <a href="/register" class="ref-pill-btn">Register</a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <!-- Search and Filters -->
+    <div style="background: #FFFFFF; border-radius: 16px; padding: 1.75rem; border: 1px solid #E5E7EB; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 2rem;">
+        <h2 style="font-size: 1.75rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">Discover Hospitals in Thiruvananthapuram</h2>
+        <p style="color: #6B7280; font-size: 0.95rem; margin-bottom: 1.25rem;">Select an affiliated hospital to view departments, specialists, and book outpatient consultations.</p>
+        
+        <form method="get" action="/hospitals" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px;">
+                <input type="text" name="query" th:value="${searchQuery}" placeholder="Search by hospital name or specialty..." class="form-control" style="border-radius: 9999px; padding: 0.75rem 1.25rem;"/>
+            </div>
+            <div style="width: 220px;">
+                <select name="district" class="form-control form-select" style="border-radius: 9999px; padding: 0.75rem 1.25rem;">
+                    <option value="">All Locations</option>
+                    <option value="Thiruvananthapuram" selected>Thiruvananthapuram</option>
+                </select>
+            </div>
+            <button type="submit" class="ref-pill-btn">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Hospital Cards Grid -->
+    <div class="hospital-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+    <!-- Hospital 1 -->
+    <div class="hospital-card" style="padding: 0; overflow: hidden; border-radius: 20px; border: 1px solid #E5E7EB; background: #fff;">
+        <div style="position: relative; height: 170px; overflow: hidden;">
+            <img src="/images/who-we-are-lab.jpg" alt="MediCare City Hospital" style="width: 100%; height: 100%; object-fit: cover;"/>
+            <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 8px;">
+                <span class="hospital-badge" style="background: rgba(255,255,255,0.92); color: #0F2042; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">TRV-HOSP-01</span>
+                <span class="hospital-badge" style="background: #10B981; color: #fff; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">ACTIVE</span>
+            </div>
+        </div>
+        <div style="padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #111827; margin-bottom: 0.35rem;">MediCare City Hospital</h3>
+            <p style="color: #6B7280; font-size: 0.88rem; margin-bottom: 1rem;"><i class="bi bi-geo-alt-fill" style="color: #8070A6;"></i> MG Road, Statue, Thiruvananthapuram – 695001</p>
+            <p style="color: #4B5563; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                Premier tertiary care multi-speciality hospital equipped with state-of-the-art cardiology and neurology wings.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Cardiology</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Neurology</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Orthopedics</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">General Medicine</span>
+            </div>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase; font-weight: 600;">OPD Reg. Fee</span>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #111827;">₹250.00</div>
+                </div>
+                <a href="/login" class="ref-pill-btn" style="padding: 0.55rem 1.25rem; font-size: 0.88rem;">
+                    Book Consultation <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hospital 2 -->
+    <div class="hospital-card" style="padding: 0; overflow: hidden; border-radius: 20px; border: 1px solid #E5E7EB; background: #fff;">
+        <div style="position: relative; height: 170px; overflow: hidden;">
+            <img src="/images/service-cardio.jpg" alt="Trivandrum Medical Trust" style="width: 100%; height: 100%; object-fit: cover;"/>
+            <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 8px;">
+                <span class="hospital-badge" style="background: rgba(255,255,255,0.92); color: #0F2042; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">TRV-HOSP-02</span>
+                <span class="hospital-badge" style="background: #10B981; color: #fff; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">ACTIVE</span>
+            </div>
+        </div>
+        <div style="padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #111827; margin-bottom: 0.35rem;">Trivandrum Medical Trust</h3>
+            <p style="color: #6B7280; font-size: 0.88rem; margin-bottom: 1rem;"><i class="bi bi-geo-alt-fill" style="color: #8070A6;"></i> Pattom Palace PO, Medical College Road – 695004</p>
+            <p style="color: #4B5563; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                Renowned non-profit healthcare trust offering comprehensive pediatrics, gynecology, and round-the-clock emergency care.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Pediatrics</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Gynecology</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">General Medicine</span>
+            </div>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase; font-weight: 600;">OPD Reg. Fee</span>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #111827;">₹200.00</div>
+                </div>
+                <a href="/login" class="ref-pill-btn" style="padding: 0.55rem 1.25rem; font-size: 0.88rem;">
+                    Book Consultation <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hospital 3 -->
+    <div class="hospital-card" style="padding: 0; overflow: hidden; border-radius: 20px; border: 1px solid #E5E7EB; background: #fff;">
+        <div style="position: relative; height: 170px; overflow: hidden;">
+            <img src="/images/service-neuro.jpg" alt="Sree Chitra Speciality Hospital" style="width: 100%; height: 100%; object-fit: cover;"/>
+            <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 8px;">
+                <span class="hospital-badge" style="background: rgba(255,255,255,0.92); color: #0F2042; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">TRV-HOSP-03</span>
+                <span class="hospital-badge" style="background: #10B981; color: #fff; font-weight:700; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;">ACTIVE</span>
+            </div>
+        </div>
+        <div style="padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #111827; margin-bottom: 0.35rem;">Sree Chitra Speciality Hospital</h3>
+            <p style="color: #6B7280; font-size: 0.88rem; margin-bottom: 1rem;"><i class="bi bi-geo-alt-fill" style="color: #8070A6;"></i> Kumarapuram, Medical College, Thiruvananthapuram – 695011</p>
+            <p style="color: #4B5563; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                Advanced surgical, orthopedic, and neurosciences center delivering super-speciality treatment and robotic diagnostics.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Dermatology</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Ophthalmology</span>
+                <span style="background: #EDE7F6; color: #5E35B1; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">Orthopedics</span>
+            </div>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase; font-weight: 600;">OPD Reg. Fee</span>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #111827;">₹300.00</div>
+                </div>
+                <a href="/login" class="ref-pill-btn" style="padding: 0.55rem 1.25rem; font-size: 0.88rem;">
+                    Book Consultation <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div></div></body>
+</html>

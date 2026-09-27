@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/hospitals", "destination": "/hospitals/index.html" },
+    { "source": "/login", "destination": "/login/index.html" },
+    { "source": "/register", "destination": "/register/index.html" },
+    { "source": "/patient/dashboard", "destination": "/patient/dashboard/index.html" },
+    { "source": "/patient/book-appointment", "destination": "/patient/book-appointment/index.html" },
+    { "source": "/patient/appointments", "destination": "/patient/appointments/index.html" },
+    { "source": "/patient/ai-assistant", "destination": "/patient/ai-assistant/index.html" },
+    { "source": "/patient/hospitals", "destination": "/hospitals/index.html" },
+    { "source": "/doctor/dashboard", "destination": "/doctor/dashboard/index.html" },
+    { "source": "/hospital-admin/dashboard", "destination": "/hospital-admin/dashboard/index.html" },
+    { "source": "/super-admin/dashboard", "destination": "/super-admin/dashboard/index.html" }
+  ]
+}

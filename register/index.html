@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Patient Registration | Healix HMS</title>
+    <meta name="description" content="Register as a patient on Healix Hospital Management System"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+    <style>
+        .register-page { min-height: 100vh; display: flex; }
+        .register-left {
+            flex: 1; background: linear-gradient(145deg, #0F2042 0%, #0D9488 100%);
+            display: flex; align-items: center; justify-content: center; padding: 60px;
+            position: relative; overflow: hidden;
+        }
+        .register-left::before {
+            content: ''; position: absolute; bottom: -80px; right: -80px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(13,148,136,0.25) 0%, transparent 70%);
+        }
+        .register-left-content { position: relative; z-index: 1; max-width: 460px; color: #fff; }
+        .register-brand-logo {
+            width: 56px; height: 56px; background: #0D9488; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 900; color: #fff; margin-bottom: 24px;
+        }
+        .register-right {
+            width: 620px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 48px 44px; background: #fff; overflow-y: auto;
+        }
+        @media (max-width: 960px) {
+            .register-left { display: none; }
+            .register-right { width: 100%; padding: 36px 24px; }
+        }
+    </style>
+</head>
+<body>
+<div class="register-page">
+
+    <!-- Left Banner -->
+    <div class="register-left" style="background: linear-gradient(145deg, #0F2042 0%, #1E3A8A 50%, #4B3A82 100%);">
+        <div class="register-left-content" style="max-width: 480px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <div class="register-brand-logo" style="margin-bottom: 0; background: #8070A6;">H</div>
+                <div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1;">Healix HMS</div>
+                    <div style="font-size: 0.78rem; color: #D1C4E9; font-weight: 500;">Multi-Hospital Healthcare Network</div>
+                </div>
+            </div>
+
+            <!-- 3D Desk Scene matching Image 3 -->
+            <div style="position: relative; margin-bottom: 28px;">
+                <div style="position: absolute; width: 100%; height: 100%; top: -8px; left: -8px; background: rgba(128, 112, 166, 0.35); border-radius: 28px; z-index: 0;"></div>
+                <img src="/images/signup-desk.jpg" alt="Easy Patient Registration" 
+                     style="position: relative; z-index: 1; width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.2); object-fit: cover; aspect-ratio: 4/3; display: block;"/>
+                <div style="position: absolute; bottom: -14px; right: 14px; z-index: 2; background: #FFFFFF; color: #0F2042; padding: 8px 16px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-clock-history" style="color: #8070A6; font-size: 1rem;"></i> 2-Min Instant Registration
+                </div>
+            </div>
+
+            <h2 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 10px; line-height: 1.25;">
+                We help people to <span style="color: #C4B5FD;">get appointment</span> in online
+            </h2>
+            <p style="font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 24px;">
+                Create your verified patient identity to book consultations across 3 top multi-speciality hospitals in Thiruvananthapuram.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check2-circle" style="color: #A78BFA; font-size: 1.2rem;"></i>
+                    <span>Real-time Doctor Appointment Scheduling</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check2-circle" style="color: #A78BFA; font-size: 1.2rem;"></i>
+                    <span>Centralized Prescription &amp; Medical History</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check2-circle" style="color: #A78BFA; font-size: 1.2rem;"></i>
+                    <span>Preliminary AI Symptom Guidance &amp; Triage</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Form -->
+    <div class="register-right">
+        <div style="width: 100%; max-width: 500px;">
+            <div style="margin-bottom: 20px;">
+                <a href="/" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-alt); margin-bottom: 12px;">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Sign Up</h1>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Please Sign Up To Continue</h3>
+                <p style="color: #6B7280; font-size: 0.88rem; margin-bottom: 1.25rem;">Select your role to proceed with account creation on MediCare Platform.</p>
+
+                <!-- Reference Role Tabs -->
+                <div class="ref-role-tabs">
+                    <span class="ref-role-tab active">Patient</span>
+                    <a href="/login" class="ref-role-tab">Doctor</a>
+                    <a href="/login" class="ref-role-tab">Admin</a>
+                </div>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error mb-3">
+                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <form action="/register" th:object="${patientDto}" method="post" style="display: flex; flex-direction: column; gap: 14px;">
+                
+
+                <div class="form-group">
+                    <label class="form-label">Full Name <span class="required">*</span></label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. John Doe" required/>
+                    <div th:if="${#fields.hasErrors('name')}" class="form-error" th:errors="*{name}"></div>
+                </div>
+
+                <div class="grid-2" style="gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Email Address <span class="required">*</span></label>
+                        <input type="email" th:field="*{email}" class="form-control" placeholder="name@example.com" required/>
+                        <div th:if="${#fields.hasErrors('email')}" class="form-error" th:errors="*{email}"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password <span class="required">*</span></label>
+                        <input type="password" th:field="*{password}" class="form-control" placeholder="Min 8 characters" required/>
+                        <div th:if="${#fields.hasErrors('password')}" class="form-error" th:errors="*{password}"></div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number <span class="required">*</span></label>
+                        <input type="tel" th:field="*{phone}" class="form-control" placeholder="10-digit mobile" required/>
+                        <div th:if="${#fields.hasErrors('phone')}" class="form-error" th:errors="*{phone}"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" th:field="*{dateOfBirth}" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select th:field="*{gender}" class="form-control form-select">
+                            <option value="">Select Gender</option>
+                            <option th:each="g : ${T(com.healix.hms.model.enums.Gender).values()}" th:value="${g}" th:text="${g}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Blood Group</label>
+                        <select th:field="*{bloodGroup}" class="form-control form-select">
+                            <option value="">Select Blood Group</option>
+                            <option th:each="bg : ${T(com.healix.hms.model.enums.BloodGroup).values()}" th:value="${bg}" th:text="${bg.displayName}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Residential Address</label>
+                    <textarea th:field="*{address}" class="form-control" rows="2" placeholder="Street, City, Pin code"></textarea>
+                </div>
+
+                <div class="grid-2" style="gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Emergency Contact Name</label>
+                        <input type="text" th:field="*{emergencyContactName}" class="form-control" placeholder="Relation / Name"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Emergency Phone</label>
+                        <input type="tel" th:field="*{emergencyContact}" class="form-control" placeholder="Contact number"/>
+                    </div>
+                </div>
+
+                <button type="submit" class="ref-pill-btn" style="width: 100%; justify-content: center; margin-top: 10px; padding: 0.85rem;">
+                    Register
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; text-align: center; font-size: 0.88rem; color: var(--text-alt);">
+                Already have an account? <a href="/login" style="color: #0D9488; font-weight: 600;">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.querySelector('input[placeholder="e.g. John Doe"]').value.trim();
+        const email = document.querySelector('input[type="email"]').value.trim();
+        const phone = document.querySelector('input[type="tel"]').value.trim();
+
+        const user = { name: name || 'Patient User', email: email || 'patient@example.com', phone, role: 'PATIENT' };
+        localStorage.setItem('healix_user', JSON.stringify(user));
+
+        alert('Registration successful! Your account is active. Redirecting to Patient Portal...');
+        window.location.href = '/patient/dashboard';
+    });
+</script>
+</body>
+</html>
