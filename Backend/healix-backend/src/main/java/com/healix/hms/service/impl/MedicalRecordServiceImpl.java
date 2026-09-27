@@ -42,6 +42,11 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         Doctor doctor = doctorService.findDoctor(doctorEmail);
 
         MedicalRecord record = new MedicalRecord(appointment, appointment.getPatient(), doctor);
+        if (appointment.getHospital() != null) {
+            record.setHospital(appointment.getHospital());
+        } else if (doctor.getHospital() != null) {
+            record.setHospital(doctor.getHospital());
+        }
         record.setSymptoms(dto.getSymptoms());
         record.setDiagnosis(dto.getDiagnosis());
         record.setTreatment(dto.getTreatment());
@@ -59,6 +64,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                         prescDto.getMedicineName(), prescDto.getDosage(),
                         prescDto.getFrequency(), prescDto.getDuration());
                     prescription.setInstructions(prescDto.getInstructions());
+                    prescription.setPrescriptionCode("RX-TRV-" + String.format("%06d", (long)(Math.random() * 900000 + 100000)));
                     prescriptions.add(prescription);
                 }
             }

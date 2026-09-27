@@ -32,8 +32,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(User user, String message, NotificationType type) {
+        sendNotification(user, message, type, null);
+    }
+
+    @Override
+    public void sendNotification(User user, String message, NotificationType type, Long hospitalId) {
         // Save to DB
         Notification notification = new Notification(user, message, type);
+        notification.setHospitalId(hospitalId);
         notificationRepository.save(notification);
 
         // Deliver via adapter (email/SMS)

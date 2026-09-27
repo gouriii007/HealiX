@@ -31,6 +31,11 @@ public class Department {
     @Column(nullable = false)
     private boolean active = true;
 
+    // ManyToOne: department belongs to a hospital
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    private Hospital hospital;
+
     // OneToMany: one department has many doctors
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     private List<Doctor> doctors = new ArrayList<>();
@@ -66,6 +71,9 @@ public class Department {
 
     public List<Doctor> getDoctors() { return doctors; }
     public void setDoctors(List<Doctor> doctors) { this.doctors = doctors; }
+
+    public Hospital getHospital() { return hospital; }
+    public void setHospital(Hospital hospital) { this.hospital = hospital; }
 
     @Override
     public String toString() {

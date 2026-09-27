@@ -37,15 +37,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientService patientService;
     private final DoctorService doctorService;
     private final NotificationService notificationService;
+    private final com.healix.hms.service.PaymentService paymentService;
 
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
                                    PatientService patientService,
                                    DoctorService doctorService,
-                                   NotificationService notificationService) {
+                                   NotificationService notificationService,
+                                   com.healix.hms.service.PaymentService paymentService) {
         this.appointmentRepository = appointmentRepository;
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.notificationService = notificationService;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -81,19 +84,96 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Appointment appointment = new Appointment(patient, doctor,
             dto.getAppointmentDate(), dto.getAppointmentTime(), dto.getReason());
+        if (doctor.getHospital() != null) {
+            appointment.setHospital(doctor.getHospital());
+        }
 
         appointment = appointmentRepository.save(appointment);
 
+        // Process consultation fee payment via UPI QR code
+        java.math.BigDecimal fee = (doctor.getConsultationFee() != null && doctor.getConsultationFee().compareTo(java.math.BigDecimal.ZERO) > 0)
+                ? doctor.getConsultationFee()
+                : (dto.getFeeAmount() != null ? dto.getFeeAmount() : new java.math.BigDecimal("500.00"));
+
+        String method = (dto.getPaymentMethod() != null && !dto.getPaymentMethod().isBlank())
+                ? dto.getPaymentMethod()
+                : "UPI_QR";
+
+        Hospital hospital = doctor.getHospital();
+        if (hospital == null && appointment.getHospital() != null) {
+            hospital = appointment.getHospital();
+        }
+
+        if (hospital != null) {
+            Payment payment = paymentService.initiatePayment(
+                    patient,
+                    hospital,
+                    appointment.getId(),
+                    fee,
+                    com.healix.hms.model.enums.PaymentType.APPOINTMENT_FEE,
+                    method
+            );
+            if (dto.getTransactionId() != null && !dto.getTransactionId().isBlank()) {
+                payment.setTransactionId(dto.getTransactionId());
+            }
+            payment = paymentService.completePayment(payment.getPaymentReference());
+            appointment.setPayment(payment);
+            appointment.setPaymentStatus("PAID");
+            appointment = appointmentRepository.save(appointment);
+        }
+
         // Send notifications using Adapter pattern
+        String receiptInfo = appointment.getPayment() != null && appointment.getPayment().getReceiptNumber() != null
+                ? " Fee paid: ₹" + fee + " (Receipt: " + appointment.getPayment().getReceiptNumber() + ")."
+                : "";
+
         notificationService.sendNotification(patient, "Your appointment with Dr. " + doctor.getName() +
-            " on " + dto.getAppointmentDate() + " at " + dto.getAppointmentTime() + " has been booked successfully.",
+            " on " + dto.getAppointmentDate() + " at " + dto.getAppointmentTime() + " has been booked successfully." + receiptInfo,
             NotificationType.APPOINTMENT_BOOKED);
 
         notificationService.sendNotification(doctor, "New appointment from " + patient.getName() +
-            " on " + dto.getAppointmentDate() + " at " + dto.getAppointmentTime() + ".",
+            " on " + dto.getAppointmentDate() + " at " + dto.getAppointmentTime() + "." + (appointment.isPaid() ? " [PAID]" : " [UNPAID]"),
             NotificationType.APPOINTMENT_BOOKED);
 
         return appointment;
+    }
+
+    @Override
+    public Payment payAppointmentFee(Long appointmentId, String paymentMethod, String transactionId) {
+        Appointment appointment = findAppointment(appointmentId);
+        if (appointment.isPaid() && appointment.getPayment() != null) {
+            return appointment.getPayment();
+        }
+
+        Doctor doctor = appointment.getDoctor();
+        java.math.BigDecimal fee = (doctor.getConsultationFee() != null && doctor.getConsultationFee().compareTo(java.math.BigDecimal.ZERO) > 0)
+                ? doctor.getConsultationFee()
+                : new java.math.BigDecimal("500.00");
+
+        String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod : "UPI_QR";
+        Hospital hospital = appointment.getHospital() != null ? appointment.getHospital() : doctor.getHospital();
+
+        Payment payment = paymentService.initiatePayment(
+                appointment.getPatient(),
+                hospital,
+                appointment.getId(),
+                fee,
+                com.healix.hms.model.enums.PaymentType.APPOINTMENT_FEE,
+                method
+        );
+        if (transactionId != null && !transactionId.isBlank()) {
+            payment.setTransactionId(transactionId);
+        }
+        payment = paymentService.completePayment(payment.getPaymentReference());
+        appointment.setPayment(payment);
+        appointment.setPaymentStatus("PAID");
+        appointmentRepository.save(appointment);
+
+        notificationService.sendNotification(appointment.getPatient(),
+                "Consultation fee of ₹" + fee + " paid successfully for appointment #" + appointment.getId() + ". Receipt: " + payment.getReceiptNumber(),
+                NotificationType.PAYMENT);
+
+        return payment;
     }
 
     @Override

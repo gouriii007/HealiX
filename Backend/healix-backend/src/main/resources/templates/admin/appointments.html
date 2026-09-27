@@ -69,7 +69,7 @@
                 <div class="table-container">
                     <table class="data-table" th:if="${appointments != null and !appointments.isEmpty()}">
                         <thead><tr>
-                            <th>#ID</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th>
+                            <th>#ID</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Fee Payment</th><th>Actions</th>
                         </tr></thead>
                         <tbody>
                         <tr th:each="appt : ${appointments}">
@@ -88,6 +88,25 @@
                             <td>
                                 <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
                                       th:text="${appt.status.name()}">PENDING</span>
+                            </td>
+                            <td>
+                                <div th:if="${appt.isPaid()}">
+                                    <span class="badge badge-success" style="display:inline-flex;align-items:center;gap:4px;font-weight:700;">
+                                        <i class="bi bi-check-circle-fill"></i> Paid
+                                        <span th:if="${appt.payment != null}" th:text="'(₹' + ${appt.payment.amount} + ')'"></span>
+                                        <span th:unless="${appt.payment != null}" th:text="'(₹' + (${appt.doctor.consultationFee != null ? appt.doctor.consultationFee : 500}) + ')'"></span>
+                                    </span>
+                                    <div style="margin-top:2px;">
+                                        <a th:href="@{/admin/appointments/{id}/receipt(id=${appt.id})}" class="btn btn-sm btn-outline" style="padding:1px 6px;font-size:0.7rem;color:#0D9488;border-color:#0D9488;" title="View Fee Receipt">
+                                            <i class="bi bi-printer"></i> Receipt
+                                        </a>
+                                    </div>
+                                </div>
+                                <div th:unless="${appt.isPaid()}">
+                                    <span class="badge badge-warning" style="display:inline-flex;align-items:center;gap:4px;font-weight:700;">
+                                        <i class="bi bi-clock-history"></i> Unpaid
+                                    </span>
+                                </div>
                             </td>
                             <td>
                                 <form th:action="@{/admin/appointments/{id}/status(id=${appt.id})}" method="post" style="display:flex;gap:6px;align-items:center;">

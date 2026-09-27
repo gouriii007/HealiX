@@ -34,6 +34,10 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User account is deactivated: " + email);
         }
 
+        if (user.getRole() == null) {
+            throw new UsernameNotFoundException("User role is missing for: " + email);
+        }
+
         return new org.springframework.security.core.userdetails.User(
             user.getEmail(),
             user.getPassword(),

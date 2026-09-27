@@ -45,13 +45,14 @@
         <div class="error-icon">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: #0F2042; margin-bottom: 8px;">Something went wrong</h1>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: #0F2042; margin-bottom: 8px;"
+            th:text="${errorTitle != null ? errorTitle : 'Something went wrong'}">Something went wrong</h1>
         <p style="color: #4B5563; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;"
-           th:text="${error != null ? error : 'The page you are looking for encountered an unexpected condition or could not be found.'}">
+           th:text="${errorMessage != null ? errorMessage : (error != null ? error : 'The page you are looking for encountered an unexpected condition or could not be found.')}">
             The page you are looking for encountered an unexpected condition.
         </p>
-        <div th:if="${status != null}" style="margin-bottom: 20px; font-weight: 700; font-size: 1.1rem; color: #EF4444;">
-            Status code: <span th:text="${status}">500</span>
+        <div th:if="${errorCode != null or status != null}" style="margin-bottom: 20px; font-weight: 700; font-size: 1.1rem; color: #EF4444;">
+            Status code: <span th:text="${errorCode != null ? errorCode : status}">500</span>
         </div>
         <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
             <a href="javascript:history.back()" class="btn btn-outline"><i class="bi bi-arrow-left"></i> Go Back</a>

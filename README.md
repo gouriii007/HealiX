@@ -37,9 +37,9 @@
 
 | Layer | Technology |
 |---|---|
-| **Backend** | Java 21, Spring Boot 3.2.5, Spring Security 6, Spring Data JPA |
+| **Backend** | Java 17/21, Spring Boot 3.2.5, Spring Security 6, Spring Data JPA |
 | **Frontend** | Thymeleaf 3, Vanilla CSS3 (Custom Design System), JavaScript (ES6+), Bootstrap Icons |
-| **Database** | MySQL 8.x (Hibernate ORM + Direct JDBC for reports) |
+| **Database** | Supabase / PostgreSQL (Hibernate ORM + Direct JDBC for reports) |
 | **Design Patterns** | Singleton, Adapter, Data Transfer Object (DTO), Repository Pattern |
 | **Architecture** | Layered Enterprise MVC Architecture adhering to SOLID principles |
 
@@ -49,7 +49,8 @@
 
 | Role | Email | Password |
 |---|---|---|
-| **Admin** | `admin@healix.com` | `Admin@123` |
+| **Super Admin** | `admin@healix.com` | `Admin@123` |
+| **Hospital Admin** | `admin.medicare@healix.com` | `Admin@123` |
 | **Doctor** | `doctor@healix.com` | `Doctor@123` |
 | **Patient** | `patient@healix.com` | `Patient@123` |
 
@@ -57,22 +58,22 @@
 
 ## 🚀 Setup & Execution Guide
 
-### 1. Database Setup
-1. Ensure MySQL Server is running on `localhost:3306`.
-2. Open MySQL CLI or MySQL Workbench and run:
-   ```sql
-   CREATE DATABASE IF NOT EXISTS healix_db;
-   ```
-3. Update database credentials in:
-   `Backend/healix-backend/src/main/resources/application.properties`:
+### 1. Database Setup (Supabase)
+1. Create a free project at **[https://supabase.com](https://supabase.com)**.
+2. In your Supabase Project Dashboard, go to **Project Settings** -> **Database**.
+3. Under **Connection string**, select **JDBC** or copy your PostgreSQL credentials:
+   - Host: `db.<your-project-ref>.supabase.co` (or pooler: `aws-0-<region>.pooler.supabase.com`)
+   - Port: `5432` (direct) or `6543` (pooler)
+   - Database: `postgres`
+   - User: `postgres` (or `postgres.<your-project-ref>`)
+   - Password: `<your-db-password>`
+4. Set your credentials in `Backend/healix-backend/src/main/resources/application.properties` or create an `.env` file from `.env.example`:
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/healix_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
-   spring.datasource.username=root
-   spring.datasource.password=your_mysql_password
+   spring.datasource.url=jdbc:postgresql://db.<your-project-ref>.supabase.co:5432/postgres?sslmode=require
+   spring.datasource.username=postgres
+   spring.datasource.password=your_db_password
    ```
-4. Load sample data by executing:
-   - `Backend/healix-backend/schema.sql` (Creates all tables with constraints)
-   - `Backend/healix-backend/data.sql` (Populates departments, default admin, doctors, patients, and appointments)
+5. Tables and sample data (`schema.sql` and `data.sql`) are loaded automatically on startup!
 
 ### 2. Build & Run Application
 From the `Backend/healix-backend` directory:

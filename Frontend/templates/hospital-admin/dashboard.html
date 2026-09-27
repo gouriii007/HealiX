@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${hospital.hospitalName} + ' | Hospital Admin Portal'">Hospital Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/hospital-admin/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        <span th:text="${hospital.hospitalName}">Hospital Name</span>
+        <span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>
+    </a>
+    <div class="public-nav-links">
+        <a th:href="@{/hospital-admin/dashboard}" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a th:href="@{/hospital-admin/doctors}"><i class="bi bi-person-badge"></i> Doctors</a>
+        <a th:href="@{/hospital-admin/departments}"><i class="bi bi-building"></i> Departments</a>
+        <a th:href="@{/hospital-admin/patients}"><i class="bi bi-people"></i> Patients</a>
+        <a th:href="@{/hospital-admin/payments}"><i class="bi bi-credit-card"></i> Revenue &amp; Fees</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/logout" class="btn" style="border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <div style="margin-bottom: 2rem;">
+        <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Administration (Strict Isolation)</div>
+        <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;" th:text="${hospital.hospitalName} + ' Overview'">Hospital Overview</h2>
+    </div>
+
+    <!-- Scoped Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
+            <div style="font-size: 0.82rem; color: #6B7280; margin-bottom: 0.25rem;">Hospital Patients</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;" th:text="${patientCount}">0</div>
+            <span style="font-size: 0.78rem; color: #6B7280;">Registered in this hospital</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
+            <div style="font-size: 0.82rem; color: #6B7280; margin-bottom: 0.25rem;">Active Doctors</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" th:text="${doctorCount}">0</div>
+            <span style="font-size: 0.78rem; color: #6B7280;">Affiliated specialists</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
+            <div style="font-size: 0.82rem; color: #6B7280; margin-bottom: 0.25rem;">Today's Appointments</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" th:text="${todayAppointments}">0</div>
+            <span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;" th:text="${pendingAppointments} + ' Pending'">0 Pending</span>
+        </div>
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
+            <div style="font-size: 0.82rem; color: #6B7280; margin-bottom: 0.25rem;">Registration Revenue</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #059669;" th:text="'₹' + ${registrationRevenue}">₹0</div>
+            <span style="font-size: 0.78rem; color: #6B7280;">Hospital fee slips</span>
+        </div>
+    </div>
+
+    <!-- Scoped Appointments Table -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem;">Recent Outpatient Appointments</h3>
+        <div th:if="${#lists.isEmpty(recentAppointments)}" style="color: #6B7280; text-align: center; padding: 2rem;">
+            No appointments scheduled for this hospital.
+        </div>
+        <div th:unless="${#lists.isEmpty(recentAppointments)}" style="overflow-x: auto;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
+                        <th style="padding: 0.75rem;">Date &amp; Time</th>
+                        <th style="padding: 0.75rem;">Patient</th>
+                        <th style="padding: 0.75rem;">Doctor</th>
+                        <th style="padding: 0.75rem;">Reason</th>
+                        <th style="padding: 0.75rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appt : ${recentAppointments}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;">
+                            <strong th:text="${appt.appointmentDate}">Date</strong>
+                            <div style="font-size: 0.8rem; color: #6B7280;" th:text="${appt.appointmentTime}">Time</div>
+                        </td>
+                        <td style="padding: 0.75rem; font-weight: 600;" th:text="${appt.patient.name}">Patient Name</td>
+                        <td style="padding: 0.75rem; color: #8070A6;" th:text="${appt.doctor.name}">Doctor Name</td>
+                        <td style="padding: 0.75rem; color: #4B5563;" th:text="${appt.reason}">Reason</td>
+                        <td style="padding: 0.75rem;">
+                            <span class="hospital-badge" th:text="${appt.status}">CONFIRMED</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

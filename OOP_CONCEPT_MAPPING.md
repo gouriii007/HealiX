@@ -123,7 +123,7 @@ This document provides a comprehensive mapping of all Object-Oriented Programmin
 
 ### 11. Relational Database & Direct JDBC Integration
 - **Implementation**:
-  - Full relational MySQL schema with primary keys, foreign keys (`ON DELETE CASCADE`), indexes, and unique constraints (`schema.sql`).
+  - Full relational Supabase PostgreSQL schema with primary keys, foreign keys (`ON DELETE CASCADE`), indexes, and unique constraints (`schema.sql`).
   - **Raw JDBC Component**: `JdbcReportUtil.java` demonstrates direct `java.sql.Connection`, `PreparedStatement`, and `ResultSet` execution for high-performance administrative reports and aggregates alongside Hibernate/JPA.
 
 ---

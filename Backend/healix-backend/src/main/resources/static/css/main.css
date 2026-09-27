@@ -535,27 +535,105 @@ a:hover { color: var(--navy); }
 .empty-state p { font-size: 0.875rem; color: var(--text-alt); max-width: 320px; margin: 0 auto; }
 
 /* =====================================================================
-   PUBLIC LANDING PAGE
+   PUBLIC & TOP NAVIGATION
    ===================================================================== */
 .public-nav {
-    position: fixed; top: 0; left: 0; right: 0;
-    height: 70px;
-    background: var(--navy);
-    display: flex; align-items: center;
-    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 70px;
+    background: #FFFFFF !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 2.5rem;
     z-index: 1000;
     gap: 24px;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
 }
-.public-nav-brand { font-size: 1.4rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-.public-nav-brand .logo-icon { width: 36px; height: 36px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.public-nav-links { flex: 1; display: flex; gap: 28px; justify-content: center; }
-.public-nav-links a { color: rgba(255,255,255,0.7); font-size: 0.875rem; font-weight: 500; }
-.public-nav-links a:hover { color: #fff; }
-.public-nav-actions { display: flex; gap: 10px; }
+.public-nav-brand {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #111827 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.public-nav-brand .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: #8070A6 !important;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: #FFFFFF !important;
+}
+.public-nav-links {
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+.public-nav-links a {
+    color: #374151 !important;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+.public-nav-links a:hover {
+    color: #8070A6 !important;
+    background: #F3F4F6;
+}
+.public-nav-links a.active,
+.public-nav-links a[style*="color: #8070A6"],
+.public-nav-links a[style*="color:#8070A6"] {
+    color: #8070A6 !important;
+    background: #EDE7F6;
+    font-weight: 700;
+}
+.public-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .public-nav {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .public-nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 4px 0;
+        gap: 10px;
+    }
+}
 
 .hero {
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--navy) 0%, #162d6e 60%, #0d3a8f 100%);
+    background: #edf3f7;
     display: flex; align-items: center;
     padding: 80px 40px 40px;
     position: relative;
@@ -563,24 +641,32 @@ a:hover { color: var(--navy); }
 }
 .hero::before {
     content: '';
-    position: absolute; top: 0; right: 0;
-    width: 50%; height: 100%;
-    background: radial-gradient(ellipse at top right, rgba(59,130,246,0.15) 0%, transparent 60%);
+    position: absolute;
+    inset: 0;
+    background: url('/images/medical-hero.svg') center center / cover no-repeat;
+    opacity: 1;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(237,243,247,0.96) 0%, rgba(237,243,247,0.88) 25%, rgba(237,243,247,0.7) 42%, rgba(237,243,247,0.32) 62%, rgba(237,243,247,0.18) 100%);
 }
 .hero-content { max-width: 580px; position: relative; z-index: 1; }
 .hero-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(59,130,246,0.15);
-    border: 1px solid rgba(59,130,246,0.3);
-    color: var(--blue);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.8rem; font-weight: 600;
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.28);
+    color: #2d6fe9;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.78rem; font-weight: 600;
     margin-bottom: 24px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
 }
-.hero h1 { font-size: 3.2rem; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 20px; }
-.hero h1 span { color: var(--blue); }
-.hero p { font-size: 1.05rem; color: rgba(255,255,255,0.7); margin-bottom: 36px; line-height: 1.7; }
+.hero h1 { font-size: clamp(3rem, 5vw, 6.2rem); font-weight: 800; color: #1b6be5; line-height: 0.95; margin-bottom: 20px; letter-spacing: -0.06em; }
+.hero h1 span { color: #1b6be5; display: block; }
+.hero p { font-size: 1.08rem; color: rgba(55,65,81,0.8); margin-bottom: 36px; line-height: 1.7; max-width: 760px; }
 .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
 
 .section { padding: 80px 40px; }
@@ -613,7 +699,8 @@ a:hover { color: var(--navy); }
 .login-page { min-height: 100vh; display: flex; }
 .login-left {
     flex: 1;
-    background: linear-gradient(135deg, var(--navy) 0%, #162d6e 100%);
+    background: linear-gradient(135deg, rgba(15,32,66,0.88) 0%, rgba(22,45,110,0.82) 100%),
+                url('/images/medical-login.svg') center/cover no-repeat;
     display: flex; align-items: center; justify-content: center;
     padding: 60px;
     position: relative;
@@ -702,7 +789,232 @@ a:hover { color: var(--navy); }
 
 /* ---- Print styles ---- */
 @media print {
-    .sidebar, .top-header, .btn, .header-actions { display: none !important; }
+    .sidebar, .top-header, .btn, .header-actions, .no-print { display: none !important; }
     .main-content { margin-left: 0; }
     .page-content { padding: 0; }
+    .receipt-container { box-shadow: none !important; border: 1px solid #ccc !important; }
 }
+
+/* =====================================================================
+   REFERENCE THEME ENHANCEMENTS: PURPLE GRADIENT & MODERN CARDS
+   ===================================================================== */
+:root {
+    --purple-primary: #7C5CBF;
+    --purple-hover: #6949AC;
+    --purple-light: #F0EDF9;
+    --blue-hero-bg: #E8F1FD;
+    --pill-gradient: linear-gradient(135deg, #7C5CBF 0%, #5E72E4 100%);
+}
+
+/* Reference Hero Section */
+.ref-hero-wrapper {
+    background: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 1rem 4rem;
+}
+.ref-hero-circle-bg {
+    position: absolute;
+    right: -5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 580px;
+    height: 580px;
+    background: var(--blue-hero-bg);
+    border-radius: 50% 40% 60% 45%;
+    z-index: 1;
+    pointer-events: none;
+}
+.ref-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 2rem;
+}
+.ref-hero-title {
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+.ref-hero-desc {
+    font-size: 1.05rem;
+    color: #6B7280;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 500px;
+}
+.ref-pill-btn {
+    background: #8070A6;
+    color: #FFFFFF !important;
+    padding: 0.7rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 14px rgba(128, 112, 166, 0.35);
+    transition: all 0.25s ease;
+}
+.ref-pill-btn:hover {
+    background: #6D5C94;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(128, 112, 166, 0.45);
+}
+
+/* Reference Role Switcher Tabs */
+.ref-role-tabs {
+    display: inline-flex;
+    background: #E5E7EB;
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.ref-role-tab {
+    padding: 8px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4B5563;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.ref-role-tab.active {
+    background: #8070A6;
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Hospital Cards Grid */
+.hospital-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.hospital-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.hospital-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(124, 92, 191, 0.12);
+    border-color: #D1C4E9;
+}
+.hospital-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #EDE7F6;
+    color: #5E35B1;
+}
+
+/* AI Chat Assistant UI */
+.ai-chat-box {
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+}
+.ai-chat-header {
+    background: linear-gradient(135deg, #7C5CBF 0%, #5E72E4 100%);
+    color: #FFFFFF;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.ai-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: #F9FAFB;
+}
+.chat-msg {
+    max-width: 80%;
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+.chat-msg.user {
+    align-self: flex-end;
+    background: #8070A6;
+    color: #FFFFFF;
+    border-bottom-right-radius: 4px;
+}
+.chat-msg.bot {
+    align-self: flex-start;
+    background: #FFFFFF;
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.chat-msg.emergency {
+    background: #FEF2F2;
+    border: 1px solid #F87171;
+    color: #991B1B;
+}
+
+/* Printable Slip and Receipt */
+.receipt-container {
+    max-width: 640px;
+    margin: 2rem auto;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.receipt-header {
+    text-align: center;
+    border-bottom: 2px dashed #D1D5DB;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.95rem;
+}
+.receipt-stamp {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #10B981;
+    color: #10B981;
+    font-weight: 800;
+    letter-spacing: 2px;
+    border-radius: 8px;
+    transform: rotate(-5deg);
+    margin: 1.5rem 0;
+}
+

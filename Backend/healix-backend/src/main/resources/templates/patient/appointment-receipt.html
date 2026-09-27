@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="'Appointment Receipt #' + ${appointment.id} + ' | Healix HMS'">Appointment Fee Receipt | Healix HMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <style>
+        body {
+            background-color: #F1F5F9;
+            font-family: 'Inter', sans-serif;
+            color: #1E293B;
+            padding: 30px 15px;
+        }
+
+        .receipt-card {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 16px;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            padding: 36px 42px;
+            position: relative;
+        }
+
+        .receipt-brand-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+        }
+
+        .hospital-brand {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .hospital-logo-box {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0D9488, #0F766E);
+            color: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .hospital-name {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .hospital-sub {
+            font-size: 0.82rem;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        .receipt-stamp-paid {
+            display: inline-block;
+            border: 2.5px solid #10B981;
+            color: #10B981;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 6px 18px;
+            border-radius: 8px;
+            transform: rotate(-6deg);
+            background: #ECFDF5;
+        }
+
+        .receipt-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 24px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-val {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #0F172A;
+            margin-top: 2px;
+        }
+
+        .section-header {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0D9488;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .detail-table th {
+            text-align: left;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: #64748B;
+            background: #F1F5F9;
+            padding: 10px 14px;
+            border-bottom: 1px solid #CBD5E1;
+        }
+
+        .detail-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9rem;
+            color: #1E293B;
+        }
+
+        .amount-summary-box {
+            background: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .amount-summary-box .label {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #065F46;
+        }
+
+        .amount-summary-box .amount {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #047857;
+        }
+
+        .receipt-footer {
+            border-top: 2px dashed #E2E8F0;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #64748B;
+            font-size: 0.82rem;
+        }
+
+        .qr-verify-box {
+            text-align: center;
+        }
+
+        .no-print {
+            max-width: 720px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        @media print {
+            body {
+                background: #FFFFFF !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .receipt-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 15px !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation & Action Buttons (Hidden on Print) -->
+<div class="no-print">
+    <div style="display: flex; gap: 10px;">
+        <a th:href="@{/patient/appointments}" class="btn btn-outline btn-sm">
+            <i class="bi bi-calendar2-check"></i> My Appointments
+        </a>
+        <a th:href="@{/patient/book-appointment}" class="btn btn-outline btn-sm">
+            <i class="bi bi-calendar-plus"></i> Book Another
+        </a>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="window.print()" class="btn btn-teal btn-sm" style="display: inline-flex; align-items: center; gap: 8px;">
+            <i class="bi bi-printer-fill"></i> Print / Save as PDF
+        </button>
+    </div>
+</div>
+
+<div class="receipt-card">
+
+    <!-- Hospital Brand Header -->
+    <div class="receipt-brand-row">
+        <div class="hospital-brand">
+            <div class="hospital-logo-box">H</div>
+            <div>
+                <h1 class="hospital-name" th:text="${hospital != null ? hospital.hospitalName : 'Healix Hospital'}">MediCare City Hospital</h1>
+                <div class="hospital-sub">
+                    <span th:text="${hospital != null ? hospital.address + ', ' + hospital.city : 'MG Road, Trivandrum'}">Address</span>
+                    &bull; Phone: <span th:text="${hospital != null ? hospital.phone : '0471-2471000'}">0471-2471000</span>
+                </div>
+                <div class="hospital-sub" style="font-family: monospace; font-weight: 600; color: #0D9488;">
+                    Reg / Code: <span th:text="${hospital != null ? hospital.hospitalCode : 'TRV-HOSP-01'}">TRV-HOSP-01</span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div class="receipt-stamp-paid">PAID</div>
+            <div style="font-size: 0.76rem; color: #64748B; margin-top: 6px; font-weight: 600;">
+                CONSULTATION FEE SLIP
+            </div>
+        </div>
+    </div>
+
+    <!-- Metadata Block -->
+    <div class="receipt-meta-grid">
+        <div class="meta-item">
+            <span class="meta-label">Receipt Number</span>
+            <span class="meta-val" style="font-family: monospace; color: #0F766E;"
+                  th:text="${payment != null and payment.receiptNumber != null ? payment.receiptNumber : ('REC-APT-' + appointment.id + '-' + #temporals.format(appointment.appointmentDate, 'yyyyMMdd'))}">
+                REC-APT-100293
+            </span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Transaction Reference</span>
+            <span class="meta-val" style="font-family: monospace;"
+                  th:text="${payment != null and payment.transactionId != null ? payment.transactionId : ('TXN-UPI-' + appointment.id + '9827')}">
+                TXN-UPI-98472910
+            </span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Payment Date & Time</span>
+            <span class="meta-val"
+                  th:text="${payment != null and payment.createdAt != null ? #temporals.format(payment.createdAt, 'dd MMMM yyyy, hh:mm a') : #temporals.format(#temporals.createNow(), 'dd MMMM yyyy, hh:mm a')}">
+                26 Sep 2026, 10:30 AM
+            </span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Payment Channel</span>
+            <span class="meta-val" style="display: flex; align-items: center; gap: 6px;">
+                <i class="bi bi-qr-code" style="color: #0D9488;"></i>
+                <span th:text="${payment != null and payment.paymentMethod != null ? payment.paymentMethod : 'UPI QR Code'}">UPI QR Code</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Patient Details -->
+    <div class="section-header"><i class="bi bi-person-fill"></i> Patient Information</div>
+    <table class="detail-table">
+        <tbody>
+        <tr>
+            <td style="width: 25%; font-weight: 600; color: #64748B;">Full Name:</td>
+            <td style="width: 35%; font-weight: 700; color: #0F172A;" th:text="${patient != null ? patient.name : appointment.patient.name}">Arun Chandran</td>
+            <td style="width: 20%; font-weight: 600; color: #64748B;">Patient ID:</td>
+            <td style="width: 20%; font-family: monospace; font-weight: 700; color: #0D9488;" th:text="${patient != null ? (patient.patientIdentifier ?: 'PAT-' + patient.id) : ('PAT-' + appointment.patient.id)}">PAT-TRV-0001</td>
+        </tr>
+        <tr>
+            <td style="font-weight: 600; color: #64748B;">Phone:</td>
+            <td th:text="${patient != null ? (patient.phone ?: 'N/A') : appointment.patient.phone}">9876543210</td>
+            <td style="font-weight: 600; color: #64748B;">Email:</td>
+            <td th:text="${patient != null ? (patient.email ?: 'N/A') : appointment.patient.email}">patient@healix.com</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Appointment & Doctor Details -->
+    <div class="section-header"><i class="bi bi-calendar-event-fill"></i> Appointment & Consultation Schedule</div>
+    <table class="detail-table">
+        <thead>
+        <tr>
+            <th>Appointment #</th>
+            <th>Specialist Doctor</th>
+            <th>Department</th>
+            <th>Date & Time Slot</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="font-weight: 800; font-size: 1.05rem; color: #0F766E;" th:text="'#' + ${appointment.id}">#12</td>
+            <td>
+                <div style="font-weight: 700;" th:text="'Dr. ' + ${doctor != null ? doctor.name : appointment.doctor.name}">Dr. Rajesh Kumar</div>
+                <div style="font-size: 0.78rem; color: #64748B;" th:text="${doctor != null ? doctor.qualification : appointment.doctor.qualification}">MBBS, MD</div>
+            </td>
+            <td>
+                <span class="badge badge-teal"
+                      th:text="${doctor != null and doctor.department != null ? doctor.department.name : (doctor != null ? doctor.specialization : appointment.doctor.specialization)}">
+                    Cardiology
+                </span>
+            </td>
+            <td>
+                <div style="font-weight: 700; color: #0F172A;" th:text="${#temporals.format(appointment.appointmentDate, 'EEE, dd MMM yyyy')}">Mon, 12 Oct 2026</div>
+                <div style="color: #0D9488; font-weight: 700;" th:text="${#temporals.format(appointment.appointmentTime, 'hh:mm a')}">10:00 AM</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="background: #F8FAFC; font-size: 0.84rem;">
+                <span style="font-weight: 600; color: #475569;">Reason for Consultation: </span>
+                <span style="color: #1E293B;" th:text="${appointment.reason}">Routine checkup</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Financial Statement -->
+    <div class="section-header"><i class="bi bi-cash-stack"></i> Fee Breakdown & Settlement</div>
+    <table class="detail-table">
+        <thead>
+        <tr>
+            <th>Item Description</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Unit Rate</th>
+            <th style="text-align: right;">Net Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div style="font-weight: 600;">Doctor Outpatient Consultation Fee</div>
+                <div style="font-size: 0.78rem; color: #64748B;">Specialist OPD consultation session</div>
+            </td>
+            <td>1</td>
+            <td style="text-align: right;" th:text="'₹' + ${payment != null ? payment.amount : (doctor != null and doctor.consultationFee != null ? doctor.consultationFee : '500.00')}">₹500.00</td>
+            <td style="text-align: right; font-weight: 600;" th:text="'₹' + ${payment != null ? payment.amount : (doctor != null and doctor.consultationFee != null ? doctor.consultationFee : '500.00')}">₹500.00</td>
+        </tr>
+        <tr>
+            <td>
+                <div style="font-weight: 600;">OPD Digital Token & Gateway Convenience Fee</div>
+            </td>
+            <td>1</td>
+            <td style="text-align: right;">₹0.00</td>
+            <td style="text-align: right; color: #10B981; font-weight: 600;">FREE (Waived)</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Amount Summary Box -->
+    <div class="amount-summary-box">
+        <div>
+            <div class="label">Total Consultation Fee Paid</div>
+            <div style="font-size: 0.82rem; color: #047857; margin-top: 2px;">
+                <i class="bi bi-shield-check"></i> 100% Settled via UPI QR
+            </div>
+        </div>
+        <div class="amount" th:text="'₹' + ${payment != null ? payment.amount : (doctor != null and doctor.consultationFee != null ? doctor.consultationFee : '500.00')}">
+            ₹500.00
+        </div>
+    </div>
+
+    <!-- Receipt Footer & Verification QR -->
+    <div class="receipt-footer">
+        <div style="max-width: 440px;">
+            <div style="font-weight: 700; color: #334155; margin-bottom: 4px;">Important Instructions:</div>
+            <ul style="padding-left: 18px; margin: 0; line-height: 1.6;">
+                <li>Please report to the OPD reception counter 10 minutes prior to your time slot.</li>
+                <li>Present this computer-generated fee slip or your Appointment Token #<span th:text="${appointment.id}">12</span>.</li>
+                <li>Prescription and digital diagnosis records will be attached to your Healix health vault.</li>
+            </ul>
+        </div>
+        <div class="qr-verify-box">
+            <div id="receiptVerifyQr" style="width: 90px; height: 90px; margin: 0 auto; display: inline-block;"></div>
+            <div style="font-size: 0.7rem; font-weight: 600; color: #64748B; margin-top: 4px;">SCAN TO VERIFY</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- QR Code Generator Script -->
+<script th:src="@{/js/qrcode.min.js}"></script>
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function() {
+        var receiptEl = document.getElementById("receiptVerifyQr");
+        if (receiptEl && typeof QRCode !== "undefined") {
+            var receiptNo = /*[[${payment != null ? payment.receiptNumber : 'REC-APT-' + appointment.id}]]*/ 'REC-APT-12';
+            var apptId = /*[[${appointment.id}]]*/ 12;
+            var amount = /*[[${payment != null ? payment.amount : 500}]]*/ 500;
+            var verifyText = "HEALIX-HMS|VERIFIED|APT:" + apptId + "|REC:" + receiptNo + "|AMT:INR" + amount + "|STATUS:PAID";
+            new QRCode(receiptEl, {
+                text: verifyText,
+                width: 90,
+                height: 90,
+                colorDark: "#0F172A",
+                colorLight: "#FFFFFF",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

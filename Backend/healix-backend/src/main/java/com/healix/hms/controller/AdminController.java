@@ -25,7 +25,7 @@ import java.time.LocalDate;
  */
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'HOSPITAL_ADMIN')")
 public class AdminController {
 
     private final PatientService patientService;
@@ -33,15 +33,18 @@ public class AdminController {
     private final DepartmentService departmentService;
     private final AppointmentService appointmentService;
     private final ReportService reportService;
+    private final com.healix.hms.service.PaymentService paymentService;
 
     public AdminController(PatientService patientService, DoctorService doctorService,
                             DepartmentService departmentService, AppointmentService appointmentService,
-                            ReportService reportService) {
+                            ReportService reportService,
+                            com.healix.hms.service.PaymentService paymentService) {
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.departmentService = departmentService;
         this.appointmentService = appointmentService;
         this.reportService = reportService;
+        this.paymentService = paymentService;
     }
 
     // ---- DASHBOARD ----
@@ -250,6 +253,21 @@ public class AdminController {
             ra.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/appointments";
+    }
+
+    @GetMapping("/appointments/{id}/receipt")
+    public String viewAppointmentReceipt(@PathVariable Long id, Model model) {
+        Appointment appointment = appointmentService.findAppointment(id);
+        Payment payment = appointment.getPayment();
+        if (payment == null) {
+            payment = paymentService.getPaymentByAppointmentId(appointment.getId());
+        }
+        model.addAttribute("appointment", appointment);
+        model.addAttribute("doctor", appointment.getDoctor());
+        model.addAttribute("hospital", appointment.getHospital() != null ? appointment.getHospital() : appointment.getDoctor().getHospital());
+        model.addAttribute("patient", appointment.getPatient());
+        model.addAttribute("payment", payment);
+        return "patient/appointment-receipt";
     }
 
     // ---- REPORTS ----

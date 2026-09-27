@@ -23,6 +23,10 @@ public class Admin extends User {
     @Column(name = "designation", length = 100)
     private String designation;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    private Hospital hospital; // null for SUPER_ADMIN, populated for HOSPITAL_ADMIN
+
     // ---- Constructors ----
     public Admin() {
         super();
@@ -59,5 +63,13 @@ public class Admin extends User {
 
     public void setDesignation(String designation) {
         this.designation = designation;
+    }
+
+    public Hospital getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(Hospital hospital) {
+        this.hospital = hospital;
     }
 }

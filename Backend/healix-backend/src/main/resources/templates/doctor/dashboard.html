@@ -126,7 +126,7 @@
                     </div>
                     <div class="table-container">
                         <table class="data-table" th:if="${todayAppointments != null and !todayAppointments.isEmpty()}">
-                            <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th></tr></thead>
+                            <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th><th>Payment</th></tr></thead>
                             <tbody>
                             <tr th:each="appt : ${todayAppointments}">
                                 <td style="font-weight:600;color:#6366F1;" th:text="${#temporals.format(appt.appointmentTime, 'hh:mm a')}">10:00</td>
@@ -139,6 +139,14 @@
                                 <td>
                                     <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
                                           th:text="${appt.status.name()}">Status</span>
+                                </td>
+                                <td>
+                                    <span th:if="${appt.isPaid()}" class="badge badge-success" style="font-weight:700;">
+                                        <i class="bi bi-check-circle-fill"></i> Paid
+                                    </span>
+                                    <span th:unless="${appt.isPaid()}" class="badge badge-warning" style="font-weight:700;">
+                                        <i class="bi bi-clock-history"></i> Unpaid
+                                    </span>
                                 </td>
                             </tr>
                             </tbody>

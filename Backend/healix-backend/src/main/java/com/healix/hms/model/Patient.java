@@ -47,6 +47,12 @@ public class Patient extends User {
     @Column(name = "emergency_contact_name", length = 100)
     private String emergencyContactName;
 
+    @Column(name = "patient_identifier", length = 50)
+    private String patientIdentifier; // e.g. PAT-TRV-000102
+
+    @Column(length = 50)
+    private String nic; // National Identity Card / ID
+
     // Relationship: Patient can have many appointments
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
@@ -54,6 +60,10 @@ public class Patient extends User {
     // Relationship: Patient can have many medical records
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MedicalRecord> medicalRecords = new ArrayList<>();
+
+    // Relationship: Patient registered across multiple hospitals
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PatientHospital> patientHospitals = new ArrayList<>();
 
     // ---- Constructors ----
     public Patient() {
@@ -138,5 +148,29 @@ public class Patient extends User {
 
     public void setMedicalRecords(List<MedicalRecord> medicalRecords) {
         this.medicalRecords = medicalRecords;
+    }
+
+    public String getPatientIdentifier() {
+        return patientIdentifier;
+    }
+
+    public void setPatientIdentifier(String patientIdentifier) {
+        this.patientIdentifier = patientIdentifier;
+    }
+
+    public String getNic() {
+        return nic;
+    }
+
+    public void setNic(String nic) {
+        this.nic = nic;
+    }
+
+    public List<PatientHospital> getPatientHospitals() {
+        return patientHospitals;
+    }
+
+    public void setPatientHospitals(List<PatientHospital> patientHospitals) {
+        this.patientHospitals = patientHospitals;
     }
 }

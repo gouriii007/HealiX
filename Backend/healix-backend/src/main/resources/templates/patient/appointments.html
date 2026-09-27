@@ -68,6 +68,7 @@
                             <th>Time</th>
                             <th>Reason</th>
                             <th>Status</th>
+                            <th>Fee Payment</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -86,10 +87,40 @@
                             </td>
                             <td style="font-weight:600;" th:text="${#temporals.format(appt.appointmentDate, 'dd MMM yyyy')}">12 Oct 2026</td>
                             <td style="font-weight:600; color:#0D9488;" th:text="${#temporals.format(appt.appointmentTime, 'hh:mm a')}">10:00 AM</td>
-                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.85rem;" th:text="${appt.reason}">Reason</td>
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.85rem;" th:text="${appt.reason}">Reason</td>
                             <td>
                                 <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
                                       th:text="${appt.status.name()}">CONFIRMED</span>
+                            </td>
+                            <!-- Payment Column -->
+                            <td>
+                                <div th:if="${appt.paid or appt.paymentStatus == 'PAID'}">
+                                    <span class="badge badge-success" style="display:inline-flex; align-items:center; gap:4px; font-weight:700;">
+                                        <i class="bi bi-check-circle-fill"></i> Paid
+                                        <span th:if="${appt.payment != null}" th:text="'(₹' + ${appt.payment.amount} + ')'"></span>
+                                        <span th:unless="${appt.payment != null}" th:text="'(₹' + (${appt.doctor != null and appt.doctor.consultationFee != null ? appt.doctor.consultationFee : 500}) + ')'"></span>
+                                    </span>
+                                    <div style="margin-top: 4px;">
+                                        <a th:href="@{/patient/receipt/appointment/{id}(id=${appt.id})}" class="btn btn-sm btn-outline" style="padding: 2px 8px; font-size: 0.74rem; display:inline-flex; align-items:center; gap:4px; border-color:#0D9488; color:#0D9488;">
+                                            <i class="bi bi-printer"></i> Receipt
+                                        </a>
+                                    </div>
+                                </div>
+                                <div th:unless="${appt.paid or appt.paymentStatus == 'PAID'}">
+                                    <span class="badge badge-warning" style="display:inline-flex; align-items:center; gap:4px; font-weight:700;">
+                                        <i class="bi bi-clock-history"></i> Unpaid
+                                    </span>
+                                    <div style="margin-top: 4px;" th:if="${appt.status != null and appt.status.name() != 'CANCELLED'}">
+                                        <button type="button" class="btn btn-sm btn-teal" style="padding: 2px 8px; font-size: 0.74rem; display:inline-flex; align-items:center; gap:4px;"
+                                                th:data-id="${appt.id}"
+                                                th:data-fee="${appt.doctor != null and appt.doctor.consultationFee != null ? appt.doctor.consultationFee : 500}"
+                                                th:data-doctor="${appt.doctor != null ? appt.doctor.name : 'Doctor'}"
+                                                th:data-hospital="${appt.hospital != null ? appt.hospital.hospitalCode : 'TRV-HOSP-01'}"
+                                                onclick="handlePayQrClick(this)">
+                                            <i class="bi bi-qr-code"></i> Pay Fee
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <div th:if="${appt.status.name() == 'PENDING' or appt.status.name() == 'CONFIRMED'}">
@@ -127,6 +158,81 @@
         </div>
     </main>
 </div>
+
+<!-- Modal: Pay Appointment Fee via UPI QR -->
+<div id="payQrModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #FFFFFF; border-radius: 16px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative;">
+        <button type="button" onclick="closePayQrModal()" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.4rem; color: #64748B; cursor: pointer;">&times;</button>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #F0FDFA; color: #0D9488; border-radius: 50%; margin-bottom: 10px; font-size: 1.3rem;">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0;">Pay Consultation Fee</h3>
+            <p style="font-size: 0.85rem; color: #64748B; margin-top: 4px;" id="modalDoctorSub">Appointment with Doctor</p>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
+            <div id="modalQrCode" style="display: flex; justify-content: center; margin: 0 auto 12px auto; width: 150px; height: 150px;"></div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: #0D9488;" id="modalAmountText">₹500.00</div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px;">
+                UPI ID: <code id="modalUpiId" style="background:#E2E8F0; padding:2px 6px; border-radius:4px;">hospital@upi</code>
+            </div>
+        </div>
+
+        <form id="payQrForm" method="post" action="">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="paymentMethod" value="UPI_QR"/>
+            <input type="hidden" name="transactionId" id="modalTxnId"/>
+
+            <button type="submit" class="btn btn-teal btn-block btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="bi bi-patch-check-fill"></i> Confirm Payment &amp; Print Receipt
+            </button>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/qrcode.min.js}"></script>
 <script th:src="@{/js/main.js}"></script>
+<script>
+    function handlePayQrClick(btn) {
+        var apptId = btn.getAttribute("data-id");
+        var fee = btn.getAttribute("data-fee");
+        var docName = btn.getAttribute("data-doctor");
+        var hospCode = btn.getAttribute("data-hospital");
+        openPayQrModal(apptId, fee, docName, hospCode);
+    }
+
+    function openPayQrModal(apptId, fee, docName, hospCode) {
+        document.getElementById("modalDoctorSub").textContent = "Appointment #" + apptId + " with Dr. " + docName;
+        document.getElementById("modalAmountText").textContent = "₹" + parseFloat(fee).toFixed(2);
+        var upiId = (hospCode ? hospCode.toLowerCase() : "healix") + ".opd@icici";
+        document.getElementById("modalUpiId").textContent = upiId;
+
+        // Form action
+        document.getElementById("payQrForm").action = "/patient/appointments/" + apptId + "/pay";
+        var mockTxn = "TXN-UPI-" + Math.floor(10000000 + Math.random() * 90000000);
+        document.getElementById("modalTxnId").value = mockTxn;
+
+        // Render QR
+        var qrContainer = document.getElementById("modalQrCode");
+        qrContainer.innerHTML = "";
+        var upiUri = "upi://pay?pa=" + upiId + "&pn=" + encodeURIComponent("Healix Hospital") + "&am=" + fee + "&cu=INR&tn=" + encodeURIComponent("Fee Apt #" + apptId);
+        new QRCode(qrContainer, {
+            text: upiUri,
+            width: 150,
+            height: 150,
+            colorDark: "#0F172A",
+            colorLight: "#FFFFFF",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        document.getElementById("payQrModal").style.display = "flex";
+    }
+
+    function closePayQrModal() {
+        document.getElementById("payQrModal").style.display = "none";
+    }
+</script>
 </body>
 </html>

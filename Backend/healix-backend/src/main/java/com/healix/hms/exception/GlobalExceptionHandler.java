@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Patient Not Found");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        return "error/error";
+        return "error";
     }
 
     @ExceptionHandler(DoctorNotFoundException.class)
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Doctor Not Found");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        return "error/error";
+        return "error";
     }
 
     @ExceptionHandler(AppointmentNotFoundException.class)
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Appointment Not Found");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        return "error/error";
+        return "error";
     }
 
     @ExceptionHandler(AppointmentConflictException.class)
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Appointment Conflict");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "409");
-        return "error/error";
+        return "error";
     }
 
     @ExceptionHandler(MedicalRecordNotFoundException.class)
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Medical Record Not Found");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        return "error/error";
+        return "error";
     }
 
     @ExceptionHandler(DepartmentNotFoundException.class)
@@ -76,7 +76,70 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Department Not Found");
         model.addAttribute("errorMessage", ex.getMessage());
         model.addAttribute("errorCode", "404");
-        return "error/error";
+        return "error";
+    }
+
+    @ExceptionHandler(HospitalNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleHospitalNotFound(HospitalNotFoundException ex, Model model) {
+        model.addAttribute("errorTitle", "Hospital Not Found");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "404");
+        return "error";
+    }
+
+    @ExceptionHandler(HospitalAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleHospitalAccessDenied(HospitalAccessDeniedException ex, Model model) {
+        model.addAttribute("errorTitle", "Hospital Access Denied");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "403");
+        return "error/access-denied";
+    }
+
+    @ExceptionHandler(UnauthorizedRecordAccessException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleUnauthorizedRecordAccess(UnauthorizedRecordAccessException ex, Model model) {
+        model.addAttribute("errorTitle", "Unauthorized Record Access");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "403");
+        return "error/access-denied";
+    }
+
+    @ExceptionHandler(PatientNotRegisteredWithHospitalException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handlePatientNotRegistered(PatientNotRegisteredWithHospitalException ex, Model model) {
+        model.addAttribute("errorTitle", "Hospital Registration Required");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "400");
+        return "error";
+    }
+
+    @ExceptionHandler({InvalidOtpException.class, OtpExpiredException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleOtpError(RuntimeException ex, Model model) {
+        model.addAttribute("errorTitle", "OTP Verification Failed");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "400");
+        return "error";
+    }
+
+    @ExceptionHandler({PaymentFailedException.class, PaymentVerificationException.class})
+    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
+    public String handlePaymentError(RuntimeException ex, Model model) {
+        model.addAttribute("errorTitle", "Payment Error");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "402");
+        return "error";
+    }
+
+    @ExceptionHandler(AiServiceException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String handleAiServiceError(AiServiceException ex, Model model) {
+        model.addAttribute("errorTitle", "AI Health Assistant Unavailable");
+        model.addAttribute("errorMessage", ex.getMessage());
+        model.addAttribute("errorCode", "503");
+        return "error";
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
@@ -100,6 +163,6 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Something Went Wrong");
         model.addAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
         model.addAttribute("errorCode", "500");
-        return "error/error";
+        return "error";
     }
 }

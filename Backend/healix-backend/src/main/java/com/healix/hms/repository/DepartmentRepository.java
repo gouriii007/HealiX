@@ -12,5 +12,8 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     Optional<Department> findByName(String name);
     boolean existsByName(String name);
     List<Department> findByActiveTrue();
+    List<Department> findByHospitalId(Long hospitalId);
+    List<Department> findByHospitalIdAndActiveTrue(Long hospitalId);
     long countByActiveTrue();
+    long countByHospitalId(Long hospitalId);
 }

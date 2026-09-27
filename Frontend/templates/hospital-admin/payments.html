@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${hospital.hospitalName} + ' | Hospital Revenue & Fees'">Hospital Revenue &amp; Fees</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/hospital-admin/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        <span th:text="${hospital.hospitalName}">Hospital Name</span>
+        <span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>
+    </a>
+    <div class="public-nav-links">
+        <a th:href="@{/hospital-admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a th:href="@{/hospital-admin/doctors}"><i class="bi bi-person-badge"></i> Doctors</a>
+        <a th:href="@{/hospital-admin/departments}"><i class="bi bi-building"></i> Departments</a>
+        <a th:href="@{/hospital-admin/patients}"><i class="bi bi-people"></i> Patients</a>
+        <a th:href="@{/hospital-admin/payments}" class="active"><i class="bi bi-credit-card"></i> Revenue &amp; Fees</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/logout" class="btn" style="border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Financials</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;" th:text="${hospital.hospitalName} + ' Revenue & Fee Slips'">Revenue &amp; Fees</h2>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <div style="position: relative;">
+                <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                <input type="text" id="paymentSearch" placeholder="Search receipt, patient…" 
+                       style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 240px; background: #fff;"
+                       onkeyup="filterPayments()"/>
+            </div>
+            <span class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem;" th:text="${payments != null ? payments.size() : 0} + ' Transactions'">0 Transactions</span>
+        </div>
+    </div>
+
+    <!-- Payments Table Container -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div th:if="${#lists.isEmpty(payments)}" style="color: #6B7280; text-align: center; padding: 3rem 1rem;">
+            <i class="bi bi-receipt" style="font-size: 2.5rem; color: #D1D5DB; display: block; margin-bottom: 0.75rem;"></i>
+            <h4 style="font-size: 1.1rem; color: #374151; margin-bottom: 0.25rem;">No Payment Records</h4>
+            <p style="font-size: 0.88rem; color: #9CA3AF;">No fee collections or payment slips recorded for this hospital yet.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(payments)}" style="overflow-x: auto;">
+            <table id="paymentsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.85rem 1rem;">Receipt No. / Ref</th>
+                        <th style="padding: 0.85rem 1rem;">Patient</th>
+                        <th style="padding: 0.85rem 1rem;">Payment Type</th>
+                        <th style="padding: 0.85rem 1rem;">Method</th>
+                        <th style="padding: 0.85rem 1rem;">Amount</th>
+                        <th style="padding: 0.85rem 1rem;">Date</th>
+                        <th style="padding: 0.85rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pay : ${payments}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;" 
+                                 th:text="${pay.receiptNumber != null ? pay.receiptNumber : pay.paymentReference}">REC-1001</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;" 
+                                 th:text="${pay.transactionId != null ? 'Txn: ' + pay.transactionId : ''}">Txn: TXN123</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;" th:text="${pay.patient != null ? pay.patient.name : 'Walk-in Patient'}">Patient Name</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;" th:text="${pay.patient != null ? pay.patient.patientIdentifier : ''}">PAT-001</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"
+                                  th:text="${pay.paymentType}">REGISTRATION_FEE</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-wallet2" style="margin-right: 4px;"></i>
+                            <span th:text="${pay.paymentMethod != null ? pay.paymentMethod : 'ONLINE'}">UPI</span>
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;" 
+                            th:text="'₹' + ${pay.amount}">₹250</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;" 
+                            th:text="${pay.createdAt != null ? #temporals.format(pay.createdAt, 'yyyy-MM-dd HH:mm') : '—'}">2026-03-20</td>
+                        <td style="padding: 1rem;">
+                            <span th:if="${pay.paymentStatus != null and (pay.paymentStatus.name() == 'COMPLETED' or pay.paymentStatus.name() == 'PAID' or pay.paymentStatus.name() == 'SUCCESS')}" 
+                                  class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                            <span th:if="${pay.paymentStatus != null and pay.paymentStatus.name() == 'PENDING'}" 
+                                  class="hospital-badge" style="background: #FEF3C7; color: #B45309; border-color: #FDE68A;">PENDING</span>
+                            <span th:if="${pay.paymentStatus != null and (pay.paymentStatus.name() == 'FAILED' or pay.paymentStatus.name() == 'CANCELLED')}" 
+                                  class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">FAILED</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterPayments() {
+    const input = document.getElementById("paymentSearch").value.toLowerCase();
+    const rows = document.querySelectorAll("#paymentsTable tbody tr");
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+    });
+}
+</script>
+
+</body>
+</html>

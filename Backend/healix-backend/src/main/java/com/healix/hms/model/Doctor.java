@@ -50,10 +50,18 @@ public class Doctor extends User {
     @Column(name = "profile_image", length = 255)
     private String profileImage;
 
+    @Column(name = "doctor_code", length = 50)
+    private String doctorCode; // e.g. DOC-TRV-001
+
     // ManyToOne relationship: many doctors belong to one department
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
+
+    // ManyToOne relationship: doctor belongs to a primary hospital
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    private Hospital hospital;
 
     // OneToMany: doctor can have many appointments
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -159,5 +167,21 @@ public class Doctor extends User {
 
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
+    }
+
+    public Hospital getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(Hospital hospital) {
+        this.hospital = hospital;
+    }
+
+    public String getDoctorCode() {
+        return doctorCode;
+    }
+
+    public void setDoctorCode(String doctorCode) {
+        this.doctorCode = doctorCode;
     }
 }

@@ -59,6 +59,7 @@
                             <th>Patient</th>
                             <th>Reason</th>
                             <th>Status</th>
+                            <th>Fee Payment</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -78,6 +79,14 @@
                             <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" th:text="${a.reason}">Reason</td>
                             <td>
                                 <span th:class="'badge badge-' + ${#strings.toLowerCase(a.status.name())}" th:text="${a.status.name()}">CONFIRMED</span>
+                            </td>
+                            <td>
+                                <span th:if="${a.isPaid()}" class="badge badge-success" style="font-weight:700;">
+                                    <i class="bi bi-check-circle-fill"></i> Paid
+                                </span>
+                                <span th:unless="${a.isPaid()}" class="badge badge-warning" style="font-weight:700;">
+                                    <i class="bi bi-clock-history"></i> Unpaid
+                                </span>
                             </td>
                             <td>
                                 <a th:href="@{/doctor/patients/{id}(id=${a.patient.id})}" class="btn btn-sm btn-outline">

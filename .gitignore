@@ -21,6 +21,11 @@ Thumbs.db
 **/mariadb-data/
 **/data/
 
+# Environment files and credentials
+.env
+*.env
+!.env.example
+
 # Node / front-end artifacts if any
 Frontend/node_modules/
 

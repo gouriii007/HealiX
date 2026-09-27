@@ -18,8 +18,11 @@ public class AuthController {
 
     private final PatientService patientService;
 
-    public AuthController(PatientService patientService) {
+    private final com.healix.hms.service.OtpService otpService;
+
+    public AuthController(PatientService patientService, com.healix.hms.service.OtpService otpService) {
         this.patientService = patientService;
+        this.otpService = otpService;
     }
 
     @GetMapping("/login")
@@ -47,7 +50,7 @@ public class AuthController {
         }
         try {
             patientService.registerPatient(dto);
-            ra.addFlashAttribute("success", "Registration successful! Please login.");
+            ra.addFlashAttribute("success", "Registration successful! Your account is active. Please log in with your email and password.");
             return "redirect:/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

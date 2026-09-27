@@ -19,6 +19,7 @@ public interface AppointmentService {
     Appointment updateStatus(Long appointmentId, AppointmentStatus status);
     Appointment findAppointment(Long id);
     void cancelAppointment(Long id);
+    com.healix.hms.model.Payment payAppointmentFee(Long appointmentId, String paymentMethod, String transactionId);
 
     List<Appointment> findAllAppointments();
     List<Appointment> findByPatient(Patient patient);

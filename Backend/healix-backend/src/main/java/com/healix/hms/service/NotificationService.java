@@ -12,6 +12,7 @@ import java.util.List;
  */
 public interface NotificationService {
     void sendNotification(User user, String message, NotificationType type);
+    void sendNotification(User user, String message, NotificationType type, Long hospitalId);
     List<Notification> getNotificationsForUser(User user);
     List<Notification> getUnreadNotifications(User user);
     long countUnread(User user);

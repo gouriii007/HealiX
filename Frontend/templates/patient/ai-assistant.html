@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Health Assistant | MediCare Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<!-- Navigation -->
+<nav class="public-nav">
+    <a href="/patient/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">AI Assistant</span>
+    </a>
+    <div class="public-nav-links">
+        <a th:href="@{/patient/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a th:href="@{/hospitals}"><i class="bi bi-hospital"></i> Hospitals</a>
+        <a th:href="@{/patient/appointments}"><i class="bi bi-calendar2-check"></i> Appointments</a>
+        <a th:href="@{/patient/ai-assistant}" class="active"><i class="bi bi-robot"></i> AI Triage</a>
+    </div>
+    <div class="public-nav-actions">
+        <a th:href="@{/patient/dashboard}" class="btn" style="border: 1px solid #D1D5DB; color: #374151; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+
+    <!-- Strict Medical Safety Disclaimer Banner -->
+    <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; gap: 1rem; align-items: flex-start;">
+        <i class="bi bi-shield-exclamation" style="color: #D97706; font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;"></i>
+        <div>
+            <strong style="color: #92400E; font-size: 0.95rem;">Important Medical Notice:</strong>
+            <p style="color: #B45309; font-size: 0.85rem; margin-top: 0.25rem; line-height: 1.4;">
+                MediCare AI provides general health information and preliminary symptom guidance. It does not provide a definitive medical diagnosis. For persistent, severe, or emergency symptoms, consult a qualified healthcare professional or seek emergency medical care immediately.
+            </p>
+        </div>
+    </div>
+
+    <!-- 3D Medical Guide Card -->
+    <div style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E5E7EB; padding: 20px 24px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 24px; box-shadow: 0 6px 20px rgba(0,0,0,0.03);">
+        <img th:src="@{/images/telehealth-doctor.jpg}" alt="AI Medical Guide" 
+             style="width: 140px; height: 105px; object-fit: cover; border-radius: 16px; border: 3px solid #EDE7F6; flex-shrink: 0; box-shadow: 0 6px 16px rgba(128,112,166,0.18);" />
+        <div>
+            <div style="display: inline-block; background: #EDE7F6; color: #5E35B1; padding: 3px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                <i class="bi bi-cpu-fill"></i> Smart Clinical Triage
+            </div>
+            <h2 style="font-size: 1.3rem; font-weight: 800; color: #111827; margin: 0 0 6px;">Virtual Medical Guide</h2>
+            <p style="font-size: 0.9rem; color: #4B5563; margin: 0; line-height: 1.55;">
+                State your symptoms naturally. Our engine identifies probable conditions, assesses red-flag urgency, and directs you to the most suitable medical department across our Thiruvananthapuram network hospitals.
+            </p>
+        </div>
+    </div>
+
+    <!-- AI Chat Box Container -->
+    <div class="ai-chat-box">
+        <div class="ai-chat-header">
+            <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">MediCare AI Health Assistant</h3>
+                <span style="font-size: 0.8rem; opacity: 0.9;">Triage &amp; Department Recommendation Engine</span>
+            </div>
+        </div>
+
+        <div id="chatMessages" class="ai-chat-messages">
+            <!-- Welcome Bot Message -->
+            <div class="chat-msg bot">
+                Hello! I am your <strong>MediCare AI Health Assistant</strong>. Describe what symptoms you are feeling (e.g. <em>"I have fever, cough and sore throat for two days"</em>), and I will help analyze possible conditions and recommend the appropriate hospital department.
+            </div>
+        </div>
+
+        <!-- Quick Prompts -->
+        <div style="background: #F3F4F6; padding: 0.6rem 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; border-top: 1px solid #E5E7EB;">
+            <span style="font-size: 0.78rem; color: #6B7280; align-self: center;">Try:</span>
+            <button type="button" onclick="setPrompt('Fever and dry cough for 3 days')" class="btn" style="background: #fff; border: 1px solid #D1D5DB; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem;">Fever &amp; Cough</button>
+            <button type="button" onclick="setPrompt('Severe crushing chest pain and breathlessness')" class="btn" style="background: #fff; border: 1px solid #D1D5DB; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem;">Chest Pain (Emergency)</button>
+            <button type="button" onclick="setPrompt('Right knee joint pain after morning jogging')" class="btn" style="background: #fff; border: 1px solid #D1D5DB; padding: 3px 10px; border-radius: 9999px; font-size: 0.78rem;">Knee Joint Pain</button>
+        </div>
+
+        <!-- Input Box -->
+        <div style="padding: 1rem; background: #FFFFFF; border-top: 1px solid #E5E7EB; display: flex; gap: 0.75rem;">
+            <input type="text" id="symptomInput" placeholder="Describe your symptoms (e.g. chest discomfort, headache, rashes)..." class="form-control" style="border-radius: 9999px; padding: 0.75rem 1.25rem;" onkeypress="if(event.key === 'Enter') sendSymptoms()"/>
+            <button type="button" onclick="sendSymptoms()" class="ref-pill-btn" style="padding: 0.75rem 1.75rem;">
+                Send <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function setPrompt(text) {
+        document.getElementById('symptomInput').value = text;
+        sendSymptoms();
+    }
+
+    async function sendSymptoms() {
+        const input = document.getElementById('symptomInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const chatBox = document.getElementById('chatMessages');
+
+        // Append User Message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-msg user';
+        userMsg.innerText = text;
+        chatBox.appendChild(userMsg);
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'chat-msg bot';
+        loadingMsg.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing symptoms...';
+        chatBox.appendChild(loadingMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const resp = await fetch('/api/ai/assess', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symptoms: text })
+            });
+            const data = await resp.json();
+            chatBox.removeChild(loadingMsg);
+
+            const botMsg = document.createElement('div');
+            botMsg.className = data.emergency ? 'chat-msg emergency' : 'chat-msg bot';
+
+            let html = '';
+            if (data.emergency) {
+                html += '<div style="font-weight: 800; font-size: 1.1rem; color: #DC2626; margin-bottom: 0.5rem;"><i class="bi bi-exclamation-triangle-fill"></i> URGENT MEDICAL ATTENTION REQUIRED</div>';
+                html += '<p style="margin-bottom: 0.5rem;">' + data.emergencyMessage + '</p>';
+            }
+
+            html += '<p><strong>General Assessment:</strong> ' + data.generalExplanation + '</p>';
+
+            if (data.possibleConditions && data.possibleConditions.length > 0) {
+                html += '<div style="margin-top: 0.5rem;"><strong>Associated Conditions:</strong><ul>';
+                data.possibleConditions.forEach(c => { html += '<li>' + c + '</li>'; });
+                html += '</ul></div>';
+            }
+
+            if (data.recommendedDepartment) {
+                html += '<div style="margin: 0.75rem 0; padding: 0.75rem; background: #EDE7F6; border-radius: 8px;">';
+                html += '<strong style="color: #5E35B1;">Recommended Department:</strong> ' + data.recommendedDepartment;
+                html += '<div style="margin-top: 0.5rem;"><a href="/hospitals" class="ref-pill-btn" style="padding: 4px 14px; font-size: 0.8rem;">Find a Hospital & Book</a></div>';
+                html += '</div>';
+            }
+
+            html += '<p style="font-size: 0.85rem; color: #6B7280; border-top: 1px dashed #D1D5DB; padding-top: 0.5rem; margin-top: 0.5rem;">' + data.disclaimer + '</p>';
+
+            botMsg.innerHTML = html;
+            chatBox.appendChild(botMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+        } catch (err) {
+            chatBox.removeChild(loadingMsg);
+            const errDiv = document.createElement('div');
+            errDiv.className = 'chat-msg bot';
+            errDiv.innerHTML = '<span style="color:red;">Error processing triage request. Please try again or consult a doctor directly.</span>';
+            chatBox.appendChild(errDiv);
+        }
+    }
+</script>
+
+</body>
+</html>

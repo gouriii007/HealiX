@@ -101,12 +101,15 @@ This document provides a comprehensive mapping of all Object-Oriented Programmin
 - **Definition**: Controlled handling of runtime errors using `try-catch` and hierarchy of `Exception` subclasses.
 - **Implementation**:
   - Hierarchy of domain exceptions extending `RuntimeException`:
+    - `HospitalNotFoundException` (invalid hospital identifier or code)
+    - `HospitalAccessDeniedException` (unauthorized multi-tenant data access violation)
+    - `PatientNotRegisteredWithHospitalException` (requires hospital affiliation)
+    - `UnauthorizedRecordAccessException` (cross-hospital record consent violation)
+    - `InvalidOtpException` / `OtpExpiredException` (OTP lifecycle validation)
+    - `PaymentFailedException` / `PaymentVerificationException` (transaction failures)
+    - `AiServiceException` (AI triage resilience)
     - `AppointmentConflictException` (prevents double-booking doctor slots)
-    - `AppointmentNotFoundException`
-    - `DoctorNotFoundException`
-    - `PatientNotFoundException`
-    - `DepartmentNotFoundException`
-    - `InvalidLoginException`
+    - `AppointmentNotFoundException`, `DoctorNotFoundException`, `PatientNotFoundException`
   - Centralized global exception handler (`GlobalExceptionHandler.java`) annotated with `@ControllerAdvice` to prevent unhandled stack traces and render user-friendly error views.
 
 ---
@@ -114,23 +117,26 @@ This document provides a comprehensive mapping of all Object-Oriented Programmin
 ### 10. Design Patterns
 1. **Singleton Pattern**:
    - `HospitalConfiguration.java`: Thread-safe double-checked locking implementation maintaining centralized hospital system policies.
-2. **Adapter Pattern**:
-   - `NotificationAdapter.java`: Interface adapted by `EmailNotificationAdapter.java` and `SMSNotificationAdapter.java` to decouple communication channels.
+2. **Adapter Pattern (Multiple Applications)**:
+   - **AI Assistant Adapter**: `AiHealthAssistant` interface implemented by `MockAiHealthAssistantAdapter` (offline triage rules) and extensible to external LLM providers.
+   - **Payment Gateway Adapter**: `PaymentGatewayAdapter` interface implemented by `MockPaymentGatewayAdapter` (simulated payment workflows) and cloud gateways.
+   - **Notification & SMS Adapter**: `NotificationAdapter` interface adapted by `EmailNotificationAdapter` and `SMSNotificationAdapter`.
 3. **Data Transfer Object (DTO) Pattern**:
-   - Decouples HTTP request binding from relational database entities (`AppointmentBookingDto`, `PatientRegistrationDto`, `DoctorRegistrationDto`, `MedicalRecordDto`).
+   - Decouples HTTP request binding from relational database entities (`AppointmentBookingDto`, `PatientRegistrationDto`, `DoctorRegistrationDto`, `MedicalRecordDto`, `AiAssessmentRequestDto`, `AiAssessmentResponseDto`).
 
 ---
 
 ### 11. Relational Database & Direct JDBC Integration
 - **Implementation**:
-  - Full relational MySQL schema with primary keys, foreign keys (`ON DELETE CASCADE`), indexes, and unique constraints (`schema.sql`).
+  - Full relational Supabase PostgreSQL multi-hospital schema with primary keys, foreign keys (`ON DELETE CASCADE`), indexes, and unique constraints (`schema.sql`).
+  - Cross-hospital patient record consent tables (`record_access_requests`) and patient-hospital junction tables (`patient_hospitals`).
   - **Raw JDBC Component**: `JdbcReportUtil.java` demonstrates direct `java.sql.Connection`, `PreparedStatement`, and `ResultSet` execution for high-performance administrative reports and aggregates alongside Hibernate/JPA.
 
 ---
 
 ### 12. SOLID Principles Summary
-- **Single Responsibility Principle (SRP)**: Controllers handle HTTP, services handle domain logic, repositories handle persistence.
-- **Open/Closed Principle (OCP)**: Notification delivery extensible via new `NotificationAdapter` implementations without modifying existing business services.
+- **Single Responsibility Principle (SRP)**: Controllers handle HTTP, services handle domain logic, repositories handle persistence (`PaymentService`, `OtpService`, `HospitalService`, `AiHealthAssistantService`).
+- **Open/Closed Principle (OCP)**: AI engine, payment gateways, and notification delivery extensible via new Adapters without modifying core service workflows.
 - **Liskov Substitution Principle (LSP)**: `Patient`, `Doctor`, and `Admin` can be substituted wherever `User` is required.
 - **Interface Segregation Principle (ISP)**: Focused service interfaces per domain entity rather than one monolithic service.
 - **Dependency Inversion Principle (DIP)**: Controllers and services depend on abstractions (interfaces), wired via Spring Dependency Injection.

@@ -18,11 +18,14 @@
         <nav class="sidebar-nav">
             <div class="nav-section-label">Navigation</div>
             <a href="/patient/dashboard" class="nav-item active"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/hospitals" class="nav-item"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+            <a href="/patient/ai-assistant" class="nav-item" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
             <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
             <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
             <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
             <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
             <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <a href="/patient/consent-requests" class="nav-item"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
             <div class="nav-section-label">Account</div>
             <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
             <a href="/patient/notifications" class="nav-item">
@@ -51,17 +54,29 @@
 
         <div class="page-content">
 
-            <!-- Welcome Banner -->
-            <div style="background:linear-gradient(135deg,#0D9488,#059669);border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-                <div>
-                    <div style="font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:8px;">Your Health at a Glance</div>
-                    <p style="color:rgba(255,255,255,0.75);font-size:0.875rem;margin:0;">
-                        Manage your appointments, view medical records, and stay on top of your health.
-                    </p>
+            <!-- Welcome Banner with Reference Purple Style & Central Patient ID -->
+            <div style="background:linear-gradient(135deg, #7C5CBF 0%, #5E72E4 100%);border-radius:16px;padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;box-shadow: 0 10px 25px rgba(124, 92, 191, 0.2);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img th:src="@{/images/telehealth-doctor.jpg}" alt="Virtual Doctor Consultation" 
+                         style="width: 100px; height: 80px; object-fit: cover; border-radius: 14px; border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 6px 16px rgba(0,0,0,0.18); flex-shrink: 0;" />
+                    <div>
+                        <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:9999px;font-size:0.8rem;color:#fff;font-weight:600;margin-bottom:6px;">
+                            Central Patient ID: <span th:text="${patient.patientIdentifier}">PAT-TRV-000102</span>
+                        </div>
+                        <div style="font-size:1.35rem;font-weight:700;color:#fff;margin-bottom:4px;">Multi-Hospital Healthcare Connected</div>
+                        <p style="color:rgba(255,255,255,0.88);font-size:0.88rem;margin:0;max-width:520px;">
+                            Use your single account across all participating hospitals in Thiruvananthapuram with secure, privacy-guarded health records.
+                        </p>
+                    </div>
                 </div>
-                <a href="/patient/book-appointment" class="btn btn-lg" style="background:#fff;color:#0D9488;font-weight:700;">
-                    <i class="bi bi-calendar2-plus"></i> Book Appointment
-                </a>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="/patient/ai-assistant" class="btn btn-lg" style="background:#fff;color:#7C5CBF;font-weight:700;box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <i class="bi bi-robot"></i> AI Symptom Check
+                    </a>
+                    <a href="/patient/hospitals" class="btn btn-lg" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);font-weight:600;">
+                        <i class="bi bi-hospital"></i> My Hospitals
+                    </a>
+                </div>
             </div>
 
             <!-- Stats -->

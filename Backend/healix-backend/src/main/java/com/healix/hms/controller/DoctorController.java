@@ -30,15 +30,21 @@ public class DoctorController {
     private final MedicalRecordService medicalRecordService;
     private final PatientService patientService;
     private final NotificationService notificationService;
+    private final RecordSharingService recordSharingService;
+    private final com.healix.hms.service.PaymentService paymentService;
 
     public DoctorController(DoctorService doctorService, AppointmentService appointmentService,
                              MedicalRecordService medicalRecordService, PatientService patientService,
-                             NotificationService notificationService) {
+                             NotificationService notificationService,
+                             RecordSharingService recordSharingService,
+                             com.healix.hms.service.PaymentService paymentService) {
         this.doctorService = doctorService;
         this.appointmentService = appointmentService;
         this.medicalRecordService = medicalRecordService;
         this.patientService = patientService;
         this.notificationService = notificationService;
+        this.recordSharingService = recordSharingService;
+        this.paymentService = paymentService;
     }
 
     private Doctor getCurrentDoctor(UserDetails userDetails) {
@@ -99,6 +105,24 @@ public class DoctorController {
         return "redirect:/doctor/appointments";
     }
 
+    @GetMapping("/appointments/{id}/receipt")
+    public String viewAppointmentReceipt(@PathVariable("id") Long id,
+                                         @AuthenticationPrincipal UserDetails userDetails,
+                                         Model model) {
+        Appointment appointment = appointmentService.findAppointment(id);
+        Doctor doctor = getCurrentDoctor(userDetails);
+        Payment payment = appointment.getPayment();
+        if (payment == null) {
+            payment = paymentService.getPaymentByAppointmentId(appointment.getId());
+        }
+        model.addAttribute("appointment", appointment);
+        model.addAttribute("doctor", doctor);
+        model.addAttribute("hospital", appointment.getHospital() != null ? appointment.getHospital() : doctor.getHospital());
+        model.addAttribute("patient", appointment.getPatient());
+        model.addAttribute("payment", payment);
+        return "patient/appointment-receipt";
+    }
+
     // ---- PATIENTS ----
     @GetMapping("/patients")
     public String patients(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -115,18 +139,44 @@ public class DoctorController {
 
     @GetMapping("/patients/{id}")
     public String viewPatient(@PathVariable Long id,
-                               @AuthenticationPrincipal UserDetails userDetails, Model model) {
+                                @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Doctor doctor = getCurrentDoctor(userDetails);
         Patient patient = patientService.findPatient(id);
-        List<MedicalRecord> records = medicalRecordService.findByPatient(patient);
+        
+        // Strict Authorization: Filter records belonging to doctor's hospital OR covered by approved consent
+        List<MedicalRecord> allRecords = medicalRecordService.findByPatient(patient);
+        List<MedicalRecord> authorizedRecords = allRecords.stream()
+            .filter(r -> {
+                Long recordHospitalId = r.getHospital() != null ? r.getHospital().getId() : (doctor.getHospital() != null ? doctor.getHospital().getId() : null);
+                if (doctor.getHospital() != null && doctor.getHospital().getId().equals(recordHospitalId)) {
+                    return true;
+                }
+                return recordSharingService.hasDoctorAccessToRecord(doctor.getId(), patient.getId(), recordHospitalId);
+            })
+            .toList();
+
         List<Appointment> appts = appointmentService.findByDoctor(doctor).stream()
             .filter(a -> a.getPatient().getId().equals(id)).toList();
 
         model.addAttribute("doctor", doctor);
         model.addAttribute("patient", patient);
-        model.addAttribute("medicalRecords", records);
+        model.addAttribute("medicalRecords", authorizedRecords);
+        model.addAttribute("hasCrossHospitalRecords", allRecords.size() > authorizedRecords.size());
         model.addAttribute("appointments", appts);
         return "doctor/patient-view";
+    }
+
+    @PostMapping("/patients/{id}/request-consent")
+    public String requestConsent(@PathVariable Long id,
+                                 @RequestParam("sourceHospitalId") Long sourceHospitalId,
+                                 @RequestParam("reason") String reason,
+                                 @AuthenticationPrincipal UserDetails userDetails,
+                                 RedirectAttributes ra) {
+        Doctor doctor = getCurrentDoctor(userDetails);
+        Long targetHospitalId = doctor.getHospital() != null ? doctor.getHospital().getId() : 1L;
+        recordSharingService.requestRecordAccess(id, doctor.getId(), sourceHospitalId, targetHospitalId, reason);
+        ra.addFlashAttribute("success", "Cross-hospital record access request sent to patient for approval.");
+        return "redirect:/doctor/patients/" + id;
     }
 
     // ---- MEDICAL RECORDS ----

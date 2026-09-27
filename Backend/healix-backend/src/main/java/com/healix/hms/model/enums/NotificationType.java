@@ -1,7 +1,7 @@
 package com.healix.hms.model.enums;
 
 /**
- * NotificationType enum - types of notifications in the system.
+ * NotificationType enum - types of notifications in the multi-hospital system.
  */
 public enum NotificationType {
     APPOINTMENT_BOOKED,
@@ -9,5 +9,12 @@ public enum NotificationType {
     APPOINTMENT_CANCELLED,
     APPOINTMENT_COMPLETED,
     APPOINTMENT_RESCHEDULED,
+    APPOINTMENT,
+    PAYMENT,
+    PRESCRIPTION,
+    OTP,
+    CONSENT_REQUEST,
+    REMINDER,
+    SYSTEM,
     GENERAL
 }

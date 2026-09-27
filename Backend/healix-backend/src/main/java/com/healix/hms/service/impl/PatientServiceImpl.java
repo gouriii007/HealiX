@@ -56,7 +56,9 @@ public class PatientServiceImpl implements PatientService {
         patient.setRole(Role.ROLE_PATIENT);
         patient.setActive(true);
 
-        return patientRepository.save(patient);
+        Patient saved = patientRepository.save(patient);
+        saved.setPatientIdentifier(String.format("PAT-TRV-%06d", saved.getId()));
+        return patientRepository.save(saved);
     }
 
     @Override

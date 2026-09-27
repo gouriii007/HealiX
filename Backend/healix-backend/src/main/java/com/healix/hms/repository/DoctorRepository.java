@@ -23,4 +23,9 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     List<Doctor> searchByNameOrSpecialization(@Param("q") String query);
 
     List<Doctor> findByDepartmentAndActiveTrue(Department department);
+
+    List<Doctor> findByHospitalId(Long hospitalId);
+    List<Doctor> findByHospitalIdAndActiveTrue(Long hospitalId);
+    List<Doctor> findByHospitalIdAndDepartmentIdAndActiveTrue(Long hospitalId, Long departmentId);
+    long countByHospitalId(Long hospitalId);
 }

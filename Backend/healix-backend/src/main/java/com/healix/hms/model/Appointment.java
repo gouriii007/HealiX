@@ -48,6 +48,11 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    // ManyToOne: appointment belongs to a hospital
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    private Hospital hospital;
+
     @NotNull(message = "Appointment date is required")
     @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
@@ -70,6 +75,13 @@ public class Appointment {
     // OneToOne: appointment may have one medical record
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MedicalRecord medicalRecord;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
+    @Column(name = "payment_status", length = 30)
+    private String paymentStatus = "PENDING";
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -141,11 +153,41 @@ public class Appointment {
     public MedicalRecord getMedicalRecord() { return medicalRecord; }
     public void setMedicalRecord(MedicalRecord medicalRecord) { this.medicalRecord = medicalRecord; }
 
+    public Hospital getHospital() { return hospital; }
+    public void setHospital(Hospital hospital) { this.hospital = hospital; }
+
+    public boolean isPaid() {
+        return "PAID".equalsIgnoreCase(paymentStatus) || 
+               (payment != null && payment.getPaymentStatus() == com.healix.hms.model.enums.PaymentStatus.SUCCESS);
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+        if (payment != null && payment.getPaymentStatus() == com.healix.hms.model.enums.PaymentStatus.SUCCESS) {
+            this.paymentStatus = "PAID";
+        }
+    }
+
+    public String getPaymentStatus() {
+        if (isPaid()) {
+            return "PAID";
+        }
+        return paymentStatus != null ? paymentStatus : "PENDING";
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
-        return "Appointment{id=" + id + ", date=" + appointmentDate + ", time=" + appointmentTime + ", status=" + status + "}";
+        return "Appointment{id=" + id + ", date=" + appointmentDate + ", time=" + appointmentTime + ", status=" + status + ", paymentStatus=" + paymentStatus + "}";
     }
 }

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Book Appointment | Healix HMS</title>
+    <title>Book Appointment & Pay via UPI QR | Healix HMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
@@ -19,6 +19,79 @@
             box-shadow: 0 2px 4px rgba(13, 148, 136, 0.25);
         }
         .slot-radio { display: none; }
+
+        /* QR Payment Card Styling */
+        .qr-payment-card {
+            background: #FFFFFF;
+            border: 2px solid #0D9488;
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 24px;
+            box-shadow: 0 6px 20px rgba(13, 148, 136, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .qr-payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .upi-badge {
+            background: #0F172A;
+            color: #38BDF8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+        .qr-display-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .qr-canvas-container {
+            width: 140px;
+            height: 140px;
+            background: #FFFFFF;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 8px;
+        }
+        .upi-app-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #F1F5F9;
+            color: #334155;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #CBD5E1;
+        }
+        .payment-verified-badge {
+            display: none;
+            background: #ECFDF5;
+            border: 1.5px solid #10B981;
+            color: #047857;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 14px;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -48,11 +121,11 @@
         <header class="top-header">
             <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
             <div>
-                <div class="header-title">Book an Appointment</div>
-                <div class="header-subtitle">Choose a doctor, date, and preferred time slot</div>
+                <div class="header-title">Book Doctor Appointment</div>
+                <div class="header-subtitle">Select your specialist, scan UPI QR code to pay consultation fees, and get instant official receipt</div>
             </div>
             <div class="header-actions">
-                <a href="/patient/doctors" class="btn btn-outline btn-sm"><i class="bi bi-people"></i> View Doctors Directory</a>
+                <a href="/patient/appointments" class="btn btn-outline btn-sm"><i class="bi bi-calendar2-check"></i> My Appointments</a>
             </div>
         </header>
 
@@ -65,22 +138,31 @@
             <div class="grid-2" style="gap: 24px; align-items: flex-start;">
 
                 <!-- Form Card -->
-                <div class="card" style="flex: 1;">
+                <div class="card" style="flex: 1.2;">
                     <div class="card-header">
-                        <h5><i class="bi bi-calendar-check" style="color:#0D9488;"></i> Appointment Details</h5>
+                        <h5><i class="bi bi-calendar-check" style="color:#0D9488;"></i> Appointment & Payment Details</h5>
                     </div>
                     <div class="card-body">
-                        <form th:action="@{/patient/book-appointment}" th:object="${appointmentDto}" method="post">
+                        <form th:action="@{/patient/book-appointment}" th:object="${appointmentDto}" method="post" id="appointmentBookingForm">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" th:field="*{paymentMethod}" id="paymentMethodInput" value="UPI_QR"/>
+                            <input type="hidden" th:field="*{paymentStatus}" id="paymentStatusInput" value="PAID"/>
+                            <input type="hidden" th:field="*{transactionId}" id="transactionIdInput"/>
+                            <input type="hidden" th:field="*{feeAmount}" id="feeAmountInput"/>
 
                             <!-- Doctor Selection -->
                             <div class="form-group">
                                 <label class="form-label">Select Medical Specialist <span class="required">*</span></label>
-                                <select th:field="*{doctorId}" class="form-control form-select" required id="doctorSelect">
+                                <select th:field="*{doctorId}" class="form-control form-select" required id="doctorSelect" onchange="onDoctorChanged()">
                                     <option value="">-- Choose Specialist --</option>
                                     <option th:each="doc : ${doctors}"
                                             th:value="${doc.id}"
-                                            th:text="'Dr. ' + ${doc.name} + ' (' + (${doc.department != null ? doc.department.name : doc.specialization}) + ') - ₹' + ${doc.consultationFee}">
+                                            th:data-fee="${doc.consultationFee != null ? doc.consultationFee : 500}"
+                                            th:data-docname="${doc.name}"
+                                            th:data-spec="${doc.department != null ? doc.department.name : doc.specialization}"
+                                            th:data-hospital="${doc.hospital != null ? doc.hospital.hospitalName : 'MediCare Hospital'}"
+                                            th:data-hospcode="${doc.hospital != null ? doc.hospital.hospitalCode : 'TRV-HOSP-01'}"
+                                            th:text="'Dr. ' + ${doc.name} + ' (' + (${doc.department != null ? doc.department.name : doc.specialization}) + ') - ₹' + (${doc.consultationFee != null ? doc.consultationFee : 500})">
                                     </option>
                                 </select>
                                 <div th:if="${#fields.hasErrors('doctorId')}" class="form-error" th:errors="*{doctorId}"></div>
@@ -131,50 +213,111 @@
                             <div class="form-group">
                                 <label class="form-label">Reason for Consultation / Symptoms <span class="required">*</span></label>
                                 <textarea th:field="*{reason}" class="form-control" rows="3"
-                                          placeholder="Briefly describe your symptoms or reason for visit..." required></textarea>
+                                          placeholder="Describe symptoms or medical reason for consultation..." required></textarea>
                                 <div th:if="${#fields.hasErrors('reason')}" class="form-error" th:errors="*{reason}"></div>
                             </div>
 
-                            <button type="submit" class="btn btn-teal btn-block btn-lg" style="margin-top: 10px;">
-                                <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
+                            <!-- Interactive UPI QR Code Payment Setup Box -->
+                            <div class="qr-payment-card" id="qrPaymentSection">
+                                <div class="qr-payment-header">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="bi bi-qr-code-scan" style="font-size: 1.25rem; color: #0D9488;"></i>
+                                        <span style="font-weight: 800; font-size: 0.95rem; color: #0F172A;">Pay Consultation Fee via UPI QR</span>
+                                    </div>
+                                    <span class="upi-badge">NPCI UPI Instant</span>
+                                </div>
+
+                                <div class="qr-display-row">
+                                    <!-- QR Canvas Element -->
+                                    <div class="qr-canvas-container" id="qrCodeTarget">
+                                        <!-- Rendered by QRCode.js -->
+                                    </div>
+
+                                    <!-- QR Payment Details -->
+                                    <div style="flex: 1; min-width: 200px;">
+                                        <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 2px;">Consultation Fee:</div>
+                                        <div style="font-size: 1.6rem; font-weight: 800; color: #0D9488;" id="displayFeeAmount">₹500.00</div>
+
+                                        <div style="margin-top: 8px; font-size: 0.82rem; color: #334155;">
+                                            <div><strong>Payee:</strong> <span id="displayPayee">Healix Hospital OPD</span></div>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                                <span><strong>UPI ID:</strong> <code id="displayUpiId" style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">healix.hospital@icici</code></span>
+                                                <button type="button" onclick="copyUpiId()" class="btn btn-sm btn-outline" style="padding: 1px 6px; font-size: 0.72rem;">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Supported App Badges -->
+                                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;">
+                                            <span class="upi-app-pill"><i class="bi bi-google"></i> Google Pay</span>
+                                            <span class="upi-app-pill"><i class="bi bi-phone"></i> PhonePe</span>
+                                            <span class="upi-app-pill"><i class="bi bi-wallet2"></i> Paytm</span>
+                                            <span class="upi-app-pill"><i class="bi bi-lightning-charge"></i> BHIM</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Live Simulation / Auto Check Trigger -->
+                                <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px dashed #E2E8F0; padding-top: 12px;">
+                                    <span style="font-size: 0.78rem; color: #64748B;">
+                                        <i class="bi bi-shield-lock-fill" style="color:#0D9488;"></i> Scan using any camera or UPI app to pay
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-outline-teal" onclick="simulateUpiVerification()">
+                                        <i class="bi bi-patch-check"></i> Simulate Scan &amp; Pay
+                                    </button>
+                                </div>
+
+                                <div id="verifiedNotice" class="payment-verified-badge">
+                                    <i class="bi bi-check-circle-fill" style="font-size: 1.2rem;"></i>
+                                    <div>
+                                        <div>UPI Payment Verified Successfully!</div>
+                                        <div style="font-size: 0.75rem; font-weight: 500; color: #065F46;" id="verifiedTxnText">Txn ID: TXN-UPI-98472910</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-teal btn-block btn-lg" style="margin-top: 20px;" id="submitBookingBtn">
+                                <i class="bi bi-qr-code"></i> Pay &amp; Confirm Appointment (Print Receipt)
                             </button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Info Card -->
+                <!-- Info Column -->
                 <div style="display: flex; flex-direction: column; gap: 18px;">
+                    <!-- Booking Guidelines -->
                     <div class="card" style="background: linear-gradient(135deg, #F0FDFA, #E6FFFA); border: 1px solid #99F6E4;">
                         <div class="card-body" style="padding: 22px;">
                             <h5 style="color: #0F766E; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                <i class="bi bi-info-circle-fill"></i> Booking Guidelines
+                                <i class="bi bi-info-circle-fill"></i> Fee &amp; Receipt Policy
                             </h5>
                             <ul style="padding-left: 18px; color: #334155; font-size: 0.86rem; line-height: 1.7;">
-                                <li>Appointments must be booked at least 1 hour in advance.</li>
-                                <li>Cancellations are allowed up to 2 hours before the scheduled time slot.</li>
-                                <li>Please arrive 10 minutes prior to your allocated appointment time.</li>
-                                <li>Carry any prior medical reports or medication history with you.</li>
+                                <li>Consultation fees are paid via QR code and credited to the hospital.</li>
+                                <li>An <strong>Official Fee Receipt</strong> with verification barcode is generated immediately.</li>
+                                <li>Your doctor and hospital administrator will see your payment status in real-time.</li>
+                                <li>You can print or download the PDF receipt anytime from your portal.</li>
                             </ul>
                         </div>
                     </div>
 
-                    <div class="card" th:if="${selectedDoctor != null}">
+                    <!-- Selected Doctor Summary Card -->
+                    <div class="card" id="selectedDoctorCard">
                         <div class="card-header">
-                            <h5><i class="bi bi-person-badge" style="color:#0D9488;"></i> Selected Doctor</h5>
+                            <h5><i class="bi bi-person-badge" style="color:#0D9488;"></i> Doctor &amp; Hospital Details</h5>
                         </div>
                         <div class="card-body">
                             <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
-                                <div class="avatar avatar-md" style="background: #0D9488; color: #fff;"
-                                     th:text="${#strings.substring(selectedDoctor.name, 0, 1)}">D</div>
+                                <div class="avatar avatar-md" style="background: #0D9488; color: #fff;" id="doctorAvatar">D</div>
                                 <div>
-                                    <div style="font-weight: 700; font-size: 1rem;" th:text="'Dr. ' + ${selectedDoctor.name}">Doctor Name</div>
-                                    <div style="color: #0D9488; font-size: 0.82rem; font-weight: 600;" th:text="${selectedDoctor.specialization}">Specialization</div>
+                                    <div style="font-weight: 700; font-size: 1rem;" id="sideDoctorName">Select a Doctor</div>
+                                    <div style="color: #0D9488; font-size: 0.82rem; font-weight: 600;" id="sideDoctorSpec">Department</div>
                                 </div>
                             </div>
-                            <div style="font-size: 0.84rem; color: #4B5563; line-height: 1.5; margin-bottom: 12px;" th:text="${selectedDoctor.bio}">Doctor Bio</div>
-                            <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between;">
+                            <div style="font-size: 0.84rem; color: #4B5563; line-height: 1.5; margin-bottom: 12px;" id="sideHospitalName">Hospital Affiliation</div>
+                            <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
                                 <span style="font-size: 0.82rem; color: #64748B;">Consultation Fee:</span>
-                                <span style="font-weight: 700; color: #0D9488;" th:text="'₹' + ${selectedDoctor.consultationFee}">₹500</span>
+                                <span style="font-weight: 800; font-size: 1.1rem; color: #0D9488;" id="sideDoctorFee">₹0</span>
                             </div>
                         </div>
                     </div>
@@ -185,6 +328,84 @@
         </div>
     </main>
 </div>
+
+<!-- Standalone QRCode.js Library -->
+<script th:src="@{/js/qrcode.min.js}"></script>
 <script th:src="@{/js/main.js}"></script>
+
+<script>
+    var currentQrCode = null;
+
+    function onDoctorChanged() {
+        var select = document.getElementById("doctorSelect");
+        var selectedOption = select.options[select.selectedIndex];
+        if (!selectedOption || !selectedOption.value) {
+            document.getElementById("displayFeeAmount").textContent = "₹0.00";
+            document.getElementById("sideDoctorFee").textContent = "₹0";
+            document.getElementById("sideDoctorName").textContent = "Select a Doctor";
+            document.getElementById("sideDoctorSpec").textContent = "Department";
+            document.getElementById("sideHospitalName").textContent = "Hospital Affiliation";
+            return;
+        }
+
+        var fee = selectedOption.getAttribute("data-fee") || "500";
+        var docName = selectedOption.getAttribute("data-docname") || "Specialist";
+        var spec = selectedOption.getAttribute("data-spec") || "General";
+        var hospital = selectedOption.getAttribute("data-hospital") || "MediCare Hospital";
+        var hospCode = selectedOption.getAttribute("data-hospcode") || "TRV-HOSP-01";
+
+        // Update fee & side panel
+        document.getElementById("displayFeeAmount").textContent = "₹" + parseFloat(fee).toFixed(2);
+        document.getElementById("feeAmountInput").value = fee;
+        document.getElementById("displayPayee").textContent = "Healix - Dr. " + docName + " (" + hospital + ")";
+        var upiId = hospCode.toLowerCase() + ".opd@icici";
+        document.getElementById("displayUpiId").textContent = upiId;
+
+        document.getElementById("sideDoctorName").textContent = "Dr. " + docName;
+        document.getElementById("sideDoctorSpec").textContent = spec;
+        document.getElementById("sideHospitalName").textContent = hospital;
+        document.getElementById("sideDoctorFee").textContent = "₹" + fee;
+        document.getElementById("doctorAvatar").textContent = docName.charAt(0);
+
+        // Generate standard NPCI UPI URI string
+        var encodedDoc = encodeURIComponent("Dr. " + docName);
+        var upiUri = "upi://pay?pa=" + upiId + "&pn=" + encodeURIComponent("Healix HMS " + hospital) + "&am=" + fee + "&cu=INR&tn=" + encodeURIComponent("OPD Fee " + docName);
+
+        // Render QR Code using QRCode.js
+        var qrContainer = document.getElementById("qrCodeTarget");
+        qrContainer.innerHTML = "";
+        currentQrCode = new QRCode(qrContainer, {
+            text: upiUri,
+            width: 124,
+            height: 124,
+            colorDark: "#0F172A",
+            colorLight: "#FFFFFF",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
+
+    function copyUpiId() {
+        var upiText = document.getElementById("displayUpiId").textContent;
+        navigator.clipboard.writeText(upiText).then(function() {
+            alert("Hospital UPI ID copied to clipboard: " + upiText);
+        });
+    }
+
+    function simulateUpiVerification() {
+        var randomTxn = "TXN-UPI-" + Math.floor(10000000 + Math.random() * 90000000);
+        document.getElementById("transactionIdInput").value = randomTxn;
+        document.getElementById("verifiedTxnText").textContent = "Payment Verified! Txn ID: " + randomTxn;
+        var badge = document.getElementById("verifiedNotice");
+        badge.style.display = "flex";
+        document.getElementById("submitBookingBtn").innerHTML = '<i class="bi bi-printer-fill"></i> Pay Confirmed & Print Official Receipt';
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+        onDoctorChanged();
+        // Generate pre-fill transaction ID
+        var autoTxn = "TXN-UPI-" + Math.floor(10000000 + Math.random() * 90000000);
+        document.getElementById("transactionIdInput").value = autoTxn;
+    });
+</script>
 </body>
 </html>

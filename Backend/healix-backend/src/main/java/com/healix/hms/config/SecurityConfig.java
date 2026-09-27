@@ -63,16 +63,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 // Public pages - accessible without login
-                .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/error/**").permitAll()
-                // Admin-only pages
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/", "/login", "/register", "/access-denied", "/hospitals/**", "/api/ai/**", "/auth/otp/**", "/auth/forgot-password/**", "/css/**", "/js/**", "/images/**", "/error/**").permitAll()
+                // Super Admin pages
+                .requestMatchers("/super-admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                // Hospital Admin pages
+                .requestMatchers("/hospital-admin/**").hasAnyRole("HOSPITAL_ADMIN", "ADMIN", "SUPER_ADMIN")
+                // General Admin-only pages
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "HOSPITAL_ADMIN")
                 // Doctor-only pages
                 .requestMatchers("/doctor/**").hasRole("DOCTOR")
                 // Patient-only pages
                 .requestMatchers("/patient/**").hasRole("PATIENT")
+                // Receptionist pages
+                .requestMatchers("/receptionist/**").hasAnyRole("RECEPTIONIST", "HOSPITAL_ADMIN")
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

@@ -14,49 +14,61 @@
 
 <!-- ==================== PUBLIC NAVBAR ==================== -->
 <nav class="public-nav">
-    <div class="public-nav-brand">
-        <div class="logo-icon" style="font-weight:900;color:#fff;">H</div>
-        Healix
-    </div>
+    <a href="/" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">Trivandrum</span>
+    </a>
     <div class="public-nav-links">
-        <a href="#about">About</a>
-        <a href="#departments">Departments</a>
-        <a href="#doctors">Doctors</a>
-        <a href="#services">Services</a>
-        <a href="#contact">Contact</a>
+        <a href="/" class="active"><i class="bi bi-house"></i> Home</a>
+        <a th:href="@{/hospitals}"><i class="bi bi-hospital"></i> Hospitals</a>
+        <a href="#services"><i class="bi bi-heart-pulse"></i> Services</a>
+        <a href="#doctors"><i class="bi bi-person-badge"></i> Doctors</a>
+        <a th:href="@{/patient/ai-assistant}"><i class="bi bi-robot"></i> AI Health Assistant</a>
     </div>
     <div class="public-nav-actions">
-        <a th:href="@{/login}" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.3);">Login</a>
-        <a th:href="@{/register}" class="btn btn-primary">Get Started</a>
+        <a th:href="@{/login}" class="btn" style="border: 1px solid #D1D5DB; color: #374151; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">Sign In</a>
+        <a th:href="@{/register}" class="ref-pill-btn">Register</a>
     </div>
 </nav>
 
-<!-- ==================== HERO ==================== -->
-<section class="hero">
-    <div class="hero-content">
-        <div class="hero-badge"><i class="bi bi-patch-check-fill"></i> Trusted by 10,000+ Patients</div>
-        <h1>Your Health,<br/><span>Our Priority.</span></h1>
-        <p>Experience world-class healthcare with Healix. Book appointments, access medical records, and receive expert care — all from one place.</p>
-        <div class="hero-cta">
-            <a th:href="@{/register}" class="btn btn-primary btn-lg">
-                <i class="bi bi-calendar2-plus"></i> Book Appointment
-            </a>
-            <a th:href="@{/login}" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.35);">
-                <i class="bi bi-box-arrow-in-right"></i> Sign In
-            </a>
+<!-- ==================== REFERENCE HERO SECTION ==================== -->
+<section class="ref-hero-wrapper">
+    <div class="ref-hero-circle-bg"></div>
+    <div class="ref-hero-content">
+        <div>
+            <div style="display: inline-block; background: #EDE7F6; color: #5E35B1; padding: 4px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.85rem; margin-bottom: 1rem;">
+                <i class="bi bi-hospital"></i> Multi-Hospital Healthcare Network • Thiruvananthapuram
+            </div>
+            <h1 class="ref-hero-title">
+                We help people to<br/>
+                <span style="color: #8070A6;">get appointment</span><br/>
+                in online
+            </h1>
+            <p class="ref-hero-desc">
+                Discover leading hospitals across Thiruvananthapuram, assess symptoms with our preliminary AI triage assistant, and consult top medical specialists with seamless online appointments and instant registration.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a th:href="@{/hospitals}" class="ref-pill-btn">
+                    <i class="bi bi-search"></i> Select Hospital
+                </a>
+                <a th:href="@{/patient/ai-assistant}" class="btn" style="background: #F3F4F6; color: #374151; padding: 0.7rem 1.75rem; border-radius: 9999px; font-weight: 600; border: 1px solid #E5E7EB; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="bi bi-robot" style="color: #8070A6;"></i> AI Symptom Check
+                </a>
+            </div>
         </div>
-        <div style="margin-top:40px;display:flex;gap:32px;">
-            <div style="text-align:center;">
-                <div style="font-size:1.6rem;font-weight:800;color:#3B82F6;">500+</div>
-                <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Expert Doctors</div>
-            </div>
-            <div style="text-align:center;">
-                <div style="font-size:1.6rem;font-weight:800;color:#3B82F6;">50K+</div>
-                <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Patients Served</div>
-            </div>
-            <div style="text-align:center;">
-                <div style="font-size:1.6rem;font-weight:800;color:#3B82F6;">24/7</div>
-                <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);">Emergency Care</div>
+        <div style="position: relative; z-index: 2; display: flex; justify-content: center; align-items: center;">
+            <div style="position: relative; max-width: 540px; width: 100%;">
+                <img th:src="@{/images/hero-appointment.jpg}" alt="Doctor Online Appointment Consultation" 
+                     style="width: 100%; border-radius: 28px; box-shadow: 0 24px 60px rgba(128, 112, 166, 0.25); border: 4px solid #FFFFFF; object-fit: cover; aspect-ratio: 4/3; display: block;" />
+                <div style="position: absolute; bottom: -20px; left: 20px; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border-radius: 16px; padding: 12px 18px; border: 1px solid #E5E7EB; box-shadow: 0 10px 25px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 42px; height: 42px; background: #EDE7F6; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #5E35B1; font-size: 1.3rem;">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: #111827; font-size: 0.92rem;">Verified Healthcare Network</div>
+                        <div style="font-size: 0.76rem; color: #6B7280;">3 Multi-Speciality Hospitals • Trivandrum</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -84,8 +96,75 @@
     </div>
 </section>
 
+<!-- ==================== WHO WE ARE (BIOGRAPHY) ==================== -->
+<section id="about-us" class="section" style="padding: 80px 20px; background: #FFFFFF;">
+    <div style="max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.05fr; gap: 50px; align-items: center;">
+        <div style="position: relative;">
+            <div style="position: absolute; width: 100%; height: 100%; top: -12px; left: -12px; background: #EDE7F6; border-radius: 32px; z-index: 0;"></div>
+            <img th:src="@{/images/who-we-are-lab.jpg}" alt="Who We Are - Advanced Clinical Diagnostics" 
+                 style="position: relative; z-index: 1; width: 100%; border-radius: 24px; box-shadow: 0 20px 45px rgba(15, 32, 66, 0.12); border: 3px solid #FFFFFF; object-fit: cover; aspect-ratio: 4/3; display: block;"/>
+            <div style="position: absolute; bottom: 20px; right: 20px; z-index: 2; background: rgba(15, 32, 66, 0.88); backdrop-filter: blur(10px); color: #fff; padding: 8px 16px; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);">
+                <i class="bi bi-shield-check" style="color: #10B981; font-size: 1.1rem;"></i> NABL &amp; NABH Certified
+            </div>
+        </div>
+        <div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #8070A6; text-transform: uppercase; letter-spacing: 0.12em; display: inline-block; margin-bottom: 8px;">Biography</span>
+            <h2 style="font-size: 2.4rem; font-weight: 800; color: #111827; margin-bottom: 18px; line-height: 1.2;">Who We Are</h2>
+            <p style="color: #4B5563; font-size: 1.02rem; line-height: 1.75; margin-bottom: 16px;">
+                Healix Hospital Management System is a unified, next-generation healthcare gateway bridging top clinical facilities, accredited doctors, and patients throughout Thiruvananthapuram.
+            </p>
+            <p style="color: #6B7280; font-size: 0.94rem; line-height: 1.7; margin-bottom: 24px;">
+                We empower patients with seamless online appointment booking, digital prescriptions, integrated laboratory reports, and intelligent AI-powered preliminary symptom assessment. With 24/7 reliability, we make healthcare accessible, transparent, and prompt.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a th:href="@{/hospitals}" class="ref-pill-btn">
+                    <i class="bi bi-hospital"></i> Explore Hospitals
+                </a>
+                <a th:href="@{/register}" class="btn" style="background: #F3F4F6; color: #374151; padding: 0.7rem 1.75rem; border-radius: 9999px; font-weight: 600; border: 1px solid #E5E7EB;">
+                    Get Started Free
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SMART DOCTOR COMMUNICATION ==================== -->
+<section class="section section-light" style="padding: 80px 20px;">
+    <div style="max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1.05fr 1fr; gap: 50px; align-items: center;">
+        <div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #8070A6; text-transform: uppercase; letter-spacing: 0.12em; display: inline-block; margin-bottom: 8px;">Modern Telehealth &amp; Triage</span>
+            <h2 style="font-size: 2.3rem; font-weight: 800; color: #111827; margin-bottom: 18px; line-height: 1.25;">Instant Doctor Access &amp; Appointment Coordination</h2>
+            <p style="color: #4B5563; font-size: 1rem; line-height: 1.75; margin-bottom: 22px;">
+                Skip long hospital queues. View live doctor availability, receive automated conflict-free slot confirmation, and consult verified specialists across three prestigious institutions.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 26px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 40px; height: 40px; background: #EDE7F6; color: #8070A6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;"><i class="bi bi-calendar2-check-fill"></i></div>
+                    <span style="font-size: 0.95rem; color: #374151; font-weight: 500;">Real-time slot reservation with instant PDF slip download</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 40px; height: 40px; background: #EDE7F6; color: #8070A6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;"><i class="bi bi-file-earmark-medical-fill"></i></div>
+                    <span style="font-size: 0.95rem; color: #374151; font-weight: 500;">Access verified prescriptions and diagnosis notes anytime</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 40px; height: 40px; background: #EDE7F6; color: #8070A6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;"><i class="bi bi-robot"></i></div>
+                    <span style="font-size: 0.95rem; color: #374151; font-weight: 500;">Intelligent AI symptom assessment to recommend the right department</span>
+                </div>
+            </div>
+            <a th:href="@{/patient/ai-assistant}" class="ref-pill-btn">
+                <i class="bi bi-robot"></i> Try AI Health Assistant
+            </a>
+        </div>
+        <div style="position: relative; text-align: center;">
+            <div style="position: absolute; width: 100%; height: 100%; top: 12px; right: -12px; background: #E8F1FD; border-radius: 32px; z-index: 0;"></div>
+            <img th:src="@{/images/doctor-chat-dialog.jpg}" alt="Doctor Online Communication" 
+                 style="position: relative; z-index: 1; width: 100%; border-radius: 24px; box-shadow: 0 20px 45px rgba(128, 112, 166, 0.2); border: 3px solid #FFFFFF; object-fit: cover; aspect-ratio: 4/3; display: block;"/>
+        </div>
+    </div>
+</section>
+
 <!-- ==================== DEPARTMENTS ==================== -->
-<section id="departments" class="section section-light">
+<section id="departments" class="section section-light" style="padding: 70px 20px;">
     <h2 class="section-title">Our Departments</h2>
     <p class="section-subtitle">Comprehensive care across all major medical specialties</p>
     <div class="dept-grid" style="max-width:1100px;margin:0 auto;">
@@ -103,11 +182,89 @@
     </div>
 </section>
 
+<!-- ==================== OUR SERVICES (CLINICAL PHOTOGRAPHY CARDS) ==================== -->
+<section id="services" class="section" style="padding: 80px 20px; background: #FFFFFF;">
+    <div style="text-align: center; max-width: 700px; margin: 0 auto 48px;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #8070A6; text-transform: uppercase; letter-spacing: 0.12em;">Advanced Specialities</span>
+        <h2 style="font-size: 2.4rem; font-weight: 800; color: #111827; margin-top: 8px; margin-bottom: 12px;">Our Services</h2>
+        <p style="color: #6B7280; font-size: 1rem; line-height: 1.6;">Precision diagnostics, cutting-edge treatment facilities, and patient-first clinical excellence.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 1160px; margin: 0 auto;">
+        <!-- Card 1: Neurosciences -->
+        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04); transition: transform 0.25s ease, box-shadow 0.25s ease;">
+            <div style="position: relative; height: 180px; overflow: hidden;">
+                <img th:src="@{/images/service-neuro.jpg}" alt="Neurosciences" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"/>
+                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 32, 66, 0.85); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;">SPECIALITY</span>
+            </div>
+            <div style="padding: 22px 20px;">
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #111827; margin-bottom: 8px;">Neurosciences</h4>
+                <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.55; margin-bottom: 16px;">
+                    Comprehensive neuro-diagnostics, advanced MRI imaging, and expert neurological consultation.
+                </p>
+                <a th:href="@{/register}" style="color: #8070A6; font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                    Consult Specialist <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2: Cardiology -->
+        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04); transition: transform 0.25s ease, box-shadow 0.25s ease;">
+            <div style="position: relative; height: 180px; overflow: hidden;">
+                <img th:src="@{/images/service-cardio.jpg}" alt="Cardiology" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"/>
+                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 32, 66, 0.85); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;">CARDIAC CARE</span>
+            </div>
+            <div style="padding: 22px 20px;">
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #111827; margin-bottom: 8px;">Cardiology &amp; Vascular</h4>
+                <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.55; margin-bottom: 16px;">
+                    State-of-the-art cardiovascular health assessments, ECG, echocardiography, and preventive care.
+                </p>
+                <a th:href="@{/register}" style="color: #8070A6; font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                    Consult Specialist <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3: Pediatrics -->
+        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04); transition: transform 0.25s ease, box-shadow 0.25s ease;">
+            <div style="position: relative; height: 180px; overflow: hidden;">
+                <img th:src="@{/images/service-pediatrics.jpg}" alt="Pediatrics" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"/>
+                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 32, 66, 0.85); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;">CHILD HEALTH</span>
+            </div>
+            <div style="padding: 22px 20px;">
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #111827; margin-bottom: 8px;">Pediatrics &amp; Neonatology</h4>
+                <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.55; margin-bottom: 16px;">
+                    Gentle, warm, and highly specialized healthcare for newborns, children, and adolescents.
+                </p>
+                <a th:href="@{/register}" style="color: #8070A6; font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                    Consult Specialist <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 4: Orthopedics -->
+        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04); transition: transform 0.25s ease, box-shadow 0.25s ease;">
+            <div style="position: relative; height: 180px; overflow: hidden;">
+                <img th:src="@{/images/service-ortho.jpg}" alt="Orthopedics" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"/>
+                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 32, 66, 0.85); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;">BONES &amp; JOINTS</span>
+            </div>
+            <div style="padding: 22px 20px;">
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #111827; margin-bottom: 8px;">Orthopedics &amp; Sports Rehab</h4>
+                <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.55; margin-bottom: 16px;">
+                    Joint replacement, trauma care, spine health, and specialized physiotherapy programs.
+                </p>
+                <a th:href="@{/register}" style="color: #8070A6; font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                    Consult Specialist <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ==================== DOCTORS ==================== -->
-<section id="doctors" class="section">
+<section id="doctors" class="section section-light" style="padding: 80px 20px;">
     <h2 class="section-title">Meet Our Doctors</h2>
     <p class="section-subtitle">Experienced specialists dedicated to your wellbeing</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;max-width:1100px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;max-width:1160px;margin:0 auto;">
         <div class="doctor-card" th:each="doc : ${doctors}" th:if="${docStat.index < 6}">
             <div class="doctor-card-header">
                 <div class="avatar avatar-md avatar-navy"
@@ -148,46 +305,18 @@
     </div>
 </section>
 
-<!-- ==================== SERVICES ==================== -->
-<section id="services" class="section section-light">
-    <h2 class="section-title">Our Services</h2>
-    <p class="section-subtitle">Everything you need for complete healthcare management</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
-        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:28px 22px;text-align:center;">
-            <div style="width:56px;height:56px;background:#EFF6FF;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.6rem;color:#3B82F6;"><i class="bi bi-calendar2-check"></i></div>
-            <h4 style="font-weight:700;margin-bottom:8px;">Online Appointments</h4>
-            <p style="font-size:0.82rem;color:#4B5563;line-height:1.6;">Book and manage appointments online with conflict detection</p>
-        </div>
-        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:28px 22px;text-align:center;">
-            <div style="width:56px;height:56px;background:#F0FDFA;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.6rem;color:#0D9488;"><i class="bi bi-clipboard2-pulse"></i></div>
-            <h4 style="font-weight:700;margin-bottom:8px;">Digital Health Records</h4>
-            <p style="font-size:0.82rem;color:#4B5563;line-height:1.6;">Access complete medical history, diagnoses and prescriptions anytime</p>
-        </div>
-        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:28px 22px;text-align:center;">
-            <div style="width:56px;height:56px;background:#EEF2FF;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.6rem;color:#6366F1;"><i class="bi bi-capsule"></i></div>
-            <h4 style="font-weight:700;margin-bottom:8px;">Prescription Management</h4>
-            <p style="font-size:0.82rem;color:#4B5563;line-height:1.6;">Digital prescriptions from doctors with complete dosage information</p>
-        </div>
-        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:28px 22px;text-align:center;">
-            <div style="width:56px;height:56px;background:#FEF2F2;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.6rem;color:#EF4444;"><i class="bi bi-bell-fill"></i></div>
-            <h4 style="font-weight:700;margin-bottom:8px;">Smart Notifications</h4>
-            <p style="font-size:0.82rem;color:#4B5563;line-height:1.6;">Real-time alerts for appointments, updates and health reminders</p>
-        </div>
-    </div>
-</section>
-
 <!-- ==================== WHY CHOOSE US ==================== -->
 <section id="about" class="section" style="background:linear-gradient(135deg,#0F2042 0%,#1E3A8A 100%);padding:80px 40px;">
     <h2 class="section-title" style="color:#fff;">Why Choose Healix?</h2>
     <p class="section-subtitle" style="color:rgba(255,255,255,0.6);">We combine medical excellence with modern technology</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;max-width:1160px;margin:0 auto;">
         <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:flex-start;">
             <div style="width:44px;height:44px;background:rgba(59,130,246,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#3B82F6;flex-shrink:0;"><i class="bi bi-shield-check"></i></div>
             <div><h4 style="color:#fff;font-weight:700;margin-bottom:6px;">Bank-grade Security</h4><p style="font-size:0.82rem;color:rgba(255,255,255,0.55);">BCrypt-encrypted passwords and role-based access control</p></div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:flex-start;">
             <div style="width:44px;height:44px;background:rgba(16,185,129,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#10B981;flex-shrink:0;"><i class="bi bi-lightning-charge"></i></div>
-            <div><h4 style="color:#fff;font-weight:700;margin-bottom:6px;">Fast & Reliable</h4><p style="font-size:0.82rem;color:rgba(255,255,255,0.55);">Real-time data powered by Spring Boot and MySQL</p></div>
+            <div><h4 style="color:#fff;font-weight:700;margin-bottom:6px;">Fast &amp; Reliable</h4><p style="font-size:0.82rem;color:rgba(255,255,255,0.55);">Real-time data powered by Spring Boot and PostgreSQL</p></div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:flex-start;">
             <div style="width:44px;height:44px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#F59E0B;flex-shrink:0;"><i class="bi bi-people"></i></div>
@@ -202,7 +331,7 @@
 
 <!-- ==================== EMERGENCY ==================== -->
 <section style="background:#EF4444;padding:32px 40px;">
-    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div style="max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
         <div style="display:flex;align-items:center;gap:16px;">
             <div style="width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;"><i class="bi bi-telephone-fill"></i></div>
             <div>
@@ -211,43 +340,75 @@
             </div>
         </div>
         <div style="color:rgba(255,255,255,0.85);font-size:0.9rem;">
-            <i class="bi bi-geo-alt"></i> 123 Medical Avenue, Health City, Kerala – 682001
+            <i class="bi bi-geo-alt"></i> 123 Medical Avenue, Health City, Thiruvananthapuram, Kerala – 695001
         </div>
     </div>
 </section>
 
-<!-- ==================== CONTACT ==================== -->
-<section id="contact" style="background:#F8F9FA;padding:64px 40px;">
-    <div style="max-width:900px;margin:0 auto;text-align:center;">
-        <h2 class="section-title">Get In Touch</h2>
-        <p class="section-subtitle">We're here to help with all your healthcare needs</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:32px;">
-            <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:24px;text-align:center;">
-                <i class="bi bi-envelope-fill" style="font-size:1.8rem;color:#3B82F6;margin-bottom:12px;display:block;"></i>
-                <div style="font-weight:600;color:#374151;margin-bottom:4px;">Email Us</div>
-                <div style="font-size:0.82rem;color:#4B5563;">contact@healix.com</div>
+<!-- ==================== REFERENCE 4-COLUMN FOOTER ==================== -->
+<footer style="background:#0F2042;color:rgba(255,255,255,0.7);padding:60px 40px 30px;">
+    <div style="max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:40px;margin-bottom:40px;">
+        <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <div style="width:36px;height:36px;background:#8070A6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;">H</div>
+                <span style="color:#fff;font-weight:800;font-size:1.4rem;">Healix HMS</span>
             </div>
-            <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:24px;text-align:center;">
-                <i class="bi bi-telephone-fill" style="font-size:1.8rem;color:#10B981;margin-bottom:12px;display:block;"></i>
-                <div style="font-weight:600;color:#374151;margin-bottom:4px;">Call Us</div>
-                <div style="font-size:0.82rem;color:#4B5563;">+91 9876 543210</div>
+            <p style="font-size:0.88rem;color:rgba(255,255,255,0.6);line-height:1.65;max-width:320px;margin-bottom:16px;">
+                Multi-Hospital Management System connecting patients with top healthcare institutions, experienced specialists, and instant online appointments across Thiruvananthapuram.
+            </p>
+            <div style="display:flex;gap:12px;font-size:1.1rem;color:#8070A6;">
+                <a href="#" style="color:#8070A6;"><i class="bi bi-facebook"></i></a>
+                <a href="#" style="color:#8070A6;"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" style="color:#8070A6;"><i class="bi bi-linkedin"></i></a>
+                <a href="#" style="color:#8070A6;"><i class="bi bi-instagram"></i></a>
             </div>
-            <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:24px;text-align:center;">
-                <i class="bi bi-clock-fill" style="font-size:1.8rem;color:#F59E0B;margin-bottom:12px;display:block;"></i>
-                <div style="font-weight:600;color:#374151;margin-bottom:4px;">Working Hours</div>
-                <div style="font-size:0.82rem;color:#4B5563;">Mon-Sat: 9AM – 6PM</div>
+        </div>
+
+        <div>
+            <h4 style="color:#fff;font-size:1rem;font-weight:700;margin-bottom:16px;">Quick Links</h4>
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:0.88rem;">
+                <a href="/" style="color:rgba(255,255,255,0.7);text-decoration:none;">Home</a>
+                <a th:href="@{/hospitals}" style="color:rgba(255,255,255,0.7);text-decoration:none;">Hospitals Directory</a>
+                <a href="#services" style="color:rgba(255,255,255,0.7);text-decoration:none;">Clinical Services</a>
+                <a href="#about-us" style="color:rgba(255,255,255,0.7);text-decoration:none;">About Us</a>
+                <a th:href="@{/patient/ai-assistant}" style="color:rgba(255,255,255,0.7);text-decoration:none;">AI Symptom Checker</a>
+            </div>
+        </div>
+
+        <div>
+            <h4 style="color:#fff;font-size:1rem;font-weight:700;margin-bottom:16px;">Working Hours</h4>
+            <div style="font-size:0.85rem;line-height:1.8;">
+                <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Monday - Fri:</span> <span>8:00 - 20:00</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Saturday:</span> <span>9:00 - 18:00</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Sunday:</span> <span>10:00 - 16:00</span></div>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);color:#10B981;font-weight:600;">
+                    <i class="bi bi-clock-history"></i> 24/7 Emergency &amp; Trauma
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 style="color:#fff;font-size:1rem;font-weight:700;margin-bottom:16px;">Contact Us</h4>
+            <div style="font-size:0.85rem;line-height:1.8;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;gap:10px;align-items:flex-start;">
+                    <i class="bi bi-geo-alt-fill" style="color:#8070A6;margin-top:3px;"></i>
+                    <span>Medical College Road, Thiruvananthapuram, Kerala 695011</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <i class="bi bi-telephone-fill" style="color:#8070A6;"></i>
+                    <span>+91 9876 543210</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <i class="bi bi-envelope-fill" style="color:#8070A6;"></i>
+                    <span>support@healixhms.com</span>
+                </div>
             </div>
         </div>
     </div>
-</section>
 
-<!-- ==================== FOOTER ==================== -->
-<footer style="background:#0F2042;color:rgba(255,255,255,0.6);padding:28px 40px;text-align:center;font-size:0.82rem;">
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
-        <div style="width:28px;height:28px;background:#3B82F6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;">H</div>
-        <span style="color:#fff;font-weight:700;font-size:1rem;">Healix</span>
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:0.8rem;color:rgba(255,255,255,0.45);">
+        © 2026 Healix Hospital Management System. All rights reserved. Built with Java Spring Boot &amp; Supabase PostgreSQL.
     </div>
-    <p>© 2024 Healix Hospital Management System. KTU B.Tech CSE S3 OOP Project. For academic demonstration only.</p>
 </footer>
 
 <script th:src="@{/js/main.js}"></script>

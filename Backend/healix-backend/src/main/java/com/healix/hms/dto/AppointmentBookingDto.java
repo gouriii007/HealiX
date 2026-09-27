@@ -28,6 +28,14 @@ public class AppointmentBookingDto {
     @Size(max = 500, message = "Reason cannot exceed 500 characters")
     private String reason;
 
+    private String paymentMethod = "UPI_QR";
+
+    private String paymentStatus = "PAID";
+
+    private String transactionId;
+
+    private java.math.BigDecimal feeAmount;
+
     // ---- Constructors ----
     public AppointmentBookingDto() {}
 
@@ -43,4 +51,16 @@ public class AppointmentBookingDto {
 
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public String getTransactionId() { return transactionId; }
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+
+    public java.math.BigDecimal getFeeAmount() { return feeAmount; }
+    public void setFeeAmount(java.math.BigDecimal feeAmount) { this.feeAmount = feeAmount; }
 }

@@ -26,9 +26,12 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
             redirectUrl = switch (role) {
+                case "ROLE_SUPER_ADMIN" -> "/super-admin/dashboard";
+                case "ROLE_HOSPITAL_ADMIN" -> "/hospital-admin/dashboard";
                 case "ROLE_ADMIN" -> "/admin/dashboard";
                 case "ROLE_DOCTOR" -> "/doctor/dashboard";
                 case "ROLE_PATIENT" -> "/patient/dashboard";
+                case "ROLE_RECEPTIONIST" -> "/receptionist/dashboard";
                 default -> "/login";
             };
             break; // only first role

@@ -33,16 +33,27 @@ public class PatientController {
     private final DepartmentService departmentService;
     private final MedicalRecordService medicalRecordService;
     private final NotificationService notificationService;
+    private final HospitalService hospitalService;
+    private final PaymentService paymentService;
+    private final com.healix.hms.repository.PatientHospitalRepository patientHospitalRepository;
+    private final RecordSharingService recordSharingService;
 
     public PatientController(PatientService patientService, AppointmentService appointmentService,
                               DoctorService doctorService, DepartmentService departmentService,
-                              MedicalRecordService medicalRecordService, NotificationService notificationService) {
+                              MedicalRecordService medicalRecordService, NotificationService notificationService,
+                              HospitalService hospitalService, PaymentService paymentService,
+                              com.healix.hms.repository.PatientHospitalRepository patientHospitalRepository,
+                              RecordSharingService recordSharingService) {
         this.patientService = patientService;
         this.appointmentService = appointmentService;
         this.doctorService = doctorService;
         this.departmentService = departmentService;
         this.medicalRecordService = medicalRecordService;
         this.notificationService = notificationService;
+        this.hospitalService = hospitalService;
+        this.paymentService = paymentService;
+        this.patientHospitalRepository = patientHospitalRepository;
+        this.recordSharingService = recordSharingService;
     }
 
     private Patient getCurrentPatient(UserDetails userDetails) {
@@ -122,9 +133,9 @@ public class PatientController {
         }
         try {
             Appointment appointment = appointmentService.bookAppointment(dto, userDetails.getUsername());
-            ra.addFlashAttribute("success", "Appointment booked successfully! Appointment ID: #" + appointment.getId());
+            ra.addFlashAttribute("success", "Appointment booked successfully! Consultation fee paid via UPI QR. Appointment ID: #" + appointment.getId());
             ra.addFlashAttribute("bookedAppointment", appointment);
-            return "redirect:/patient/appointments";
+            return "redirect:/patient/receipt/appointment/" + appointment.getId();
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("doctors", doctorService.findAllDoctors());
@@ -224,5 +235,157 @@ public class PatientController {
         model.addAttribute("notifications", notificationService.getNotificationsForUser(patient));
         notificationService.markAllAsRead(patient);
         return "patient/notifications";
+    }
+
+    // ---- MY HOSPITALS & MULTI-HOSPITAL REGISTRATION ----
+    @GetMapping("/hospitals")
+    public String myHospitals(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Patient patient = getCurrentPatient(userDetails);
+        List<PatientHospital> registeredHospitals = patientHospitalRepository.findByPatient(patient);
+        List<Hospital> allHospitals = hospitalService.getActiveHospitals();
+
+        model.addAttribute("patient", patient);
+        model.addAttribute("registeredHospitals", registeredHospitals);
+        model.addAttribute("allHospitals", allHospitals);
+        return "patient/hospitals";
+    }
+
+    @PostMapping("/hospitals/{hospitalId}/register")
+    public String registerWithHospital(@PathVariable("hospitalId") Long hospitalId,
+                                       @RequestParam(value = "paymentMethod", defaultValue = "UPI") String paymentMethod,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       RedirectAttributes ra) {
+        Patient patient = getCurrentPatient(userDetails);
+        Hospital hospital = hospitalService.getHospitalById(hospitalId);
+
+        // Check if already registered
+        if (patientHospitalRepository.findByPatientAndHospital(patient, hospital).isPresent()) {
+            ra.addFlashAttribute("info", "You are already registered with " + hospital.getHospitalName());
+            return "redirect:/patient/hospitals";
+        }
+
+        // Process Registration Fee Payment
+        Payment payment = paymentService.initiatePayment(
+                patient, hospital, null,
+                hospital.getRegistrationFee() != null ? hospital.getRegistrationFee() : new java.math.BigDecimal("250.00"),
+                com.healix.hms.model.enums.PaymentType.REGISTRATION_FEE,
+                paymentMethod
+        );
+        payment = paymentService.completePayment(payment.getPaymentReference());
+
+        // Create PatientHospital junction record
+        String hospitalPatientNumber = hospital.getHospitalCode() + "-P-" + String.format("%04d", patient.getId());
+        PatientHospital ph = new PatientHospital(patient, hospital, hospitalPatientNumber);
+        ph.setRegistrationSlipId(payment.getReceiptNumber());
+        patientHospitalRepository.save(ph);
+
+        // Send confirmation notification
+        notificationService.sendNotification(
+                patient,
+                "Registered successfully with " + hospital.getHospitalName() + ". Hospital ID: " + hospitalPatientNumber,
+                com.healix.hms.model.enums.NotificationType.PAYMENT,
+                hospital.getId()
+        );
+
+        ra.addFlashAttribute("success", "Successfully registered with " + hospital.getHospitalName() + "!");
+        return "redirect:/patient/receipt/" + payment.getPaymentReference();
+    }
+
+    // ---- REGISTRATION & PAYMENT RECEIPT ----
+    @GetMapping("/receipt/{paymentReference}")
+    public String viewPaymentReceipt(@PathVariable("paymentReference") String paymentReference,
+                                     @AuthenticationPrincipal UserDetails userDetails,
+                                     Model model) {
+        Payment payment = paymentService.getPaymentByReference(paymentReference);
+        Patient patient = getCurrentPatient(userDetails);
+        PatientHospital ph = patientHospitalRepository.findByPatientAndHospital(patient, payment.getHospital()).orElse(null);
+
+        model.addAttribute("payment", payment);
+        model.addAttribute("patient", patient);
+        model.addAttribute("hospital", payment.getHospital());
+        model.addAttribute("patientHospital", ph);
+
+        if (payment.getAppointmentId() != null || payment.getPaymentType() == com.healix.hms.model.enums.PaymentType.APPOINTMENT_FEE) {
+            Appointment appt = null;
+            if (payment.getAppointmentId() != null) {
+                appt = appointmentService.findAppointment(payment.getAppointmentId());
+            }
+            model.addAttribute("appointment", appt);
+            model.addAttribute("doctor", appt != null ? appt.getDoctor() : null);
+            return "patient/appointment-receipt";
+        }
+        return "patient/payment-receipt";
+    }
+
+    @GetMapping({"/receipt/appointment/{id}", "/appointments/{id}/receipt"})
+    public String viewAppointmentReceipt(@PathVariable("id") Long id,
+                                         @AuthenticationPrincipal UserDetails userDetails,
+                                         Model model) {
+        Appointment appointment = appointmentService.findAppointment(id);
+        Patient patient = getCurrentPatient(userDetails);
+        Payment payment = appointment.getPayment();
+        if (payment == null) {
+            payment = paymentService.getPaymentByAppointmentId(appointment.getId());
+        }
+        model.addAttribute("appointment", appointment);
+        model.addAttribute("doctor", appointment.getDoctor());
+        model.addAttribute("hospital", appointment.getHospital() != null ? appointment.getHospital() : appointment.getDoctor().getHospital());
+        model.addAttribute("patient", patient);
+        model.addAttribute("payment", payment);
+        return "patient/appointment-receipt";
+    }
+
+    @PostMapping("/appointments/{id}/pay")
+    public String payAppointmentFee(@PathVariable("id") Long id,
+                                    @RequestParam(value = "paymentMethod", defaultValue = "UPI_QR") String paymentMethod,
+                                    @RequestParam(value = "transactionId", required = false) String transactionId,
+                                    RedirectAttributes ra) {
+        try {
+            Payment payment = appointmentService.payAppointmentFee(id, paymentMethod, transactionId);
+            ra.addFlashAttribute("success", "Consultation fee paid successfully! Receipt: " + payment.getReceiptNumber());
+            return "redirect:/patient/receipt/appointment/" + id;
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Payment failed: " + e.getMessage());
+            return "redirect:/patient/appointments";
+        }
+    }
+
+    // ---- AI HEALTH ASSISTANT ----
+    @GetMapping("/ai-assistant")
+    public String aiAssistantPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Patient patient = getCurrentPatient(userDetails);
+        model.addAttribute("patient", patient);
+        model.addAttribute("hospitals", hospitalService.getActiveHospitals());
+        return "patient/ai-assistant";
+    }
+
+    // ---- CROSS-HOSPITAL RECORD CONSENT ----
+    @GetMapping("/consent-requests")
+    public String consentRequestsPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Patient patient = getCurrentPatient(userDetails);
+        model.addAttribute("pendingRequests", recordSharingService.getPendingRequestsForPatient(patient.getId()));
+        model.addAttribute("allRequests", recordSharingService.getRequestsForPatient(patient.getId()));
+        return "patient/consent-requests";
+    }
+
+    @PostMapping("/consent-requests/{requestId}/approve")
+    public String approveConsent(@PathVariable("requestId") Long requestId,
+                                 @RequestParam(value = "validDays", defaultValue = "7") int validDays,
+                                 @AuthenticationPrincipal UserDetails userDetails,
+                                 RedirectAttributes ra) {
+        Patient patient = getCurrentPatient(userDetails);
+        recordSharingService.approveRequest(requestId, patient.getId(), validDays);
+        ra.addFlashAttribute("success", "Medical record access approved for " + validDays + " days.");
+        return "redirect:/patient/consent-requests";
+    }
+
+    @PostMapping("/consent-requests/{requestId}/reject")
+    public String rejectConsent(@PathVariable("requestId") Long requestId,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes ra) {
+        Patient patient = getCurrentPatient(userDetails);
+        recordSharingService.rejectRequest(requestId, patient.getId());
+        ra.addFlashAttribute("info", "Record sharing request rejected.");
+        return "redirect:/patient/consent-requests";
     }
 }

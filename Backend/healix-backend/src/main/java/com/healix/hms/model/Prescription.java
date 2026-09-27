@@ -33,6 +33,12 @@ public class Prescription {
     @Column(length = 100)
     private String duration;
 
+    @Column(length = 50)
+    private String route = "Oral"; // Oral, Topical, IV, etc.
+
+    @Column(name = "prescription_code", length = 50)
+    private String prescriptionCode; // e.g. RX-TRV-000245
+
     @Column(length = 500)
     private String instructions;
 
@@ -66,6 +72,12 @@ public class Prescription {
 
     public String getDuration() { return duration; }
     public void setDuration(String duration) { this.duration = duration; }
+
+    public String getRoute() { return route; }
+    public void setRoute(String route) { this.route = route; }
+
+    public String getPrescriptionCode() { return prescriptionCode; }
+    public void setPrescriptionCode(String prescriptionCode) { this.prescriptionCode = prescriptionCode; }
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
