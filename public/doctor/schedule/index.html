@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Schedule | Healix Doctor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-doctor">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#6366F1;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Doctor Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/doctor/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/doctor/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> Appointments</a>
+            <a href="/doctor/patients" class="nav-item"><i class="bi bi-people nav-icon"></i> My Patients</a>
+            <a href="/doctor/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/doctor/schedule" class="nav-item active"><i class="bi bi-clock nav-icon"></i> Schedule</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/doctor/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/doctor/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">My Schedule</div>
+                <div class="header-subtitle">Upcoming consultation schedule &amp; time slots</div>
+            </div>
+            <div class="header-actions">
+                <a href="/doctor/appointments" class="btn btn-indigo btn-sm"><i class="bi bi-calendar2-check"></i> Manage Appointments</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-calendar-week" style="color:#6366F1;"></i> Upcoming Schedule
+                        <span style="font-size:0.8rem; font-weight:400; color:#9CA3AF; margin-left:8px;"
+                              th:text="'(' + ${upcomingAppointments != null ? upcomingAppointments.size() : 0} + ' Consultations)'"></span>
+                    </h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" th:if="${upcomingAppointments != null and !upcomingAppointments.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Patient</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+    <tr>
+        <td style="font-weight:700;color:#0F2042;">Tomorrow</td>
+        <td style="font-weight:700;color:#6366F1;">09:30 AM</td>
+        <td style="font-weight:600;">Arun Chandran</td>
+        <td>Chest pain &amp; shortness of breath</td>
+        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+        <td><button onclick="alert('Opening OPD slot for Arun Chandran');" class="btn btn-sm btn-indigo">Start</button></td>
+    </tr>
+    <tr>
+        <td style="font-weight:700;color:#0F2042;">Tomorrow</td>
+        <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
+        <td style="font-weight:600;">Divya Rajan</td>
+        <td>Hypertension checkup</td>
+        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+        <td><button onclick="alert('Opening OPD slot for Divya Rajan');" class="btn btn-sm btn-indigo">Start</button></td>
+    </tr>
+    <tr>
+        <td style="font-weight:700;color:#0F2042;">In 2 Days</td>
+        <td style="font-weight:700;color:#6366F1;">10:00 AM</td>
+        <td style="font-weight:600;">K. V. Ramanathan</td>
+        <td>Post-CABG routine follow-up</td>
+        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+        <td><button onclick="alert('Opening OPD slot for K. V. Ramanathan');" class="btn btn-sm btn-indigo">Start</button></td>
+    </tr>
+</tbody>
+                    </table>
+
+                    <div th:if="${upcomingAppointments == null or upcomingAppointments.isEmpty()}" class="empty-state" style="padding: 48px 24px;">
+                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-calendar-check"></i></div>
+                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No upcoming appointments scheduled</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem;">Your schedule is currently clear for the coming days.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

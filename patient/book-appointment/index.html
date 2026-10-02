@@ -70,13 +70,13 @@
                         <h5><i class="bi bi-calendar-check" style="color:#0D9488;"></i> Appointment Details</h5>
                     </div>
                     <div class="card-body">
-                        <form action="/patient/book-appointment" th:object="${appointmentDto}" method="post">
+                        <form action="/patient/book-appointment"  method="post">
                             
 
                             <!-- Doctor Selection -->
                             <div class="form-group">
                                 <label class="form-label">Select Medical Specialist <span class="required">*</span></label>
-                                <select th:field="*{doctorId}" class="form-control form-select" required id="doctorSelect">
+                                <select  class="form-control form-select" required id="doctorSelect">
                                     <option value="">-- Choose Specialist --</option>
                                     <option th:each="doc : ${doctors}"
                                             th:value="${doc.id}"
@@ -89,7 +89,7 @@
                             <!-- Date Selection -->
                             <div class="form-group">
                                 <label class="form-label">Preferred Date <span class="required">*</span></label>
-                                <input type="date" th:field="*{appointmentDate}" class="form-control" required
+                                <input type="date"  class="form-control" required
                                        id="appointmentDate"
                                        th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"/>
                                 <div th:if="${#fields.hasErrors('appointmentDate')}" class="form-error" th:errors="*{appointmentDate}"></div>
@@ -104,7 +104,7 @@
                                     <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Morning Slots</div>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
                                         <label th:each="slot : ${timeSlots}">
-                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio" required/>
+                                            <input type="radio"  th:value="${slot}" class="slot-radio" required/>
                                             <span class="slot-pill" th:text="${slot}">09:00</span>
                                         </label>
                                     </div>
@@ -112,7 +112,7 @@
                                     <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Afternoon Slots</div>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
                                         <label th:each="slot : ${afternoonSlots}">
-                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio"/>
+                                            <input type="radio"  th:value="${slot}" class="slot-radio"/>
                                             <span class="slot-pill" th:text="${slot}">14:00</span>
                                         </label>
                                     </div>
@@ -120,7 +120,7 @@
                                     <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Evening Slots</div>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                         <label th:each="slot : ${eveningSlots}">
-                                            <input type="radio" th:field="*{appointmentTime}" th:value="${slot}" class="slot-radio"/>
+                                            <input type="radio"  th:value="${slot}" class="slot-radio"/>
                                             <span class="slot-pill" th:text="${slot}">17:00</span>
                                         </label>
                                     </div>
@@ -130,7 +130,7 @@
                             <!-- Reason / Symptoms -->
                             <div class="form-group">
                                 <label class="form-label">Reason for Consultation / Symptoms <span class="required">*</span></label>
-                                <textarea th:field="*{reason}" class="form-control" rows="3"
+                                <textarea  class="form-control" rows="3"
                                           placeholder="Briefly describe your symptoms or reason for visit..." required></textarea>
                                 <div th:if="${#fields.hasErrors('reason')}" class="form-error" th:errors="*{reason}"></div>
                             </div>
@@ -190,12 +190,16 @@
 <script>
     document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
-        const hospital = document.querySelector('select[name="hospitalId"]') ? document.querySelector('select[name="hospitalId"]').options[document.querySelector('select[name="hospitalId"]').selectedIndex].text : 'MediCare City Hospital';
-        const doctor = document.querySelector('select[name="doctorId"]') ? document.querySelector('select[name="doctorId"]').options[document.querySelector('select[name="doctorId"]').selectedIndex].text : 'Dr. Rajesh Kumar (Cardiology)';
-        const date = document.querySelector('input[type="date"]').value || 'Tomorrow';
-        const time = document.querySelector('select[name="appointmentTime"]') ? document.querySelector('select[name="appointmentTime"]').value : '10:00 AM';
+        const hospitalSelect = document.querySelector('select[name="hospitalId"]');
+        const hospital = hospitalSelect && hospitalSelect.selectedIndex >= 0 ? hospitalSelect.options[hospitalSelect.selectedIndex].text : 'MediCare City Hospital';
+        const doctorSelect = document.querySelector('select[name="doctorId"]');
+        const doctor = doctorSelect && doctorSelect.selectedIndex >= 0 ? doctorSelect.options[doctorSelect.selectedIndex].text : 'Dr. Rajesh Kumar (Cardiology)';
+        const dateInput = document.querySelector('input[type="date"]');
+        const date = dateInput && dateInput.value ? dateInput.value : 'Tomorrow';
+        const timeSelect = document.querySelector('select[name="appointmentTime"]');
+        const time = timeSelect && timeSelect.value ? timeSelect.value : '10:00 AM';
 
-        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Registration slip generated.');
+        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated.');
         window.location.href = '/patient/appointments';
     });
 </script>

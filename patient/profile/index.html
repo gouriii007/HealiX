@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Profile | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item active"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Personal Profile</div>
+                <div class="header-subtitle">Manage your personal and emergency medical information</div>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div th:if="${success}" class="alert alert-success alert-auto-dismiss">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error alert-auto-dismiss">
+                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
+            </div>
+
+            <div class="grid-2" style="gap: 24px; align-items: flex-start;">
+
+                <!-- Profile Summary Card -->
+                <div class="card">
+                    <div class="card-body" style="padding: 28px; text-align: center;">
+                        <div class="avatar avatar-xl" style="background: #0D9488; color: #fff; margin: 0 auto 16px; font-size: 2rem;"
+                             th:text="${#strings.substring(patient.name, 0, 1)}">P</div>
+                        <h3 style="font-size: 1.3rem; font-weight: 700; color: #0F2042; margin-bottom: 4px;" Arun Chandran>John Doe</h3>
+                        <span class="badge badge-teal" style="font-size: 0.8rem;">PATIENT</span>
+
+                        <div style="margin-top: 24px; border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:#64748B;">Email:</span>
+                                <strong style="color:#1E293B;" th:text="${patient.email}">email@example.com</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:#64748B;">Phone:</span>
+                                <strong style="color:#1E293B;" th:text="${patient.phone}">9876543210</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:#64748B;">Blood Group:</span>
+                                <strong style="color:#0D9488;" th:text="${patient.bloodGroup != null ? patient.bloodGroup.displayName : 'Not specified'}">O+</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:#64748B;">Gender:</span>
+                                <strong style="color:#1E293B;" th:text="${patient.gender != null ? patient.gender : 'Not specified'}">Male</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Profile Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-pencil-square" style="color:#0D9488;"></i> Edit Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/patient/profile/update"  method="post">
+                            
+
+                            <div class="form-group">
+                                <label class="form-label">Full Name <span class="required">*</span></label>
+                                <input type="text"  class="form-control" required/>
+                                <div th:if="${#fields.hasErrors('name')}" class="form-error" th:errors="*{name}"></div>
+                            </div>
+
+                            <div class="grid-2" style="gap: 12px;">
+                                <div class="form-group">
+                                    <label class="form-label">Email (Read Only)</label>
+                                    <input type="email"  class="form-control" readonly style="background:#F1F5F9;"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                                    <input type="tel"  class="form-control" required/>
+                                    <div th:if="${#fields.hasErrors('phone')}" class="form-error" th:errors="*{phone}"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid-2" style="gap: 12px;">
+                                <div class="form-group">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date"  class="form-control"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Blood Group</label>
+                                    <select  class="form-control form-select">
+                                        <option value="">Select Blood Group</option>
+                                        <option th:each="bg : ${T(com.healix.hms.model.enums.BloodGroup).values()}" th:value="${bg}" th:text="${bg.displayName}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <textarea  class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="grid-2" style="gap: 12px;">
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    <input type="text"  class="form-control"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Phone</label>
+                                    <input type="tel"  class="form-control"/>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-teal btn-block" style="margin-top: 10px;">
+                                <i class="bi bi-save"></i> Save Profile Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

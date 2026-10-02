@@ -7,13 +7,39 @@
     { "source": "/hospitals", "destination": "/hospitals/index.html" },
     { "source": "/login", "destination": "/login/index.html" },
     { "source": "/register", "destination": "/register/index.html" },
+    { "source": "/logout", "destination": "/logout/index.html" },
+
+    { "source": "/patient", "destination": "/patient/dashboard/index.html" },
     { "source": "/patient/dashboard", "destination": "/patient/dashboard/index.html" },
     { "source": "/patient/book-appointment", "destination": "/patient/book-appointment/index.html" },
     { "source": "/patient/appointments", "destination": "/patient/appointments/index.html" },
     { "source": "/patient/ai-assistant", "destination": "/patient/ai-assistant/index.html" },
-    { "source": "/patient/hospitals", "destination": "/hospitals/index.html" },
+    { "source": "/patient/doctors", "destination": "/patient/doctors/index.html" },
+    { "source": "/patient/hospitals", "destination": "/patient/hospitals/index.html" },
+    { "source": "/patient/medical-records", "destination": "/patient/medical-records/index.html" },
+    { "source": "/patient/prescriptions", "destination": "/patient/prescriptions/index.html" },
+    { "source": "/patient/consent-requests", "destination": "/patient/consent-requests/index.html" },
+    { "source": "/patient/profile", "destination": "/patient/profile/index.html" },
+    { "source": "/patient/notifications", "destination": "/patient/notifications/index.html" },
+
+    { "source": "/doctor", "destination": "/doctor/dashboard/index.html" },
     { "source": "/doctor/dashboard", "destination": "/doctor/dashboard/index.html" },
+    { "source": "/doctor/appointments", "destination": "/doctor/appointments/index.html" },
+    { "source": "/doctor/patients", "destination": "/doctor/patients/index.html" },
+    { "source": "/doctor/medical-records", "destination": "/doctor/medical-records/index.html" },
+    { "source": "/doctor/schedule", "destination": "/doctor/schedule/index.html" },
+    { "source": "/doctor/profile", "destination": "/doctor/profile/index.html" },
+    { "source": "/doctor/notifications", "destination": "/doctor/notifications/index.html" },
+
+    { "source": "/hospital-admin", "destination": "/hospital-admin/dashboard/index.html" },
     { "source": "/hospital-admin/dashboard", "destination": "/hospital-admin/dashboard/index.html" },
-    { "source": "/super-admin/dashboard", "destination": "/super-admin/dashboard/index.html" }
+    { "source": "/hospital-admin/doctors", "destination": "/hospital-admin/doctors/index.html" },
+    { "source": "/hospital-admin/departments", "destination": "/hospital-admin/departments/index.html" },
+    { "source": "/hospital-admin/patients", "destination": "/hospital-admin/patients/index.html" },
+    { "source": "/hospital-admin/payments", "destination": "/hospital-admin/payments/index.html" },
+
+    { "source": "/super-admin", "destination": "/super-admin/dashboard/index.html" },
+    { "source": "/super-admin/dashboard", "destination": "/super-admin/dashboard/index.html" },
+    { "source": "/super-admin/hospitals", "destination": "/super-admin/hospitals/index.html" }
   ]
 }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Signing out | HealiX</title>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F8FAFC;font-family:'Inter',sans-serif;margin:0;">
+    <div style="text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #E2E8F0;box-shadow:0 4px 20px rgba(0,0,0,0.05);max-width:380px;">
+        <div style="font-size:2rem;color:#6366F1;margin-bottom:12px;"><i class="bi bi-box-arrow-right"></i></div>
+        <h3 style="margin:0 0 8px;color:#0F2042;">Signing out...</h3>
+        <p style="color:#64748B;font-size:0.9rem;margin:0;">Clearing session and redirecting to sign in page.</p>
+    </div>
+    <script>
+        localStorage.removeItem('healix_user');
+        setTimeout(() => { window.location.href = '/login'; }, 400);
+    </script>
+</body>
+</html>

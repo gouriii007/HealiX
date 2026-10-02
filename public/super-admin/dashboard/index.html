@@ -79,21 +79,49 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="hosp : ${hospitals}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                        <td style="padding: 0.75rem;"><span class="hospital-badge" th:text="${hosp.hospitalCode}">TRV-HOSP-01</span></td>
-                        <td style="padding: 0.75rem; font-weight: 600; color: #111827;" th:text="${hosp.hospitalName}">Hospital Name</td>
-                        <td style="padding: 0.75rem; color: #6B7280;" th:text="${hosp.city}">Trivandrum</td>
-                        <td style="padding: 0.75rem; font-weight: 600;" th:text="'₹' + ${hosp.registrationFee}">₹250</td>
-                        <td style="padding: 0.75rem;">
-                            <span style="font-size: 0.78rem; font-weight: 600; color: #10B981; background: #D1FAE5; padding: 2px 8px; border-radius: 9999px;" th:text="${hosp.status}">ACTIVE</span>
-                        </td>
-                        <td style="padding: 0.75rem;">
-                            <a th:href="@{/hospital-admin/dashboard(hospitalId=${hosp.id})}" class="btn" style="border: 1px solid #D1D5DB; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem;">
-                                Manage Scope
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
+    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;font-weight:700;">TRV-HOSP-01</span></td>
+        <td style="padding: 0.75rem; font-weight: 700; color: #111827;">MediCare City Hospital</td>
+        <td style="padding: 0.75rem; color: #6B7280;">MG Road, Statue, Trivandrum</td>
+        <td style="padding: 0.75rem; font-weight: 700;">₹250.00</td>
+        <td style="padding: 0.75rem;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; background: #D1FAE5; padding: 3px 10px; border-radius: 9999px;">ACTIVE</span>
+        </td>
+        <td style="padding: 0.75rem;">
+            <a href="/hospital-admin/dashboard" class="btn" style="border: 1px solid #D1D5DB; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight:600;">
+                <i class="bi bi-box-arrow-in-right"></i> Manage Scope
+            </a>
+        </td>
+    </tr>
+    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;font-weight:700;">TRV-HOSP-02</span></td>
+        <td style="padding: 0.75rem; font-weight: 700; color: #111827;">Trivandrum Medical Trust</td>
+        <td style="padding: 0.75rem; color: #6B7280;">Pattom Palace PO, Trivandrum</td>
+        <td style="padding: 0.75rem; font-weight: 700;">₹200.00</td>
+        <td style="padding: 0.75rem;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; background: #D1FAE5; padding: 3px 10px; border-radius: 9999px;">ACTIVE</span>
+        </td>
+        <td style="padding: 0.75rem;">
+            <a href="/hospital-admin/dashboard" class="btn" style="border: 1px solid #D1D5DB; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight:600;">
+                <i class="bi bi-box-arrow-in-right"></i> Manage Scope
+            </a>
+        </td>
+    </tr>
+    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;font-weight:700;">TRV-HOSP-03</span></td>
+        <td style="padding: 0.75rem; font-weight: 700; color: #111827;">Sree Chitra Speciality Hospital</td>
+        <td style="padding: 0.75rem; color: #6B7280;">Kumarapuram, Trivandrum</td>
+        <td style="padding: 0.75rem; font-weight: 700;">₹300.00</td>
+        <td style="padding: 0.75rem;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; background: #D1FAE5; padding: 3px 10px; border-radius: 9999px;">ACTIVE</span>
+        </td>
+        <td style="padding: 0.75rem;">
+            <a href="/hospital-admin/dashboard" class="btn" style="border: 1px solid #D1D5DB; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight:600;">
+                <i class="bi bi-box-arrow-in-right"></i> Manage Scope
+            </a>
+        </td>
+    </tr>
+</tbody>
             </table>
         </div>
     </div>

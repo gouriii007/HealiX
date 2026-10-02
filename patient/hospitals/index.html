@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Hospitals | MediCare Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/patient/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">Patient Portal</span>
+    </a>
+    <div class="public-nav-links">
+        <a href="/patient/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="active"><i class="bi bi-hospital"></i> My Hospitals</a>
+        <a href="/patient/appointments"><i class="bi bi-calendar2-check"></i> Appointments</a>
+        <a href="/patient/medical-records"><i class="bi bi-clipboard2-pulse"></i> Health Records</a>
+        <a href="/patient/ai-assistant"><i class="bi bi-robot"></i> AI Assistant</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/patient/dashboard" class="btn" style="border: 1px solid #D1D5DB; color: #374151; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem;">
+
+    <div style="margin-bottom: 2rem;">
+        <div style="font-size: 0.85rem; color: #6B7280;">Central Patient Identifier</div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 0.75rem;">
+            Arun Chandran
+            <span class="hospital-badge" style="font-size: 0.9rem;" >PAT-TRV-000102</span>
+        </h2>
+    </div>
+
+    <!-- Flash Messages -->
+    <div th:if="${success}" class="alert alert-success mb-3" style="background: #D1FAE5; color: #065F46; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+    </div>
+    <div th:if="${info}" class="alert alert-info mb-3" style="background: #EDE7F6; color: #5E35B1; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-info-circle-fill"></i> <span th:text="${info}"></span>
+    </div>
+
+    <!-- Registered Hospitals -->
+    <h3 style="font-size: 1.35rem; font-weight: 700; color: #111827; margin-bottom: 1rem;">
+        <i class="bi bi-hospital" style="color: #8070A6;"></i> My Registered Hospitals
+    </h3>
+    
+    <div class="hospital-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 2.5rem;">
+        <div class="hospital-card" style="border-top: 4px solid #8070A6; background:#fff; border-radius:16px; border:1px solid #E5E7EB; padding:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div>
+                    <span class="hospital-badge" style="background:#EDE7F6; color:#5E35B1; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">TRV-HOSP-01</span>
+                    <h3 style="font-size:1.25rem; font-weight:700; color:#111827; margin:6px 0 2px;">MediCare City Hospital</h3>
+                    <div style="font-size:0.82rem; color:#6B7280;">MG Road, Statue, Thiruvananthapuram</div>
+                </div>
+                <span class="badge badge-confirmed" style="background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:9999px; font-size:0.75rem; font-weight:700;">REGISTERED</span>
+            </div>
+            <div style="background:#F8FAFC; border-radius:10px; padding:12px; margin-bottom:1rem; font-size:0.85rem;">
+                <div style="color:#64748B; font-size:0.75rem;">Hospital Patient Code</div>
+                <strong style="color:#0F2042; font-size:1rem;">TRV-HOSP-01-P-0001</strong>
+            </div>
+            <a href="/patient/book-appointment" class="ref-pill-btn" style="width:100%; justify-content:center; padding:8px 0; font-size:0.85rem;">
+                <i class="bi bi-calendar-plus"></i> Book Consultation
+            </a>
+        </div>
+
+        <div class="hospital-card" style="border-top: 4px solid #0D9488; background:#fff; border-radius:16px; border:1px solid #E5E7EB; padding:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div>
+                    <span class="hospital-badge" style="background:#CCFBF1; color:#0F766E; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">TRV-HOSP-02</span>
+                    <h3 style="font-size:1.25rem; font-weight:700; color:#111827; margin:6px 0 2px;">Trivandrum Medical Trust</h3>
+                    <div style="font-size:0.82rem; color:#6B7280;">Pattom Palace PO, Medical College Road</div>
+                </div>
+                <span class="badge badge-confirmed" style="background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:9999px; font-size:0.75rem; font-weight:700;">REGISTERED</span>
+            </div>
+            <div style="background:#F8FAFC; border-radius:10px; padding:12px; margin-bottom:1rem; font-size:0.85rem;">
+                <div style="color:#64748B; font-size:0.75rem;">Hospital Patient Code</div>
+                <strong style="color:#0F2042; font-size:1rem;">TRV-HOSP-02-P-0042</strong>
+            </div>
+            <a href="/patient/book-appointment" class="ref-pill-btn" style="width:100%; justify-content:center; padding:8px 0; font-size:0.85rem;">
+                <i class="bi bi-calendar-plus"></i> Book Consultation
+            </a>
+        </div>
+    </div>
+
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; border-top: 1px solid #E5E7EB; padding-top: 1rem;">
+                <a href="/patient/book-appointment" class="ref-pill-btn" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Book Appointment</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Hospitals to Register -->
+    <h3 style="font-size: 1.35rem; font-weight: 700; color: #111827; margin-bottom: 1rem;">
+        <i class="bi bi-plus-circle" style="color: #10B981;"></i> Available Hospitals in Network
+    </h3>
+    <div class="hospital-grid">
+        <div th:each="hosp : ${allHospitals}" class="hospital-card">
+            <div>
+                <span class="hospital-badge" th:text="${hosp.hospitalCode}">TRV-HOSP-01</span>
+                <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-top: 0.5rem;" th:text="${hosp.hospitalName}">Hospital Name</h4>
+                <p style="color: #6B7280; font-size: 0.85rem; margin-bottom: 0.75rem;">
+                    <i class="bi bi-geo-alt-fill" style="color: #8070A6;"></i> <span th:text="${hosp.address}">Address</span>
+                </p>
+                <p style="color: #4B5563; font-size: 0.88rem; margin-bottom: 1rem;" th:text="${hosp.description}">Description</p>
+                <div style="font-size: 0.85rem; color: #374151; font-weight: 600;">
+                    One-time Registration Fee: <span style="color: #8070A6;" th:text="'₹' + ${hosp.registrationFee}">₹250</span>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #E5E7EB; padding-top: 1rem; margin-top: 1rem;">
+                <form th:action="@{/patient/hospitals/{id}/register(id=${hosp.id})}" method="post">
+                    
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <select name="paymentMethod" class="form-control form-select" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;">
+                            <option value="UPI">UPI (Google Pay / PhonePe)</option>
+                            <option value="CREDIT_CARD">Credit / Debit Card</option>
+                            <option value="NET_BANKING">Net Banking</option>
+                        </select>
+                        <button type="submit" class="ref-pill-btn" style="padding: 0.5rem 1.25rem; font-size: 0.85rem; white-space: nowrap;">
+                            Pay &amp; Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

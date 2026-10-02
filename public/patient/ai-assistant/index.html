@@ -180,17 +180,6 @@
             };
         }
 
-        if (symptoms.includes('child') || symptoms.includes('infant') || symptoms.includes('baby') || symptoms.includes('toddler')) {
-            return {
-                emergency: false,
-                severityLevel: 'MODERATE',
-                generalExplanation: 'Pediatric symptoms require prompt gentle care tailored to developing immune systems.',
-                possibleConditions: ['Pediatric Viral Infection', 'Teething Irritation', 'Childhood Allergy'],
-                recommendedDepartment: 'Pediatrics',
-                disclaimer: 'MediCare AI provides preliminary triage advice only and is not a definitive diagnosis.'
-            };
-        }
-
         return {
             emergency: false,
             severityLevel: 'LOW',

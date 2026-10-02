@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${hospital.hospitalName} + ' | Hospital Departments'">Hospital Departments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/hospital-admin/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare City Hospital
+        TRV-HOSP-01
+    </a>
+    <div class="public-nav-links">
+        <a href="/hospital-admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/hospital-admin/doctors"><i class="bi bi-person-badge"></i> Doctors</a>
+        <a href="/hospital-admin/departments" class="active"><i class="bi bi-building"></i> Departments</a>
+        <a href="/hospital-admin/patients"><i class="bi bi-people"></i> Patients</a>
+        <a href="/hospital-admin/payments"><i class="bi bi-credit-card"></i> Revenue &amp; Fees</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/logout" class="btn" style="border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Facilities</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;" th:text="${hospital.hospitalName} + ' Departments'">Departments</h2>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <div style="position: relative;">
+                <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                <input type="text" id="deptSearch" placeholder="Search departments…" 
+                       style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 240px; background: #fff;"
+                       onkeyup="filterDepartments()"/>
+            </div>
+            <span class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem;" th:text="${departments != null ? departments.size() : 0} + ' Departments'">0 Departments</span>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Cardiology</h3>
+            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
+                Advanced cardiovascular interventions, coronary care, and heart rhythm diagnostics.
+            </p>
+            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
+                <span>Affiliated Specialists:</span>
+                <strong>4 Doctors</strong>
+            </div>
+        </div>
+
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Neurology</h3>
+            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
+                Expert neurosciences center dealing with stroke rehabilitation, epilepsy, and brain disorders.
+            </p>
+            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
+                <span>Affiliated Specialists:</span>
+                <strong>3 Doctors</strong>
+            </div>
+        </div>
+
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                    <i class="bi bi-bandaid"></i>
+                </div>
+                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Orthopedics</h3>
+            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
+                Joint reconstruction, sports trauma, spinal therapy, and robotic joint replacement.
+            </p>
+            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
+                <span>Affiliated Specialists:</span>
+                <strong>4 Doctors</strong>
+            </div>
+        </div>
+
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                    <i class="bi bi-hospital"></i>
+                </div>
+                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">General Medicine</h3>
+            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
+                Primary healthcare triage, chronic illness management, and preventative health checks.
+            </p>
+            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
+                <span>Affiliated Specialists:</span>
+                <strong>7 Doctors</strong>
+            </div>
+        </div>
+    </div>
+</div></div>
+</div>
+
+<script>
+function filterDepartments() {
+    const input = document.getElementById("deptSearch").value.toLowerCase();
+    const cards = document.querySelectorAll(".dept-card");
+    cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(input) ? "flex" : "none";
+    });
+}
+</script>
+
+</body>
+</html>

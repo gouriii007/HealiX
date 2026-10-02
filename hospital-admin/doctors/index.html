@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${hospital.hospitalName} + ' | Hospital Doctors'">Hospital Doctors</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/hospital-admin/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare City Hospital
+        TRV-HOSP-01
+    </a>
+    <div class="public-nav-links">
+        <a href="/hospital-admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/hospital-admin/doctors" class="active"><i class="bi bi-person-badge"></i> Doctors</a>
+        <a href="/hospital-admin/departments"><i class="bi bi-building"></i> Departments</a>
+        <a href="/hospital-admin/patients"><i class="bi bi-people"></i> Patients</a>
+        <a href="/hospital-admin/payments"><i class="bi bi-credit-card"></i> Revenue &amp; Fees</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/logout" class="btn" style="border: 1px solid #FCA5A5; color: #DC2626; background: #FEF2F2; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Directory</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;">MediCare City Hospital Doctors</h2>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <div style="position: relative;">
+                <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                <input type="text" id="doctorSearch" placeholder="Search doctor, specialty…" 
+                       style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 240px; background: #fff;"
+                       onkeyup="filterDoctors()"/>
+            </div>
+            <span class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem;" >0 Doctors</span>
+        </div>
+    </div>
+
+    <!-- Doctors Table Container -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
+                <th style="padding: 0.75rem;">Specialist</th>
+                <th style="padding: 0.75rem;">Department</th>
+                <th style="padding: 0.75rem;">Qualification</th>
+                <th style="padding: 0.75rem;">OPD Room</th>
+                <th style="padding: 0.75rem;">Fee</th>
+                <th style="padding: 0.75rem;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                <td style="padding: 0.75rem;">
+                    <div style="font-weight: 700; color: #111827;">Dr. Rajesh Kumar</div>
+                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-001 • doctor@healix.com</div>
+                </td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Cardiology</span></td>
+                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD, DM (15 yrs exp)</td>
+                <td style="padding: 0.75rem; font-weight: 600;">Room 104</td>
+                <td style="padding: 0.75rem; font-weight: 700;">₹800.00</td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                <td style="padding: 0.75rem;">
+                    <div style="font-weight: 700; color: #111827;">Dr. Priya Nair</div>
+                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-002 • priya.nair@healix.com</div>
+                </td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Neurology</span></td>
+                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD, DM (10 yrs exp)</td>
+                <td style="padding: 0.75rem; font-weight: 600;">Room 202</td>
+                <td style="padding: 0.75rem; font-weight: 700;">₹900.00</td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                <td style="padding: 0.75rem;">
+                    <div style="font-weight: 700; color: #111827;">Dr. Suresh Menon</div>
+                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-003 • suresh.menon@healix.com</div>
+                </td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Orthopedics</span></td>
+                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MS (Ortho) (12 yrs exp)</td>
+                <td style="padding: 0.75rem; font-weight: 600;">Room 108</td>
+                <td style="padding: 0.75rem; font-weight: 700;">₹750.00</td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                <td style="padding: 0.75rem;">
+                    <div style="font-weight: 700; color: #111827;">Dr. Anita Sen</div>
+                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-008 • anita.sen@healix.com</div>
+                </td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">General Medicine</span></td>
+                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD (General Medicine) (9 yrs exp)</td>
+                <td style="padding: 0.75rem; font-weight: 600;">Room 101</td>
+                <td style="padding: 0.75rem; font-weight: 700;">₹500.00</td>
+                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div></div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #EFF6FF; color: #1D4ED8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"
+                                  th:text="${doc.specialization}">Specialty</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563;" th:text="${doc.department != null ? doc.department.name : '—'}">General Medicine</td>
+                        <td style="padding: 1rem; color: #4B5563;" th:text="${doc.experienceYears != null ? doc.experienceYears + ' Years' : '—'}">5 Years</td>
+                        <td style="padding: 1rem; font-weight: 700; color: #059669;" th:text="${doc.consultationFee != null ? '₹' + doc.consultationFee : '—'}">₹500</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;" th:text="${doc.availability != null ? doc.availability : 'Mon - Sat'}">Mon - Sat</td>
+                        <td style="padding: 1rem;">
+                            <span th:if="${doc.active}" class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+                            <span th:unless="${doc.active}" class="hospital-badge" style="background: #F3F4F6; color: #6B7280; border-color: #E5E7EB;">Inactive</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterDoctors() {
+    const input = document.getElementById("doctorSearch").value.toLowerCase();
+    const rows = document.querySelectorAll("#doctorsTable tbody tr");
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+    });
+}
+</script>
+
+</body>
+</html>

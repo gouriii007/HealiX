@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Medical Record Access Requests | MediCare Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body style="background: #F8F9FA;">
+
+<nav class="public-nav">
+    <a href="/patient/dashboard" class="public-nav-brand">
+        <div class="logo-icon">H</div>
+        MediCare <span style="color: #8070A6; font-size: 0.85rem; font-weight: 600; background: #EDE7F6; padding: 2px 8px; border-radius: 9999px;">Consent Center</span>
+    </a>
+    <div class="public-nav-links">
+        <a href="/patient/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/patient/hospitals"><i class="bi bi-hospital"></i> My Hospitals</a>
+        <a href="/patient/consent-requests" class="active"><i class="bi bi-shield-check"></i> Record Consent</a>
+        <a href="/patient/medical-records"><i class="bi bi-clipboard2-pulse"></i> Health Records</a>
+    </div>
+    <div class="public-nav-actions">
+        <a href="/patient/dashboard" class="btn" style="border: 1px solid #D1D5DB; color: #374151; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</nav>
+
+<div style="max-width: 960px; margin: 2.5rem auto; padding: 0 1rem;">
+    <h2 style="font-size: 1.8rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">Cross-Hospital Record Sharing Consent</h2>
+    <p style="color: #6B7280; font-size: 0.95rem; margin-bottom: 2rem;">
+        Doctors treating you at one hospital may request access to your historical medical records and prescriptions from another hospital for continuity of care. You maintain full control to approve or revoke access.
+    </p>
+
+    <!-- Alerts -->
+    <div th:if="${success}" class="alert alert-success mb-3" style="background: #D1FAE5; color: #065F46; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+    </div>
+    <div th:if="${info}" class="alert alert-info mb-3" style="background: #EDE7F6; color: #5E35B1; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-info-circle-fill"></i> <span th:text="${info}"></span>
+    </div>
+
+    <!-- Pending Requests -->
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem;">
+        <i class="bi bi-clock-history" style="color: #F59E0B;"></i> Pending Authorization Requests
+    </h3>
+
+    
+    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 2.5rem;">
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="font-size: 1.15rem; font-weight: 700; color: #111827; margin:0 0 4px;">Dr. Suresh Menon (Orthopedics)</h4>
+                    <div style="font-size: 0.85rem; color: #6B7280;">Sree Chitra Speciality Hospital • TRV-HOSP-03</div>
+                </div>
+                <span class="badge" style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 9999px; font-weight: 700; font-size: 0.75rem;">ACTION REQUIRED</span>
+            </div>
+            <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
+                Dr. Suresh Menon has requested temporary read-only access to your previous cardiac evaluation records and medications from MediCare City Hospital for upcoming joint replacement surgical clearance.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="alert('Access Granted! MediCare City Hospital records shared securely with Dr. Suresh Menon for 30 days.'); this.parentElement.innerHTML='<span style=\'color:#10B981;font-weight:700;\'><i class=\'bi bi-check-circle-fill\'></i> Authorization Granted</span>';"
+                        class="btn btn-sm btn-teal" style="background:#0D9488;color:#fff;border-radius:8px;padding:6px 16px;font-weight:600;">
+                    <i class="bi bi-shield-check"></i> Grant Access
+                </button>
+                <button onclick="alert('Access Request Denied.'); this.parentElement.innerHTML='<span style=\'color:#EF4444;font-weight:700;\'><i class=\'bi bi-x-circle-fill\'></i> Authorization Denied</span>';"
+                        class="btn btn-sm btn-outline" style="border-radius:8px;padding:6px 16px;">
+                    Decline
+                </button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+</div>
+
+</body>
+</html>

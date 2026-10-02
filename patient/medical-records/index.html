@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Medical Records | Healix HMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar sidebar-patient">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="background:#0D9488;">H</div>
+            <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+            <a href="/patient/medical-records" class="nav-item active"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+            <div class="nav-section-label">Account</div>
+            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
+            <div>
+                <div class="header-title">Medical Records</div>
+                <div class="header-subtitle">Your digital healthcare consultations, diagnoses, and notes</div>
+            </div>
+            <div class="header-actions">
+                <a href="/patient/prescriptions" class="btn btn-teal btn-sm"><i class="bi bi-capsule"></i> View Prescriptions</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-clipboard2-pulse" style="color:#0D9488;"></i> Consultation Records
+                        <span style="font-size:0.8rem; font-weight:400; color:#9CA3AF; margin-left:8px;"
+                              th:text="'(' + ${records != null ? records.size() : 0} + ' Records)'"></span>
+                    </h5>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" th:if="${records != null and !records.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th>Record #</th>
+                            <th>Date</th>
+                            <th>Attending Doctor</th>
+                            <th>Diagnosis</th>
+                            <th>Prescriptions</th>
+                            <th>Follow-up</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+    <tr>
+        <td style="font-weight:700;color:#0F2042;">#REC-2026-081</td>
+        <td style="font-weight:600;">10 Sep 2026</td>
+        <td>
+            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
+            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
+        </td>
+        <td><strong style="color:#0D9488;">Angina Pectoris / Mild HTN</strong></td>
+        <td style="font-size:0.85rem;color:#475569;">Atorvastatin 20mg (night), Metoprolol 50mg (morning)</td>
+        <td>
+            <button onclick="alert('Clinical Summary:\nPatient reported mild exertional retrosternal discomfort.\nBP: 138/88 mmHg, ECG sinus rhythm.\nAdvised lifestyle modifications and 2D Echo review in 4 weeks.');"
+                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-weight:700;color:#0F2042;">#REC-2026-044</td>
+        <td style="font-weight:600;">22 Jun 2026</td>
+        <td>
+            <div style="font-weight:700;">Dr. Priya Nair</div>
+            <div style="font-size:0.75rem;color:#64748B;">Neurology • MediCare City Hospital</div>
+        </td>
+        <td><strong style="color:#0D9488;">Tension Headache &amp; Fatigue</strong></td>
+        <td style="font-size:0.85rem;color:#475569;">Naproxen 250mg PRN, Vitamin B-Complex</td>
+        <td>
+            <button onclick="alert('Clinical Summary:\nCervicogenic tension headache related to prolonged screen work.\nNeuro exam normal. Hydration and neck posture therapy advised.');"
+                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
+        </td>
+    </tr>
+</tbody>
+                    </table>
+
+                    <div th:if="${records == null or records.isEmpty()}" class="empty-state" style="padding: 48px 24px;">
+                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-clipboard2-x"></i></div>
+                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No medical records yet</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem;">Once your doctors complete consultations, detailed diagnoses and treatments will be logged here.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>
