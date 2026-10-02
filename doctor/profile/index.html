@@ -38,77 +38,194 @@
             </div>
         </header>
 
-        <div class="page-content">
+        
+<div class="page-content">
+    <div class="grid-2" style="gap: 24px; align-items: flex-start;">
+        <!-- Left: Live Profile Summary Card -->
+        <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 16px; border: 1px solid #E2E8F0;">
+            <div class="card-body" style="padding: 28px; text-align: center;">
+                <div id="sideDocAvatar" class="avatar avatar-xl" style="background:#6366F1; color:#fff; margin: 0 auto 16px; font-size: 2rem; width: 72px; height: 72px; line-height: 72px; border-radius: 50%;">R</div>
+                <h3 id="sideDocName" style="font-size: 1.35rem; font-weight: 800; color: #0F2042; margin-bottom: 4px;">Dr. Rajesh Kumar</h3>
+                <div id="sideDocSpec" style="color: #6366F1; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">Senior Cardiologist</div>
+                <span class="badge badge-indigo">Cardiology • OPD Room 104</span>
 
-            <div class="grid-2" style="gap: 24px; align-items: flex-start;">
-
-                <!-- Profile Card -->
-                <div class="card">
-                    <div class="card-body" style="padding: 28px; text-align: center;">
-                        <div class="avatar avatar-xl" style="background:#6366F1; color:#fff; margin: 0 auto 16px; font-size: 2rem;"
-                             th:text="${#strings.substring(doctor.name, 0, 1)}">D</div>
-                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F2042; margin-bottom: 4px;">Dr. Rajesh Kumar</h3>
-                        <div style="color: #6366F1; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">Senior Cardiologist</div>
-                        <span class="badge badge-indigo" th:text="${doctor.department != null ? doctor.department.name : 'General Medicine'}">Department</span>
-
-                        <div style="margin-top: 24px; border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:#64748B;">Qualification:</span>
-                                <strong style="color:#1E293B;">MBBS, MD (Cardiology), DM (Cardiology)</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:#64748B;">Experience:</span>
-                                <strong style="color:#1E293B;" th:text="${doctor.experienceYears + ' Years'}">10 Years</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:#64748B;">Consultation Fee:</span>
-                                <strong style="color:#10B981;" th:text="'₹' + ${doctor.consultationFee}">₹500</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:#64748B;">Email:</span>
-                                <strong style="color:#1E293B;" th:text="${doctor.email}">doctor@healix.com</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:#64748B;">Phone:</span>
-                                <strong style="color:#1E293B;" th:text="${doctor.phone}">9876543210</strong>
-                            </div>
-                        </div>
+                <div style="margin-top: 24px; border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Hospital:</span>
+                        <strong style="color:#1E293B;" id="sideDocHosp">MediCare City Hospital</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Qualification:</span>
+                        <strong style="color:#1E293B;" id="sideDocQual">MBBS, MD (Cardiology), DM (Cardiology)</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Experience:</span>
+                        <strong style="color:#1E293B;" id="sideDocExp">15 Years</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Consultation Fee:</span>
+                        <strong style="color:#10B981;" id="sideDocFee">₹800.00</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Email:</span>
+                        <strong style="color:#1E293B;" id="sideDocEmail">doctor@healix.com</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Phone:</span>
+                        <strong style="color:#1E293B;" id="sideDocPhone">+91 98765 01234</strong>
                     </div>
                 </div>
-
-                <!-- Professional Details & Bio -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-person-lines-fill" style="color:#6366F1;"></i> Professional Biography &amp; Schedule</h5>
-                    </div>
-                    <div class="card-body" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-                        <div>
-                            <div style="font-size: 0.78rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Biography &amp; Clinical Focus</div>
-                            <p style="color: #334155; line-height: 1.6; font-size: 0.92rem; background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid #E2E8F0;"
-                               th:text="${doctor.bio != null and !doctor.bio.isBlank() ? doctor.bio : 'Senior consultant committed to evidence-based medical diagnosis and comprehensive patient welfare.'}">
-                                Doctor biography.
-                            </p>
-                        </div>
-
-                        <div>
-                            <div style="font-size: 0.78rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Working Hours &amp; Availability</div>
-                            <div style="display: flex; align-items: center; gap: 10px; background: #EEF2FF; border: 1px solid #C7D2FE; padding: 14px 18px; border-radius: 8px; color: #4338CA; font-weight: 600;">
-                                <i class="bi bi-clock-history" style="font-size: 1.2rem;"></i>
-                                <span th:text="${doctor.availability != null ? doctor.availability : 'Mon - Sat: 09:00 AM - 05:00 PM'}">Mon - Sat: 09:00 AM - 05:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 14px 18px; border-radius: 8px; color: #166534; font-size: 0.86rem;">
-                            <i class="bi bi-shield-check"></i> Account verified and registered under Healix Medical Board.
-                        </div>
-                    </div>
+                <div style="margin-top: 20px; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 12px 14px; border-radius: 8px; color: #166534; font-size: 0.82rem; font-weight: 600;">
+                    <i class="bi bi-patch-check-fill"></i> Verified Medical Practitioner • Healix Board
                 </div>
-
             </div>
-
         </div>
-    </main>
+
+        <!-- Right: Interactive Profile & Practice Details Editor -->
+        <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 16px; border: 1px solid #E2E8F0;">
+            <div class="card-header" style="background:#fff; border-bottom: 1px solid #E2E8F0; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin:0; font-size: 1.1rem; font-weight: 700; color: #0F2042;">
+                    <i class="bi bi-pencil-square" style="color:#6366F1; margin-right: 8px;"></i> Edit Doctor Profile &amp; Practice Details
+                </h5>
+                <span class="badge" style="background:#EEF2FF; color:#4F46E5; font-weight:600; padding:4px 10px; border-radius:6px; font-size:0.75rem;">Instant Sync</span>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <form id="doctorProfileEditForm" onsubmit="handleDoctorProfileSave(event)" style="display:flex; flex-direction:column; gap:18px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Doctor Full Name <span style="color:#DC2626;">*</span></label>
+                            <input type="text" id="editDocName" class="form-control" required style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Specialization <span style="color:#DC2626;">*</span></label>
+                            <input type="text" id="editDocSpec" class="form-control" required style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Medical Qualifications</label>
+                            <input type="text" id="editDocQual" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Consultation Fee (₹)</label>
+                            <input type="number" id="editDocFee" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Experience (Years)</label>
+                            <input type="number" id="editDocExp" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Contact Phone</label>
+                            <input type="tel" id="editDocPhone" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Contact Email</label>
+                            <input type="email" id="editDocEmail" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Working Hours &amp; Availability</label>
+                            <input type="text" id="editDocAvail" class="form-control" placeholder="Mon-Sat: 9AM-1PM, 3PM-6PM" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Biography &amp; Clinical Focus</label>
+                        <textarea id="editDocBio" class="form-control" rows="3" style="border-radius:8px;"></textarea>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #E2E8F0; padding-top:16px;">
+                        <button type="submit" class="btn btn-indigo" style="font-weight:700; padding:10px 24px; border-radius:8px;">
+                            <i class="bi bi-check2-circle"></i> Save Profile Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
 </div>
 <script src="/js/main.js"></script>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function loadDoctorProfileForm() {
+        const doc = HealixStore.getDoctorProfile();
+        
+        // Fill form fields
+        if (document.getElementById('editDocName')) document.getElementById('editDocName').value = doc.name || 'Rajesh Kumar';
+        if (document.getElementById('editDocEmail')) document.getElementById('editDocEmail').value = doc.email || 'doctor@healix.com';
+        if (document.getElementById('editDocPhone')) document.getElementById('editDocPhone').value = doc.phone || '9876501234';
+        if (document.getElementById('editDocSpec')) document.getElementById('editDocSpec').value = doc.specialization || 'Senior Cardiologist';
+        if (document.getElementById('editDocQual')) document.getElementById('editDocQual').value = doc.qualification || 'MBBS, MD (Cardiology), DM (Cardiology)';
+        if (document.getElementById('editDocFee')) document.getElementById('editDocFee').value = doc.consultationFee || '800.00';
+        if (document.getElementById('editDocExp')) document.getElementById('editDocExp').value = doc.experienceYears || 15;
+        if (document.getElementById('editDocAvail')) document.getElementById('editDocAvail').value = doc.availability || 'Mon-Sat: 9AM-1PM, 3PM-6PM';
+        if (document.getElementById('editDocBio')) document.getElementById('editDocBio').value = doc.bio || 'Senior interventional cardiologist with 15+ years of clinical experience in preventative and interventional cardiology.';
+
+        // Update profile card side elements
+        const nameCard = document.getElementById('sideDocName');
+        if (nameCard) nameCard.innerText = doc.fullName || ('Dr. ' + doc.name);
+        const avatarCard = document.getElementById('sideDocAvatar');
+        if (avatarCard && doc.name) avatarCard.innerText = doc.name.charAt(0);
+        const specCard = document.getElementById('sideDocSpec');
+        if (specCard) specCard.innerText = doc.specialization;
+        const hospCard = document.getElementById('sideDocHosp');
+        if (hospCard) hospCard.innerText = doc.hospital || 'MediCare City Hospital';
+        const qualCard = document.getElementById('sideDocQual');
+        if (qualCard) qualCard.innerText = doc.qualification;
+        const expCard = document.getElementById('sideDocExp');
+        if (expCard) expCard.innerText = (doc.experienceYears || 15) + ' Years';
+        const feeCard = document.getElementById('sideDocFee');
+        if (feeCard) feeCard.innerText = '₹' + (doc.consultationFee || '800.00');
+        const emailCard = document.getElementById('sideDocEmail');
+        if (emailCard) emailCard.innerText = doc.email || 'doctor@healix.com';
+        const phoneCard = document.getElementById('sideDocPhone');
+        if (phoneCard) phoneCard.innerText = doc.phone || '+91 98765 01234';
+    }
+
+    function handleDoctorProfileSave(e) {
+        e.preventDefault();
+        const name = document.getElementById('editDocName').value.trim();
+        const email = document.getElementById('editDocEmail').value.trim();
+        const phone = document.getElementById('editDocPhone').value.trim();
+        const specialization = document.getElementById('editDocSpec').value.trim();
+        const qualification = document.getElementById('editDocQual').value.trim();
+        const fee = document.getElementById('editDocFee').value.trim();
+        const exp = document.getElementById('editDocExp').value.trim();
+        const availability = document.getElementById('editDocAvail').value.trim();
+        const bio = document.getElementById('editDocBio').value.trim();
+
+        const updated = {
+            name: name,
+            fullName: 'Dr. ' + name,
+            email: email,
+            phone: phone,
+            specialization: specialization,
+            qualification: qualification,
+            consultationFee: fee,
+            experienceYears: exp,
+            availability: availability,
+            department: "Cardiology",
+            hospital: "MediCare City Hospital",
+            room: "OPD Room 104",
+            bio: bio
+        };
+
+        HealixStore.saveDoctorProfile(updated);
+        showToast('Doctor Profile updated successfully! Changes saved across the platform.');
+        loadDoctorProfileForm();
+    }
+
+    loadDoctorProfileForm();
+</script>
 </body>
 </html>

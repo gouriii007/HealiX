@@ -231,6 +231,20 @@ public class DoctorController {
         return "doctor/profile";
     }
 
+    @PostMapping("/profile")
+    public String updateProfile(@ModelAttribute DoctorRegistrationDto dto,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes ra) {
+        try {
+            Doctor doctor = getCurrentDoctor(userDetails);
+            doctorService.updateDoctor(doctor.getId(), dto);
+            ra.addFlashAttribute("success", "Profile updated successfully.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/doctor/profile";
+    }
+
     // ---- SCHEDULE ----
     @GetMapping("/schedule")
     public String schedule(@AuthenticationPrincipal UserDetails userDetails, Model model) {

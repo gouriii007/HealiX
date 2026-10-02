@@ -58,80 +58,76 @@
                               th:text="'(' + ${appointments != null ? appointments.size() : 0} + ' Total)'"></span>
                     </h5>
                 </div>
-                <div class="table-container">
-                    <table class="data-table" th:if="${appointments != null and !appointments.isEmpty()}">
-                        <thead>
-                        <tr>
-                            <th>#ID</th>
-                            <th>Doctor &amp; Specialty</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-1082</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td style="font-weight:600;">Tomorrow</td>
-        <td style="font-weight:700;color:#0D9488;">09:30 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Chest pain and shortness of breath during exercise</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <button onclick="alert('Digital Registration Slip #REC-TRV-REG001\nPatient: Arun Chandran\nHospital: MediCare City Hospital\nConsultation Fee: ₹800.00\nRoom: OPD 104');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-receipt"></i> Slip</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-1083</td>
-        <td>
-            <div style="font-weight:700;">Dr. Suresh Menon</div>
-            <div style="font-size:0.75rem;color:#64748B;">Orthopedics • Sree Chitra Speciality Hospital</div>
-        </td>
-        <td style="font-weight:600;">In 3 Days</td>
-        <td style="font-weight:700;color:#0D9488;">09:30 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Right knee pain after sports activity</td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td>
-            <button onclick="alert('Appointment is pending doctor confirmation. You will receive an SMS and email notification once verified.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Status</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-0941</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td style="font-weight:600;">10 Sep 2026</td>
-        <td style="font-weight:700;color:#64748B;">10:00 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Annual cardiac health checkup &amp; ECG review</td>
-        <td><span class="badge badge-completed">COMPLETED</span></td>
-        <td>
-            <a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> Record</a>
-        </td>
-    </tr>
-</tbody>
-                    </table>
-
-                    <!-- Empty State -->
-                    <div th:if="${appointments == null or appointments.isEmpty()}" class="empty-state" style="padding: 48px 24px;">
-                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-calendar-x"></i></div>
-                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No appointments found</h3>
-                        <p style="color: #6B7280; font-size: 0.9rem;">You haven't scheduled any doctor appointments yet.</p>
-                        <a href="/patient/book-appointment" class="btn btn-teal btn-sm mt-3"><i class="bi bi-calendar-plus"></i> Book First Appointment</a>
-                    </div>
-                </div>
-            </div>
-
+                
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Doctor &amp; Specialty</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="patientApptsTbody"></tbody>
+        </table>
+        <div id="patientApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon" style="font-size:3rem; color:#9CA3AF;"><i class="bi bi-calendar-x"></i></div>
+            <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No appointments found</h3>
+            <p style="color:#6B7280; font-size:0.9rem;">You haven't scheduled any doctor appointments yet.</p>
+            <a href="/patient/book-appointment" class="btn btn-teal btn-sm mt-3"><i class="bi bi-calendar-plus"></i> Book First Appointment</a>
         </div>
-    </main>
+    </div>
+</div></div></main>
 </div>
 <script src="/js/main.js"></script>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderPatientAppointments() {
+        const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
+        const tbody = document.getElementById('patientApptsTbody');
+        const empty = document.getElementById('patientApptsEmpty');
+        if (!appts || appts.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = appts.map(a => {
+                const statusBadge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                
+                const actionBtn = a.status === 'CONFIRMED'
+                    ? `<button onclick="alert('Digital Registration Slip #REC-TRV-REG001\\nPatient: ${a.patientName}\\nHospital: ${a.hospitalName}\\nDoctor: ${a.doctorName}\\nStatus: CONFIRMED');" class="btn btn-sm btn-outline"><i class="bi bi-receipt"></i> Slip</button>`
+                    : (a.status === 'COMPLETED'
+                        ? `<a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> View Record</a>`
+                        : `<button onclick="alert('Appointment is pending doctor confirmation. Once confirmed by Dr. Rajesh Kumar, status updates immediately.');" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Pending</button>`);
+
+                return `
+                    <tr>
+                        <td style="font-weight:700;color:#0F2042;">#APT-${a.id}</td>
+                        <td>
+                            <div style="font-weight:700;color:#0F2042;">${a.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">${a.hospitalName}</div>
+                        </td>
+                        <td style="font-weight:600;">${a.date}</td>
+                        <td style="font-weight:700;color:#0D9488;">${a.time}</td>
+                        <td style="font-size:0.85rem;color:#475569;">${a.reason}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+    renderPatientAppointments();
+</script>
 </body>
 </html>

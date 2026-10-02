@@ -59,75 +59,111 @@
                               th:text="'(' + ${appointments != null ? appointments.size() : 0} + ')'"></span>
                     </h5>
                 </div>
-                <div class="table-container">
-                    <table class="data-table"><thead><tr><th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1082</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">A</div>
-                <div>
-                    <div style="font-weight:600;">Arun Chandran</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">Tomorrow</td>
-        <td style="font-weight:600;color:#6366F1;">09:30 AM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Chest pain and shortness of breath during exercise</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Starting clinical consultation with Arun Chandran...');" class="btn btn-sm btn-indigo"><i class="bi bi-play-fill"></i> Consult</button>
-                <button onclick="alert('Prescription created for Arun Chandran.');" class="btn btn-sm btn-outline"><i class="bi bi-capsule"></i> Rx</button>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1084</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">D</div>
-                <div>
-                    <div style="font-weight:600;">Divya Rajan</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">In 2 Days</td>
-        <td style="font-weight:600;color:#6366F1;">11:00 AM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Hypertension check and medication adjustment</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Starting clinical consultation with Divya Rajan...');" class="btn btn-sm btn-indigo"><i class="bi bi-play-fill"></i> Consult</button>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1085</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">M</div>
-                <div>
-                    <div style="font-weight:600;">Mohammed Faisal</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">Today</td>
-        <td style="font-weight:600;color:#6366F1;">03:30 PM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Appointment #1085 confirmed!'); this.parentElement.innerHTML='<span class=\'badge badge-confirmed\'>CONFIRMED</span>';"
-                        class="btn btn-sm btn-indigo"><i class="bi bi-check-lg"></i> Confirm</button>
-            </div>
-        </td>
-    </tr>
-</tbody></table></div></div></div></main>
+                
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="docApptsTbody"></tbody>
+        </table>
+        <div id="docApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+            <h3>No appointments found</h3>
+            <p>You have no appointments matching the current filter.</p>
+        </div>
+    </div>
+</div></div></main>
 </div>
 <script src="/js/main.js"></script>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    let currentFilter = 'ALL';
+
+    function setFilter(status) {
+        currentFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.className = (b.dataset.status === status) ? 'btn btn-sm btn-indigo filter-btn' : 'btn btn-sm btn-outline filter-btn';
+        });
+        renderAppointmentsTable();
+    }
+
+    function renderAppointmentsTable() {
+        let appts = HealixStore.getAppointments();
+        if (currentFilter !== 'ALL') {
+            appts = appts.filter(a => a.status === currentFilter);
+        }
+
+        const tbody = document.getElementById('docApptsTbody');
+        const empty = document.getElementById('docApptsEmpty');
+        if (!appts || appts.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = appts.map(a => {
+                const badge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                
+                const confirmBtn = a.status === 'PENDING'
+                    ? `<button onclick="confirmAppointmentItem(${a.id})" class="btn btn-sm btn-indigo" style="font-weight:700;"><i class="bi bi-check-lg"></i> Confirm</button>`
+                    : '';
+
+                return `
+                    <tr>
+                        <td style="font-size:0.78rem;color:#9CA3AF;">#${a.id}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div class="avatar avatar-sm avatar-teal">${a.patientName.charAt(0)}</div>
+                                <div>
+                                    <div style="font-weight:600;color:#0F2042;">${a.patientName}</div>
+                                    <div style="font-size:0.72rem;color:#9CA3AF;">${a.patientPhone} • ${a.patientId}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight:500;">${a.date}</td>
+                        <td style="font-weight:600;color:#6366F1;">${a.time}</td>
+                        <td style="font-size:0.82rem;color:#4B5563;">${a.reason}</td>
+                        <td>${badge}</td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                ${confirmBtn}
+                                <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+
+    function confirmAppointmentItem(id) {
+        if (HealixStore.confirmAppointment(id)) {
+            showToast('Appointment #' + id + ' confirmed! Patient will see CONFIRMED status.');
+            renderAppointmentsTable();
+        }
+    }
+
+    // Add filter buttons
+    const filterForm = document.querySelector('form');
+    if (filterForm) {
+        filterForm.innerHTML = `
+            <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
+            <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
+            <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
+            <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
+            <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
+        `;
+    }
+
+    renderAppointmentsTable();
+</script>
 </body>
 </html>

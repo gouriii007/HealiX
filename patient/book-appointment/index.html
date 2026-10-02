@@ -187,6 +187,7 @@
 </div>
 <script src="/js/main.js"></script>
 
+<script src="/js/clinical-store.js"></script>
 <script>
     document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -198,8 +199,27 @@
         const date = dateInput && dateInput.value ? dateInput.value : 'Tomorrow';
         const timeSelect = document.querySelector('select[name="appointmentTime"]');
         const time = timeSelect && timeSelect.value ? timeSelect.value : '10:00 AM';
+        const reason = document.querySelector('textarea') ? document.querySelector('textarea').value : 'Regular consultation';
 
-        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated.');
+        // Add to persistent appointments store
+        const appts = HealixStore.getAppointments();
+        const newApptId = Math.floor(1090 + Math.random() * 500);
+        appts.unshift({
+            id: newApptId,
+            patientName: "Arun Chandran",
+            patientId: "PAT-TRV-000001",
+            patientPhone: "9876510001",
+            doctorName: doctor.split('(')[0].trim(),
+            hospitalName: hospital,
+            date: date,
+            time: time,
+            reason: reason,
+            status: "PENDING",
+            fee: 800
+        });
+        HealixStore.saveAppointments(appts);
+
+        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated: #APT-' + newApptId);
         window.location.href = '/patient/appointments';
     });
 </script>

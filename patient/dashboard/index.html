@@ -197,9 +197,35 @@
 </div>
 <script src="/js/main.js"></script>
 
+<script src="/js/clinical-store.js"></script>
 <script>
-    const user = JSON.parse(localStorage.getItem('healix_user') || '{"name":"Arun Chandran","email":"patient@healix.com","role":"PATIENT"}');
-    document.querySelectorAll('.js-user-name').forEach(el => el.innerText = user.name || 'Arun Chandran');
+    function renderPatientDashboard() {
+        const user = JSON.parse(localStorage.getItem('healix_user') || '{"name":"Arun Chandran","email":"patient@healix.com","role":"PATIENT"}');
+        document.querySelectorAll('.js-user-name').forEach(el => el.innerText = user.name || 'Arun Chandran');
+
+        const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
+        const tbody = document.querySelector('table tbody');
+        if (tbody && appts.length > 0) {
+            tbody.innerHTML = appts.map(a => {
+                const statusBadge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                return `
+                    <tr>
+                        <td style="font-weight:600;color:#0F2042;">${a.date}</td>
+                        <td style="font-weight:600;color:#0D9488;">${a.time}</td>
+                        <td>
+                            <div style="font-weight:600;">${a.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">${a.hospitalName}</div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td><a href="/patient/appointments" class="btn btn-sm btn-outline">View Details</a></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+    renderPatientDashboard();
 </script>
 </body>
 </html>

@@ -72,26 +72,6 @@ function writePage(relPath, content) {
     console.log(`Generated: ${relPath}`);
 }
 
-// Global script to handle session display & logout in dashboards
-const commonAuthScript = `
-<script>
-    (function() {
-        const raw = localStorage.getItem('healix_user');
-        if (raw) {
-            try {
-                const user = JSON.parse(raw);
-                document.querySelectorAll('.js-user-name').forEach(el => el.textContent = user.name || 'User');
-                document.querySelectorAll('.js-user-email').forEach(el => el.textContent = user.email || '');
-                document.querySelectorAll('.js-user-role').forEach(el => el.textContent = user.role || '');
-                document.querySelectorAll('.js-user-avatar').forEach(el => {
-                    el.textContent = (user.name || 'U').charAt(0).toUpperCase();
-                });
-            } catch(e) {}
-        }
-    })();
-</script>
-`;
-
 // ----------------------------------------------------
 // 4. Generate Landing Page (index.html)
 // ----------------------------------------------------
@@ -329,12 +309,11 @@ hospitalsHtml = hospitalsHtml.replace(/<div class="hospital-grid">[\s\S]*?<\/div
 writePage('hospitals/index.html', hospitalsHtml);
 
 // ----------------------------------------------------
-// 6. Generate Login Page (/login/index.html) with Comprehensive Role Details
+// 6. Generate Login Page (/login/index.html) with Role Details & 1-Click Access
 // ----------------------------------------------------
 const rawLogin = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'login.html'), 'utf8');
 let loginHtml = cleanThymeleaf(rawLogin);
 
-// Enhanced Demo Role Details Component for the Sign In page
 const richRoleDetailsHtml = `
     <!-- Comprehensive Portal Role Details & 1-Click Access -->
     <div class="demo-accounts" style="margin-top: 28px; padding: 22px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0;">
@@ -476,11 +455,11 @@ const richRoleDetailsHtml = `
     </div>
 `;
 
-// Replace demo accounts section in login template
 loginHtml = loginHtml.replace(/<!-- Demo Credentials -->[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/,
     `${richRoleDetailsHtml}</div></div>`);
 
 const loginScript = `
+<script src="/js/clinical-store.js"></script>
 <script>
     function togglePwd() {
         const pwd = document.getElementById('password');
@@ -550,6 +529,7 @@ const rawRegister = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates',
 let registerHtml = cleanThymeleaf(rawRegister);
 
 const registerScript = `
+<script src="/js/clinical-store.js"></script>
 <script>
     document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -600,6 +580,7 @@ const rawAi = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'pati
 let aiHtml = cleanThymeleaf(rawAi);
 
 const clientAiEngine = `
+<script src="/js/clinical-store.js"></script>
 <script>
     function setPrompt(text) {
         document.getElementById('symptomInput').value = text;
@@ -768,41 +749,42 @@ patientDashHtml = patientDashHtml
     .replace('<h3 th:text="${patient.name}">Patient Name</h3>', '<h3 class="js-user-name">Arun Chandran</h3>')
     .replace('th:text="${patient.patientIdentifier ?: \'PAT-TRV-000001\'}"', '')
     .replace('<span th:text="${patient.patientIdentifier ?: \'PAT-TRV-000001\'}">PAT-TRV-000001</span>', '<span id="patientIdBadge">PAT-TRV-000001</span>')
-    .replace(/<div class="stat-number" th:text="\$\{[^}]+\}">\d+<\/div>/g, '<div class="stat-number">3</div>')
+    .replace(/<div class="stat-number" th:text="\$\{[^}]+\}">\d+<\/div>/g, '<div class="stat-number" id="patDashApptCount">2</div>')
     .replace(/<a href="\/logout"/g, '<a href="/logout" onclick="localStorage.removeItem(\'healix_user\')"');
 
-// Populate sample upcoming appointments & medical records in patient dashboard
-const patientUpcomingHtml = `
-    <tr>
-        <td style="font-weight:600;color:#0F2042;">Tomorrow</td>
-        <td style="font-weight:600;color:#0D9488;">09:30 AM</td>
-        <td>
-            <div style="font-weight:600;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><a href="/patient/appointments" class="btn btn-sm btn-outline">View Slip</a></td>
-    </tr>
-    <tr>
-        <td style="font-weight:600;color:#0F2042;">In 3 Days</td>
-        <td style="font-weight:600;color:#0D9488;">09:30 AM</td>
-        <td>
-            <div style="font-weight:600;">Dr. Suresh Menon</div>
-            <div style="font-size:0.75rem;color:#64748B;">Orthopedics • Sree Chitra Hospital</div>
-        </td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td><a href="/patient/appointments" class="btn btn-sm btn-outline">Details</a></td>
-    </tr>
-`;
-patientDashHtml = patientDashHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${patientUpcomingHtml}</tbody>`);
-
-const patientScript = `
+const patientDashScript = `
+<script src="/js/clinical-store.js"></script>
 <script>
-    const user = JSON.parse(localStorage.getItem('healix_user') || '{"name":"Arun Chandran","email":"patient@healix.com","role":"PATIENT"}');
-    document.querySelectorAll('.js-user-name').forEach(el => el.innerText = user.name || 'Arun Chandran');
+    function renderPatientDashboard() {
+        const user = JSON.parse(localStorage.getItem('healix_user') || '{"name":"Arun Chandran","email":"patient@healix.com","role":"PATIENT"}');
+        document.querySelectorAll('.js-user-name').forEach(el => el.innerText = user.name || 'Arun Chandran');
+
+        const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
+        const tbody = document.querySelector('table tbody');
+        if (tbody && appts.length > 0) {
+            tbody.innerHTML = appts.map(a => {
+                const statusBadge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                return \`
+                    <tr>
+                        <td style="font-weight:600;color:#0F2042;">\${a.date}</td>
+                        <td style="font-weight:600;color:#0D9488;">\${a.time}</td>
+                        <td>
+                            <div style="font-weight:600;">\${a.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">\${a.hospitalName}</div>
+                        </td>
+                        <td>\${statusBadge}</td>
+                        <td><a href="/patient/appointments" class="btn btn-sm btn-outline">View Details</a></td>
+                    </tr>
+                \`;
+            }).join('');
+        }
+    }
+    renderPatientDashboard();
 </script>
 `;
-patientDashHtml = patientDashHtml.replace('</body>', `${patientScript}</body>`);
+patientDashHtml = patientDashHtml.replace('</body>', `${patientDashScript}</body>`);
 writePage('patient/dashboard/index.html', patientDashHtml);
 
 // ----------------------------------------------------
@@ -812,6 +794,7 @@ const rawBook = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'pa
 let bookHtml = cleanThymeleaf(rawBook);
 
 const bookScript = `
+<script src="/js/clinical-store.js"></script>
 <script>
     document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -823,8 +806,27 @@ const bookScript = `
         const date = dateInput && dateInput.value ? dateInput.value : 'Tomorrow';
         const timeSelect = document.querySelector('select[name="appointmentTime"]');
         const time = timeSelect && timeSelect.value ? timeSelect.value : '10:00 AM';
+        const reason = document.querySelector('textarea') ? document.querySelector('textarea').value : 'Regular consultation';
 
-        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated.');
+        // Add to persistent appointments store
+        const appts = HealixStore.getAppointments();
+        const newApptId = Math.floor(1090 + Math.random() * 500);
+        appts.unshift({
+            id: newApptId,
+            patientName: "Arun Chandran",
+            patientId: "PAT-TRV-000001",
+            patientPhone: "9876510001",
+            doctorName: doctor.split('(')[0].trim(),
+            hospitalName: hospital,
+            date: date,
+            time: time,
+            reason: reason,
+            status: "PENDING",
+            fee: 800
+        });
+        HealixStore.saveAppointments(appts);
+
+        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated: #APT-' + newApptId);
         window.location.href = '/patient/appointments';
     });
 </script>
@@ -838,53 +840,79 @@ writePage('patient/book-appointment/index.html', bookHtml);
 const rawAppts = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'patient', 'appointments.html'), 'utf8');
 let apptsHtml = cleanThymeleaf(rawAppts);
 
-const apptsTableHtml = `
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-1082</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td style="font-weight:600;">Tomorrow</td>
-        <td style="font-weight:700;color:#0D9488;">09:30 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Chest pain and shortness of breath during exercise</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <button onclick="alert('Digital Registration Slip #REC-TRV-REG001\\nPatient: Arun Chandran\\nHospital: MediCare City Hospital\\nConsultation Fee: ₹800.00\\nRoom: OPD 104');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-receipt"></i> Slip</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-1083</td>
-        <td>
-            <div style="font-weight:700;">Dr. Suresh Menon</div>
-            <div style="font-size:0.75rem;color:#64748B;">Orthopedics • Sree Chitra Speciality Hospital</div>
-        </td>
-        <td style="font-weight:600;">In 3 Days</td>
-        <td style="font-weight:700;color:#0D9488;">09:30 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Right knee pain after sports activity</td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td>
-            <button onclick="alert('Appointment is pending doctor confirmation. You will receive an SMS and email notification once verified.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Status</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#APT-0941</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td style="font-weight:600;">10 Sep 2026</td>
-        <td style="font-weight:700;color:#64748B;">10:00 AM</td>
-        <td style="font-size:0.85rem;color:#475569;">Annual cardiac health checkup &amp; ECG review</td>
-        <td><span class="badge badge-completed">COMPLETED</span></td>
-        <td>
-            <a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> Record</a>
-        </td>
-    </tr>
+const patientApptsTableBlock = `
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Doctor &amp; Specialty</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="patientApptsTbody"></tbody>
+        </table>
+        <div id="patientApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon" style="font-size:3rem; color:#9CA3AF;"><i class="bi bi-calendar-x"></i></div>
+            <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No appointments found</h3>
+            <p style="color:#6B7280; font-size:0.9rem;">You haven't scheduled any doctor appointments yet.</p>
+            <a href="/patient/book-appointment" class="btn btn-teal btn-sm mt-3"><i class="bi bi-calendar-plus"></i> Book First Appointment</a>
+        </div>
+    </div>
 `;
-apptsHtml = apptsHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${apptsTableHtml}</tbody>`);
+apptsHtml = apptsHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${patientApptsTableBlock}</div></div></main>`);
+
+const patientApptsScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderPatientAppointments() {
+        const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
+        const tbody = document.getElementById('patientApptsTbody');
+        const empty = document.getElementById('patientApptsEmpty');
+        if (!appts || appts.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = appts.map(a => {
+                const statusBadge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                
+                const actionBtn = a.status === 'CONFIRMED'
+                    ? \`<button onclick="alert('Digital Registration Slip #REC-TRV-REG001\\\\nPatient: \${a.patientName}\\\\nHospital: \${a.hospitalName}\\\\nDoctor: \${a.doctorName}\\\\nStatus: CONFIRMED');" class="btn btn-sm btn-outline"><i class="bi bi-receipt"></i> Slip</button>\`
+                    : (a.status === 'COMPLETED'
+                        ? \`<a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> View Record</a>\`
+                        : \`<button onclick="alert('Appointment is pending doctor confirmation. Once confirmed by Dr. Rajesh Kumar, status updates immediately.');" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Pending</button>\`);
+
+                return \`
+                    <tr>
+                        <td style="font-weight:700;color:#0F2042;">#APT-\${a.id}</td>
+                        <td>
+                            <div style="font-weight:700;color:#0F2042;">\${a.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">\${a.hospitalName}</div>
+                        </td>
+                        <td style="font-weight:600;">\${a.date}</td>
+                        <td style="font-weight:700;color:#0D9488;">\${a.time}</td>
+                        <td style="font-size:0.85rem;color:#475569;">\${a.reason}</td>
+                        <td>\${statusBadge}</td>
+                        <td>\${actionBtn}</td>
+                    </tr>
+                \`;
+            }).join('');
+        }
+    }
+    renderPatientAppointments();
+</script>
+`;
+apptsHtml = apptsHtml.replace('</body>', `${patientApptsScript}</body>`);
 writePage('patient/appointments/index.html', apptsHtml);
 
 // ----------------------------------------------------
@@ -953,37 +981,113 @@ writePage('patient/hospitals/index.html', patHospsHtml);
 const rawPatRecords = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'patient', 'medical-records.html'), 'utf8');
 let patRecordsHtml = cleanThymeleaf(rawPatRecords);
 
-const patRecordsTableHtml = `
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#REC-2026-081</td>
-        <td style="font-weight:600;">10 Sep 2026</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td><strong style="color:#0D9488;">Angina Pectoris / Mild HTN</strong></td>
-        <td style="font-size:0.85rem;color:#475569;">Atorvastatin 20mg (night), Metoprolol 50mg (morning)</td>
-        <td>
-            <button onclick="alert('Clinical Summary:\\nPatient reported mild exertional retrosternal discomfort.\\nBP: 138/88 mmHg, ECG sinus rhythm.\\nAdvised lifestyle modifications and 2D Echo review in 4 weeks.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#REC-2026-044</td>
-        <td style="font-weight:600;">22 Jun 2026</td>
-        <td>
-            <div style="font-weight:700;">Dr. Priya Nair</div>
-            <div style="font-size:0.75rem;color:#64748B;">Neurology • MediCare City Hospital</div>
-        </td>
-        <td><strong style="color:#0D9488;">Tension Headache &amp; Fatigue</strong></td>
-        <td style="font-size:0.85rem;color:#475569;">Naproxen 250mg PRN, Vitamin B-Complex</td>
-        <td>
-            <button onclick="alert('Clinical Summary:\\nCervicogenic tension headache related to prolonged screen work.\\nNeuro exam normal. Hydration and neck posture therapy advised.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
+const patientRecordsTableBlock = `
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Record #</th>
+                    <th>Date</th>
+                    <th>Attending Doctor</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment Plan &amp; Advice</th>
+                    <th>Prescriptions</th>
+                    <th>Follow-up</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="patientRecordsTbody"></tbody>
+        </table>
+        <div id="patientRecordsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon" style="font-size:3rem; color:#9CA3AF;"><i class="bi bi-clipboard2-x"></i></div>
+            <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No medical records yet</h3>
+            <p style="color:#6B7280; font-size:0.9rem;">Once your doctors complete consultations, detailed diagnoses and treatments will be logged here.</p>
+        </div>
+    </div>
 `;
-patRecordsHtml = patRecordsHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${patRecordsTableHtml}</tbody>`);
+patRecordsHtml = patRecordsHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${patientRecordsTableBlock}</div></div></main>`);
+
+const patientRecordsScript = `
+<!-- Patient Record View Modal -->
+<div id="patientRecordModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:18px;max-width:620px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;border:1px solid #E2E8F0;">
+        <div style="background:linear-gradient(135deg,#0D9488,#0F766E);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h3 style="margin:0;font-size:1.18rem;font-weight:700;"><i class="bi bi-file-earmark-medical"></i> Medical Consultation Record</h3>
+                <span id="pModalRecordId" style="font-size:0.8rem;color:#CCFBF1;">#MR-801</span>
+            </div>
+            <button onclick="document.getElementById('patientRecordModal').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;">&times;</button>
+        </div>
+        <div style="padding:22px;display:flex;flex-direction:column;gap:14px;font-size:0.9rem;">
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Attending Doctor</strong><div id="pModalDoc" style="font-weight:700;color:#0F2042;font-size:1.05rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Clinical Diagnosis</strong><div id="pModalDiag" style="font-weight:700;color:#0D9488;font-size:1.1rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Reported Symptoms</strong><div id="pModalSymptoms" style="color:#475569;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Treatment Plan &amp; Advice</strong><div id="pModalTreatment" style="color:#334155;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.5;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Doctor's Notes &amp; Follow-Up</strong><div id="pModalNotes" style="color:#475569;"></div></div>
+            <div style="text-align:right;margin-top:10px;display:flex;justify-content:flex-end;gap:10px;">
+                <a href="/patient/prescriptions" class="btn btn-teal btn-sm" style="font-weight:600;"><i class="bi bi-capsule"></i> View Prescriptions</a>
+                <button onclick="document.getElementById('patientRecordModal').style.display='none'" class="btn btn-outline btn-sm">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderPatientRecords() {
+        const records = HealixStore.getMedicalRecords().filter(r => r.patientName === 'Arun Chandran' || r.patientId === 'PAT-TRV-000001');
+        const tbody = document.getElementById('patientRecordsTbody');
+        const empty = document.getElementById('patientRecordsEmpty');
+        const countSpan = document.querySelector('.card-header h5 span');
+        if (countSpan) countSpan.innerText = '(' + records.length + ' Records)';
+
+        if (!records || records.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = records.map(r => {
+                const rxCount = HealixStore.getPrescriptions().filter(p => p.patientName === 'Arun Chandran' || p.patientId === 'PAT-TRV-000001').length;
+                return \`
+                    <tr>
+                        <td style="font-weight:700;color:#0F2042;">#\${r.id}</td>
+                        <td style="font-weight:600;">\${r.date}</td>
+                        <td>
+                            <div style="font-weight:700;color:#0F2042;">\${r.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">\${r.hospitalName}</div>
+                        </td>
+                        <td><strong style="color:#0D9488;">\${r.diagnosis}</strong></td>
+                        <td style="font-size:0.85rem;color:#475569;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">\${r.treatment || 'Consultation advice provided'}</td>
+                        <td><span class="badge" style="background:#CCFBF1;color:#0F766E;font-weight:700;">\${rxCount} Meds</span></td>
+                        <td style="font-size:0.85rem;color:#475569;">\${r.followUpDate || 'None'}</td>
+                        <td>
+                            <button onclick="openPatientRecordModal('\${r.id}')" class="btn btn-sm btn-teal"><i class="bi bi-eye"></i> View</button>
+                        </td>
+                    </tr>
+                \`;
+            }).join('');
+        }
+    }
+
+    function openPatientRecordModal(recordId) {
+        const r = HealixStore.getMedicalRecords().find(item => item.id === recordId);
+        if (!r) return;
+        document.getElementById('pModalRecordId').innerText = '#' + r.id + ' • ' + r.date;
+        document.getElementById('pModalDoc').innerText = r.doctorName + ' (' + r.hospitalName + ')';
+        document.getElementById('pModalDiag').innerText = r.diagnosis;
+        document.getElementById('pModalSymptoms').innerText = r.symptoms || 'None recorded';
+        document.getElementById('pModalTreatment').innerText = r.treatment || 'Routine monitoring & lifestyle advice.';
+        document.getElementById('pModalNotes').innerText = (r.notes || 'None') + (r.followUpDate ? ' (Follow-up: ' + r.followUpDate + ')' : '');
+        document.getElementById('patientRecordModal').style.display = 'flex';
+    }
+
+    renderPatientRecords();
+</script>
+`;
+patRecordsHtml = patRecordsHtml.replace('</body>', `${patientRecordsScript}</body>`);
 writePage('patient/medical-records/index.html', patRecordsHtml);
 
 // ----------------------------------------------------
@@ -992,50 +1096,66 @@ writePage('patient/medical-records/index.html', patRecordsHtml);
 const rawPatRx = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'patient', 'prescriptions.html'), 'utf8');
 let patRxHtml = cleanThymeleaf(rawPatRx);
 
-const patRxGridHtml = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-        <div class="card" style="border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; background: #fff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                <div>
-                    <span class="badge" style="background:#CCFBF1; color:#0F766E; font-size:0.72rem; font-weight:700;">ACTIVE PRESCRIPTION</span>
-                    <h4 style="font-size:1.15rem; font-weight:700; color:#0F2042; margin:6px 0 2px;">Atorvastatin 20mg</h4>
-                    <div style="font-size:0.82rem; color:#64748B;">Prescribed by Dr. Rajesh Kumar (Cardiology)</div>
-                </div>
-                <div style="font-size:1.8rem; color:#0D9488;"><i class="bi bi-capsule"></i></div>
-            </div>
-            <div style="background:#F8FAFC; border-radius:10px; padding:12px; font-size:0.85rem; margin-bottom:14px; line-height:1.5;">
-                <div><strong>Dosage:</strong> 1 Tablet Daily at Bedtime</div>
-                <div><strong>Duration:</strong> 30 Days (Ongoing)</div>
-                <div><strong>Instructions:</strong> Take after evening food with water. Monitor lipid profile after 60 days.</div>
-            </div>
-            <div style="font-size:0.75rem; color:#94A3B8; display:flex; justify-content:space-between;">
-                <span>Issued: 10 Sep 2026</span>
-                <span style="color:#0D9488; font-weight:600;"><i class="bi bi-shield-check"></i> Digitally Signed</span>
-            </div>
-        </div>
-
-        <div class="card" style="border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; background: #fff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                <div>
-                    <span class="badge" style="background:#CCFBF1; color:#0F766E; font-size:0.72rem; font-weight:700;">ACTIVE PRESCRIPTION</span>
-                    <h4 style="font-size:1.15rem; font-weight:700; color:#0F2042; margin:6px 0 2px;">Metoprolol Succinate 50mg</h4>
-                    <div style="font-size:0.82rem; color:#64748B;">Prescribed by Dr. Rajesh Kumar (Cardiology)</div>
-                </div>
-                <div style="font-size:1.8rem; color:#0D9488;"><i class="bi bi-capsule"></i></div>
-            </div>
-            <div style="background:#F8FAFC; border-radius:10px; padding:12px; font-size:0.85rem; margin-bottom:14px; line-height:1.5;">
-                <div><strong>Dosage:</strong> 1 Tablet Daily in the Morning</div>
-                <div><strong>Duration:</strong> 30 Days (Ongoing)</div>
-                <div><strong>Instructions:</strong> Take after breakfast. Regularly record morning resting pulse rate.</div>
-            </div>
-            <div style="font-size:0.75rem; color:#94A3B8; display:flex; justify-content:space-between;">
-                <span>Issued: 10 Sep 2026</span>
-                <span style="color:#0D9488; font-weight:600;"><i class="bi bi-shield-check"></i> Digitally Signed</span>
-            </div>
+const patPrescriptionContentBlock = `
+    <div class="card-body" style="padding: 24px;">
+        <div id="patientPrescriptionsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;"></div>
+        <div id="patientPrescriptionsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon" style="font-size:3rem; color:#9CA3AF;"><i class="bi bi-capsule"></i></div>
+            <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No prescriptions on file</h3>
+            <p style="color:#6B7280; font-size:0.9rem;">Your doctor will prescribe medications digitally during consultations.</p>
         </div>
     </div>
 `;
-patRxHtml = patRxHtml.replace(/<div th:if="\${#lists.isEmpty\(prescriptions\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${patRxGridHtml}</div></div>`);
+patRxHtml = patRxHtml.replace(/<div class="card-body"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${patPrescriptionContentBlock}</div></div></main>`);
+
+const patientPrescriptionsScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderPatientPrescriptions() {
+        const list = HealixStore.getPrescriptions().filter(p => p.patientName === 'Arun Chandran' || p.patientId === 'PAT-TRV-000001');
+        const grid = document.getElementById('patientPrescriptionsGrid');
+        const empty = document.getElementById('patientPrescriptionsEmpty');
+        const countSpan = document.querySelector('.card-header h5 span');
+        if (countSpan) countSpan.innerText = '(' + list.length + ' Active)';
+
+        if (!list || list.length === 0) {
+            if (grid) grid.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (grid) {
+            grid.innerHTML = list.map(p => \`
+                <div class="card" style="border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <div>
+                                <span class="badge" style="background:#CCFBF1; color:#0F766E; font-size:0.72rem; font-weight:700;">ACTIVE PRESCRIPTION</span>
+                                <h4 style="font-size:1.2rem; font-weight:700; color:#0F2042; margin:6px 0 2px;">\${p.medicineName}</h4>
+                                <div style="font-size:0.82rem; color:#64748B;">Prescribed by \${p.doctorName}</div>
+                            </div>
+                            <div style="font-size:2rem; color:#0D9488;"><i class="bi bi-capsule"></i></div>
+                        </div>
+                        <div style="background:#F8FAFC; border-radius:10px; padding:14px; font-size:0.88rem; margin-bottom:14px; line-height:1.6; border:1px solid #E2E8F0;">
+                            <div><strong style="color:#0F2042;">Dosage:</strong> \${p.dosage}</div>
+                            <div><strong style="color:#0F2042;">Frequency:</strong> \${p.frequency}</div>
+                            <div><strong style="color:#0F2042;">Duration:</strong> \${p.duration}</div>
+                            <div style="margin-top:4px;"><strong style="color:#0F2042;">Instructions:</strong> <span style="color:#334155;">\${p.instructions}</span></div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.78rem; color:#64748B; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #E2E8F0; padding-top:12px; margin-top:8px;">
+                        <span><i class="bi bi-calendar-event"></i> Issued: \${p.issuedDate}</span>
+                        <span style="color:#0D9488; font-weight:700;"><i class="bi bi-shield-check"></i> Digitally Signed</span>
+                    </div>
+                </div>
+            \`).join('');
+        }
+    }
+    renderPatientPrescriptions();
+</script>
+`;
+patRxHtml = patRxHtml.replace('</body>', `${patientPrescriptionsScript}</body>`);
 writePage('patient/prescriptions/index.html', patRxHtml);
 
 // ----------------------------------------------------
@@ -1147,56 +1267,92 @@ const rawDocDash = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 
 let docDashHtml = cleanThymeleaf(rawDocDash);
 
 docDashHtml = docDashHtml
-    .replace("<span th:text=\"'Dr. ' + \${doctor.name}\">Doctor</span>", '<span>Dr. Rajesh Kumar</span>')
+    .replace("<span th:text=\"'Dr. ' + \${doctor.name}\">Doctor</span>", '<span id="docHeaderName">Dr. Rajesh Kumar</span>')
     .replace("${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}", new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))
     .replace('th:text="${#strings.substring(doctor.name, 0, 1)}"', '')
-    .replace(/<div class="stat-value" th:text="\${todayCount \?: 0}">\d+<\/div>/, '<div class="stat-value">3</div>')
-    .replace(/<div class="stat-value" th:text="\${pendingCount \?: 0}">\d+<\/div>/, '<div class="stat-value">1</div>')
-    .replace(/<div class="stat-value" th:text="\${confirmedCount \?: 0}">\d+<\/div>/, '<div class="stat-value">2</div>')
-    .replace(/<div class="stat-value" th:text="\${completedCount \?: 0}">\d+<\/div>/, '<div class="stat-value">5</div>')
-    .replace("<div style=\"font-size:1.1rem;font-weight:700;\" th:text=\"'Dr. ' + \${doctor.name}\">Dr. Name</div>", '<div style="font-size:1.1rem;font-weight:700;">Dr. Rajesh Kumar</div>')
-    .replace('<div style="color:#6366F1;font-weight:600;font-size:0.875rem;" th:text="${doctor.specialization}">Specialization</div>', '<div style="color:#6366F1;font-weight:600;font-size:0.875rem;">Senior Cardiologist</div>')
-    .replace('<div style="color:#9CA3AF;font-size:0.78rem;" th:text="${doctor.qualification}">Qualification</div>', '<div style="color:#9CA3AF;font-size:0.78rem;">MBBS, MD (Cardiology), DM (Cardiology)</div>')
-    .replace('<span th:text="${doctor.department.name}">Department</span>', '<span>Cardiology • MediCare City Hospital</span>')
-    .replace('<span th:text="${doctor.experienceYears} + \' years experience\'">Exp</span>', '<span>15 years clinical experience</span>')
-    .replace('<span th:text="${doctor.availability}">Availability</span>', '<span>Mon-Sat: 9AM-1PM, 3PM-6PM (OPD Room 104)</span>')
-    .replace('<span th:text="${doctor.email}">Email</span>', '<span>doctor@healix.com (Fee: ₹800.00)</span>');
+    .replace(/<div class="stat-value" th:text="\${todayCount \?: 0}">\d+<\/div>/, '<div class="stat-value" id="docStatToday">3</div>')
+    .replace(/<div class="stat-value" th:text="\${pendingCount \?: 0}">\d+<\/div>/, '<div class="stat-value" id="docStatPending">1</div>')
+    .replace(/<div class="stat-value" th:text="\${confirmedCount \?: 0}">\d+<\/div>/, '<div class="stat-value" id="docStatConfirmed">2</div>')
+    .replace(/<div class="stat-value" th:text="\${completedCount \?: 0}">\d+<\/div>/, '<div class="stat-value" id="docStatCompleted">5</div>')
+    .replace("<div style=\"font-size:1.1rem;font-weight:700;\" th:text=\"'Dr. ' + \${doctor.name}\">Dr. Name</div>", '<div style="font-size:1.1rem;font-weight:700;" id="docCardName">Dr. Rajesh Kumar</div>')
+    .replace('<div style="color:#6366F1;font-weight:600;font-size:0.875rem;" th:text="${doctor.specialization}">Specialization</div>', '<div style="color:#6366F1;font-weight:600;font-size:0.875rem;" id="docCardSpec">Senior Cardiologist</div>')
+    .replace('<div style="color:#9CA3AF;font-size:0.78rem;" th:text="${doctor.qualification}">Qualification</div>', '<div style="color:#9CA3AF;font-size:0.78rem;" id="docCardQual">MBBS, MD (Cardiology), DM (Cardiology)</div>')
+    .replace('<span th:text="${doctor.department.name}">Department</span>', '<span id="docCardDept">Cardiology • MediCare City Hospital</span>')
+    .replace('<span th:text="${doctor.experienceYears} + \' years experience\'">Exp</span>', '<span id="docCardExp">15 years clinical experience</span>')
+    .replace('<span th:text="${doctor.availability}">Availability</span>', '<span id="docCardAvail">Mon-Sat: 9AM-1PM, 3PM-6PM (OPD Room 104)</span>')
+    .replace('<span th:text="${doctor.email}">Email</span>', '<span id="docCardEmail">doctor@healix.com (Fee: ₹800.00)</span>');
 
-const doctorTodayScheduleHtml = `
-    <table class="data-table">
-        <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th></tr></thead>
-        <tbody>
-            <tr>
-                <td style="font-weight:700;color:#6366F1;">09:30 AM</td>
-                <td>
-                    <div style="font-weight:600;">Arun Chandran</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
-                </td>
-                <td style="font-size:0.82rem;color:#4B5563;">Chest pain &amp; shortness of breath</td>
-                <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-            </tr>
-            <tr>
-                <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
-                <td>
-                    <div style="font-weight:600;">Divya Rajan</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
-                </td>
-                <td style="font-size:0.82rem;color:#4B5563;">Hypertension evaluation &amp; BP review</td>
-                <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-            </tr>
-            <tr>
-                <td style="font-weight:700;color:#6366F1;">03:30 PM</td>
-                <td>
-                    <div style="font-weight:600;">Mohammed Faisal</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
-                </td>
-                <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
-                <td><span class="badge badge-pending">PENDING</span></td>
-            </tr>
-        </tbody>
-    </table>
+const doctorDashboardScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderDoctorDashboard() {
+        const doc = HealixStore.getDoctorProfile();
+        if (doc.name) {
+            document.getElementById('docHeaderName').innerText = doc.fullName || ('Dr. ' + doc.name);
+            document.getElementById('docCardName').innerText = doc.fullName || ('Dr. ' + doc.name);
+            document.getElementById('docCardSpec').innerText = doc.specialization;
+            document.getElementById('docCardQual').innerText = doc.qualification;
+            document.getElementById('docCardDept').innerText = doc.department + ' • ' + (doc.hospital || 'MediCare City Hospital');
+            document.getElementById('docCardExp').innerText = doc.experienceYears + ' years clinical experience';
+            document.getElementById('docCardAvail').innerText = doc.availability + ' (' + doc.room + ')';
+            document.getElementById('docCardEmail').innerText = doc.email + ' (Fee: ₹' + doc.consultationFee + ')';
+        }
+
+        const appts = HealixStore.getAppointments();
+        const pendingCount = appts.filter(a => a.status === 'PENDING').length;
+        const confirmedCount = appts.filter(a => a.status === 'CONFIRMED').length;
+        const completedCount = appts.filter(a => a.status === 'COMPLETED').length;
+
+        document.getElementById('docStatToday').innerText = appts.length;
+        document.getElementById('docStatPending').innerText = pendingCount;
+        document.getElementById('docStatConfirmed').innerText = confirmedCount;
+        document.getElementById('docStatCompleted').innerText = completedCount;
+
+        const tableContainer = document.querySelector('.card:nth-child(2) .table-container');
+        if (tableContainer) {
+            tableContainer.innerHTML = \`
+                <table class="data-table">
+                    <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        \${appts.map(a => {
+                            const badge = a.status === 'CONFIRMED'
+                                ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                                : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                            
+                            const action = a.status === 'PENDING'
+                                ? \`<button onclick="confirmAppt(\${a.id})" class="btn btn-sm btn-indigo"><i class="bi bi-check-lg"></i> Confirm</button>\`
+                                : \`<a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-pencil-square"></i> Record</a>\`;
+
+                            return \`
+                                <tr>
+                                    <td style="font-weight:700;color:#6366F1;">\${a.time}</td>
+                                    <td>
+                                        <div style="font-weight:600;">\${a.patientName}</div>
+                                        <div style="font-size:0.72rem;color:#9CA3AF;">\${a.patientPhone} • \${a.patientId}</div>
+                                    </td>
+                                    <td style="font-size:0.82rem;color:#4B5563;">\${a.reason}</td>
+                                    <td>\${badge}</td>
+                                    <td>\${action}</td>
+                                </tr>
+                            \`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            \`;
+        }
+    }
+
+    function confirmAppt(id) {
+        if (HealixStore.confirmAppointment(id)) {
+            showToast('Appointment #' + id + ' confirmed successfully! Patient notified.');
+            renderDoctorDashboard();
+        }
+    }
+
+    renderDoctorDashboard();
+</script>
 `;
-docDashHtml = docDashHtml.replace(/<table class="data-table"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${doctorTodayScheduleHtml}</div></div>`);
+docDashHtml = docDashHtml.replace('</body>', `${doctorDashboardScript}</body>`);
 writePage('doctor/dashboard/index.html', docDashHtml);
 
 // ----------------------------------------------------
@@ -1205,75 +1361,114 @@ writePage('doctor/dashboard/index.html', docDashHtml);
 const rawDocAppts = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'doctor', 'appointments.html'), 'utf8');
 let docApptsHtml = cleanThymeleaf(rawDocAppts);
 
-const docApptsTableHtml = `
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1082</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">A</div>
-                <div>
-                    <div style="font-weight:600;">Arun Chandran</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">Tomorrow</td>
-        <td style="font-weight:600;color:#6366F1;">09:30 AM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Chest pain and shortness of breath during exercise</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Starting clinical consultation with Arun Chandran...');" class="btn btn-sm btn-indigo"><i class="bi bi-play-fill"></i> Consult</button>
-                <button onclick="alert('Prescription created for Arun Chandran.');" class="btn btn-sm btn-outline"><i class="bi bi-capsule"></i> Rx</button>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1084</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">D</div>
-                <div>
-                    <div style="font-weight:600;">Divya Rajan</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">In 2 Days</td>
-        <td style="font-weight:600;color:#6366F1;">11:00 AM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Hypertension check and medication adjustment</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Starting clinical consultation with Divya Rajan...');" class="btn btn-sm btn-indigo"><i class="bi bi-play-fill"></i> Consult</button>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-size:0.78rem;color:#9CA3AF;">#1085</td>
-        <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar-sm avatar-teal">M</div>
-                <div>
-                    <div style="font-weight:600;">Mohammed Faisal</div>
-                    <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
-                </div>
-            </div>
-        </td>
-        <td style="font-weight:500;">Today</td>
-        <td style="font-weight:600;color:#6366F1;">03:30 PM</td>
-        <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td>
-            <div style="display:flex;gap:6px;">
-                <button onclick="alert('Appointment #1085 confirmed!'); this.parentElement.innerHTML='<span class=\\'badge badge-confirmed\\'>CONFIRMED</span>';"
-                        class="btn btn-sm btn-indigo"><i class="bi bi-check-lg"></i> Confirm</button>
-            </div>
-        </td>
-    </tr>
+const docApptsTableBlock = `
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="docApptsTbody"></tbody>
+        </table>
+        <div id="docApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+            <h3>No appointments found</h3>
+            <p>You have no appointments matching the current filter.</p>
+        </div>
+    </div>
 `;
-docApptsHtml = docApptsHtml.replace(/<table class="data-table"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/,
-    `<table class="data-table"><thead><tr><th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody>${docApptsTableHtml}</tbody></table></div></div></div></main>`);
+docApptsHtml = docApptsHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${docApptsTableBlock}</div></div></main>`);
+
+const docApptsScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    let currentFilter = 'ALL';
+
+    function setFilter(status) {
+        currentFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.className = (b.dataset.status === status) ? 'btn btn-sm btn-indigo filter-btn' : 'btn btn-sm btn-outline filter-btn';
+        });
+        renderAppointmentsTable();
+    }
+
+    function renderAppointmentsTable() {
+        let appts = HealixStore.getAppointments();
+        if (currentFilter !== 'ALL') {
+            appts = appts.filter(a => a.status === currentFilter);
+        }
+
+        const tbody = document.getElementById('docApptsTbody');
+        const empty = document.getElementById('docApptsEmpty');
+        if (!appts || appts.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = appts.map(a => {
+                const badge = a.status === 'CONFIRMED'
+                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                
+                const confirmBtn = a.status === 'PENDING'
+                    ? \`<button onclick="confirmAppointmentItem(\${a.id})" class="btn btn-sm btn-indigo" style="font-weight:700;"><i class="bi bi-check-lg"></i> Confirm</button>\`
+                    : '';
+
+                return \`
+                    <tr>
+                        <td style="font-size:0.78rem;color:#9CA3AF;">#\${a.id}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div class="avatar avatar-sm avatar-teal">\${a.patientName.charAt(0)}</div>
+                                <div>
+                                    <div style="font-weight:600;color:#0F2042;">\${a.patientName}</div>
+                                    <div style="font-size:0.72rem;color:#9CA3AF;">\${a.patientPhone} • \${a.patientId}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight:500;">\${a.date}</td>
+                        <td style="font-weight:600;color:#6366F1;">\${a.time}</td>
+                        <td style="font-size:0.82rem;color:#4B5563;">\${a.reason}</td>
+                        <td>\${badge}</td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                \${confirmBtn}
+                                <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                            </div>
+                        </td>
+                    </tr>
+                \`;
+            }).join('');
+        }
+    }
+
+    function confirmAppointmentItem(id) {
+        if (HealixStore.confirmAppointment(id)) {
+            showToast('Appointment #' + id + ' confirmed! Patient will see CONFIRMED status.');
+            renderAppointmentsTable();
+        }
+    }
+
+    // Add filter buttons
+    const filterForm = document.querySelector('form');
+    if (filterForm) {
+        filterForm.innerHTML = \`
+            <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
+            <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
+            <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
+            <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
+            <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
+        \`;
+    }
+
+    renderAppointmentsTable();
+</script>
+`;
+docApptsHtml = docApptsHtml.replace('</body>', `${docApptsScript}</body>`);
 writePage('doctor/appointments/index.html', docApptsHtml);
 
 // ----------------------------------------------------
@@ -1299,8 +1494,7 @@ const docPatientsTableHtml = `
         <td><span class="badge" style="background:#FEE2E2;color:#991B1B;font-weight:700;">B+</span></td>
         <td>34 yrs</td>
         <td>
-            <button onclick="alert('Patient Health Summary: Arun Chandran\\nAge: 34 | Blood: B+\\nActive Diagnosis: Angina Pectoris, Mild HTN\\nMedications: Atorvastatin 20mg, Metoprolol 50mg\\nEmergency Contact: Sitha Chandran (9876510002)');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Records</button>
+            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record / Rx</a>
         </td>
     </tr>
     <tr>
@@ -1319,8 +1513,7 @@ const docPatientsTableHtml = `
         <td><span class="badge" style="background:#FEE2E2;color:#991B1B;font-weight:700;">A+</span></td>
         <td>39 yrs</td>
         <td>
-            <button onclick="alert('Patient Health Summary: Divya Rajan\\nAge: 39 | Blood: A+\\nActive Diagnosis: Essential Hypertension\\nMedications: Amlodipine 5mg\\nEmergency Contact: Ramesh Rajan (9876510004)');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Records</button>
+            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record / Rx</a>
         </td>
     </tr>
     <tr>
@@ -1339,8 +1532,7 @@ const docPatientsTableHtml = `
         <td><span class="badge" style="background:#FEE2E2;color:#991B1B;font-weight:700;">O+</span></td>
         <td>46 yrs</td>
         <td>
-            <button onclick="alert('Patient Health Summary: Mohammed Faisal\\nAge: 46 | Blood: O+\\nActive Diagnosis: Dyslipidemia\\nMedications: Rosuvastatin 10mg\\nEmergency Contact: Ayesha Faisal (9876510006)');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Records</button>
+            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record / Rx</a>
         </td>
     </tr>
 `;
@@ -1349,36 +1541,414 @@ docPatientsHtml = docPatientsHtml.replace(/<table class="data-table"[\s\S]*?<\/d
 writePage('doctor/patients/index.html', docPatientsHtml);
 
 // ----------------------------------------------------
-// 23. Generate Doctor Medical Records (/doctor/medical-records/index.html)
+// 23. Generate Doctor Medical Records (/doctor/medical-records/index.html) with Record & Prescription Writer
 // ----------------------------------------------------
 const rawDocRecords = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'doctor', 'medical-records.html'), 'utf8');
 let docRecordsHtml = cleanThymeleaf(rawDocRecords);
 
-const docRecordsTableHtml = `
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#MR-801</td>
-        <td style="font-weight:600;">10 Sep 2026</td>
-        <td style="font-weight:700;color:#0D9488;">Arun Chandran (PAT-TRV-000001)</td>
-        <td>Chest pain &amp; palpitations during exertion</td>
-        <td><strong>Angina Pectoris / Mild HTN</strong></td>
-        <td>Atorvastatin 20mg, Metoprolol 50mg</td>
-        <td>
-            <button onclick="alert('Opening clinical record #MR-801 for Arun Chandran');" class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#MR-792</td>
-        <td style="font-weight:600;">02 Sep 2026</td>
-        <td style="font-weight:700;color:#0D9488;">Mohammed Faisal (PAT-TRV-000003)</td>
-        <td>Routine annual executive cardiac screening</td>
-        <td><strong>Dyslipidemia (borderline elevated LDL)</strong></td>
-        <td>Rosuvastatin 10mg, Dietary management</td>
-        <td>
-            <button onclick="alert('Opening clinical record #MR-792 for Mohammed Faisal');" class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
+const docRecordsContentBlock = `
+<div class="page-content">
+    <!-- Top Stats & Quick Action Banner -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+        <div>
+            <h3 style="margin: 0 0 4px; font-size: 1.28rem; font-weight: 800; color: #0F2042;">Clinical Medical Records &amp; Prescriptions</h3>
+            <p style="margin: 0; font-size: 0.88rem; color: #64748B;">Log clinical diagnoses, add treatment plans, and issue digitally signed prescriptions directly to patient accounts.</p>
+        </div>
+        <button onclick="openRecordModal()" class="btn btn-indigo" style="font-weight: 700; padding: 10px 22px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
+            <i class="bi bi-plus-circle" style="font-size: 1.1rem;"></i> Write Medical Record &amp; Rx
+        </button>
+    </div>
+
+    <!-- Section 1: Eligible Consultations -->
+    <div class="card" style="margin-bottom: 28px; border-radius: 16px; border: 1px solid #E2E8F0;">
+        <div class="card-header" style="background: #fff; padding: 18px 24px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin:0; font-size: 1.05rem; font-weight: 700; color: #0F2042;">
+                <i class="bi bi-clipboard2-check" style="color: #6366F1; margin-right: 8px;"></i> OPD Consultations Eligible for Record Entry
+            </h5>
+            <span class="badge badge-indigo">Ready for Entry</span>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#Appt</th>
+                        <th>Patient Name</th>
+                        <th>Date &amp; Time</th>
+                        <th>Reported Symptoms / Purpose</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600; color: #94A3B8;">#1082</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar avatar-sm avatar-teal">A</div>
+                                <div>
+                                    <div style="font-weight: 700; color: #0F2042;">Arun Chandran</div>
+                                    <div style="font-size: 0.75rem; color: #64748B;">PAT-TRV-000001 • Cardiology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><strong>Tomorrow</strong> <span style="color:#6366F1; font-weight:600;">09:30 AM</span></td>
+                        <td style="font-size: 0.85rem; color: #475569;">Chest pain and shortness of breath during exercise</td>
+                        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                        <td>
+                            <button onclick="openRecordModalForPatient('Arun Chandran|PAT-TRV-000001|1082')" class="btn btn-sm btn-indigo" style="font-weight:600;">
+                                <i class="bi bi-pencil-square"></i> Write Record &amp; Rx
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600; color: #94A3B8;">#1084</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar avatar-sm avatar-teal">D</div>
+                                <div>
+                                    <div style="font-weight: 700; color: #0F2042;">Divya Rajan</div>
+                                    <div style="font-size: 0.75rem; color: #64748B;">PAT-TRV-000002 • Cardiology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><strong>In 2 Days</strong> <span style="color:#6366F1; font-weight:600;">11:00 AM</span></td>
+                        <td style="font-size: 0.85rem; color: #475569;">Hypertension check and medication adjustment</td>
+                        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                        <td>
+                            <button onclick="openRecordModalForPatient('Divya Rajan|PAT-TRV-000002|1084')" class="btn btn-sm btn-indigo" style="font-weight:600;">
+                                <i class="bi bi-pencil-square"></i> Write Record &amp; Rx
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600; color: #94A3B8;">#1085</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar avatar-sm avatar-teal">M</div>
+                                <div>
+                                    <div style="font-weight: 700; color: #0F2042;">Mohammed Faisal</div>
+                                    <div style="font-size: 0.75rem; color: #64748B;">PAT-TRV-000003 • Cardiology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><strong>Today</strong> <span style="color:#6366F1; font-weight:600;">03:30 PM</span></td>
+                        <td style="font-size: 0.85rem; color: #475569;">Cardiac stress test review</td>
+                        <td><span class="badge badge-pending">PENDING</span></td>
+                        <td>
+                            <button onclick="openRecordModalForPatient('Mohammed Faisal|PAT-TRV-000003|1085')" class="btn btn-sm btn-indigo" style="font-weight:600;">
+                                <i class="bi bi-pencil-square"></i> Write Record &amp; Rx
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section 2: Issued Medical Records & Clinical Prescriptions -->
+    <div class="card" style="border-radius: 16px; border: 1px solid #E2E8F0;">
+        <div class="card-header" style="background: #fff; padding: 18px 24px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin:0; font-size: 1.05rem; font-weight: 700; color: #0F2042;">
+                <i class="bi bi-journal-medical" style="color: #10B981; margin-right: 8px;"></i> Issued Medical Records &amp; Digital Prescriptions
+            </h5>
+            <span id="docRecordCountBadge" class="badge" style="background: #D1FAE5; color: #065F46; font-weight: 700;">Active Records</span>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Record ID</th>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Diagnosis</th>
+                        <th>Treatment Plan &amp; Advice</th>
+                        <th>Prescriptions</th>
+                        <th>Follow-up</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="docIssuedRecordsTbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</main>
 `;
-docRecordsHtml = docRecordsHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${docRecordsTableHtml}</tbody>`);
+docRecordsHtml = docRecordsHtml.replace(/<div class="page-content">[\s\S]*?<\/main>/, docRecordsContentBlock);
+
+const doctorRecordsWriterModalHtml = `
+<!-- Modal for Doctor to Write Medical Record & Prescriptions -->
+<div id="recordModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:99999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+    <div style="background:#fff;border-radius:20px;max-width:760px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;border:1px solid #E2E8F0;margin:auto;">
+        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h3 style="margin:0;font-size:1.25rem;font-weight:700;"><i class="bi bi-clipboard2-pulse"></i> Write Medical Record &amp; Prescription</h3>
+                <p style="margin:4px 0 0;font-size:0.82rem;color:#E0E7FF;">Clinical consultation notes &amp; digital prescriptions (Instantly shared with Patient)</p>
+            </div>
+            <button type="button" onclick="closeRecordModal()" style="background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;">&times;</button>
+        </div>
+
+        <form id="docRecordForm" onsubmit="submitDoctorRecord(event)" style="padding:24px;max-height:78vh;overflow-y:auto;display:flex;flex-direction:column;gap:18px;">
+            <!-- Patient Selector -->
+            <div style="background:#F8FAFC;padding:16px;border-radius:12px;border:1px solid #E2E8F0;">
+                <label style="display:block;font-size:0.82rem;font-weight:700;color:#0F2042;margin-bottom:6px;text-transform:uppercase;">Select Patient <span style="color:#DC2626;">*</span></label>
+                <select id="mPatientSelect" class="form-control" required style="font-weight:600;">
+                    <option value="Arun Chandran|PAT-TRV-000001|1082">Arun Chandran (PAT-TRV-000001 • Cardiology OPD • Tomorrow 09:30 AM)</option>
+                    <option value="Divya Rajan|PAT-TRV-000002|1084">Divya Rajan (PAT-TRV-000002 • Cardiology OPD • In 2 Days 11:00 AM)</option>
+                    <option value="Mohammed Faisal|PAT-TRV-000003|1085">Mohammed Faisal (PAT-TRV-000003 • Cardiology OPD • Today 03:30 PM)</option>
+                </select>
+            </div>
+
+            <!-- Diagnosis & Follow-up -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    <label style="display:block;font-size:0.82rem;font-weight:700;color:#0F2042;margin-bottom:6px;">Clinical Diagnosis <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="mDiagnosis" class="form-control" placeholder="e.g. Angina Pectoris, Essential HTN Grade 1" required/>
+                </div>
+                <div>
+                    <label style="display:block;font-size:0.82rem;font-weight:700;color:#0F2042;margin-bottom:6px;">Follow-up Schedule</label>
+                    <input type="text" id="mFollowUp" class="form-control" placeholder="e.g. 2 Weeks (Review ECG &amp; Echo)" value="2 Weeks"/>
+                </div>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:0.82rem;font-weight:700;color:#0F2042;margin-bottom:6px;">Reported Symptoms &amp; Clinical Findings</label>
+                <textarea id="mSymptoms" class="form-control" rows="2" placeholder="e.g. Retrosternal chest discomfort during exercise, mild shortness of breath..."></textarea>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:0.82rem;font-weight:700;color:#0F2042;margin-bottom:6px;">Treatment Plan &amp; Lifestyle Advice</label>
+                <textarea id="mTreatment" class="form-control" rows="2" placeholder="e.g. Low sodium cardiac diet, brisk walking 30 min daily, stress management..."></textarea>
+            </div>
+
+            <!-- Prescription Section -->
+            <div style="border-top:2px solid #E2E8F0;padding-top:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <div>
+                        <h4 style="margin:0;font-size:1.05rem;font-weight:700;color:#0F2042;"><i class="bi bi-capsule" style="color:#10B981;"></i> Prescriptions (Rx)</h4>
+                        <span style="font-size:0.75rem;color:#64748B;">Medicines prescribed to patient with dosages &amp; timings</span>
+                    </div>
+                    <button type="button" onclick="addRxItem()" class="btn btn-sm btn-outline" style="border-color:#10B981;color:#047857;font-weight:600;">
+                        <i class="bi bi-plus-lg"></i> Add Medicine
+                    </button>
+                </div>
+
+                <div id="rxItemsContainer" style="display:flex;flex-direction:column;gap:12px;">
+                    <!-- Default Rx Row 1 -->
+                    <div class="rx-row" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px;">
+                        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:8px;">
+                            <div>
+                                <label style="font-size:0.75rem;font-weight:600;color:#475569;">Medicine Name &amp; Strength <span style="color:#DC2626;">*</span></label>
+                                <input type="text" class="form-control rx-name" placeholder="e.g. Atorvastatin 20mg" value="Atorvastatin 20mg" required/>
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem;font-weight:600;color:#475569;">Dosage</label>
+                                <input type="text" class="form-control rx-dosage" placeholder="e.g. 1 Tablet" value="1 Tablet"/>
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem;font-weight:600;color:#475569;">Frequency</label>
+                                <select class="form-control rx-frequency">
+                                    <option value="Once Daily (Night)">Once Daily (Night)</option>
+                                    <option value="Once Daily (Morning)">Once Daily (Morning)</option>
+                                    <option value="Twice Daily (Morning/Night)">Twice Daily (Morning/Night)</option>
+                                    <option value="Thrice Daily">Thrice Daily</option>
+                                    <option value="SOS / As Needed">SOS / As Needed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end;">
+                            <div>
+                                <label style="font-size:0.75rem;font-weight:600;color:#475569;">Duration</label>
+                                <input type="text" class="form-control rx-duration" placeholder="e.g. 30 Days" value="30 Days"/>
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem;font-weight:600;color:#475569;">Special Instructions</label>
+                                <input type="text" class="form-control rx-instructions" placeholder="e.g. Take after dinner with water" value="Take after evening food with water"/>
+                            </div>
+                            <button type="button" onclick="this.closest('.rx-row').remove()" class="btn btn-sm btn-outline" style="color:#DC2626;border-color:#FCA5A5;" title="Remove">&times;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;justify-content:flex-end;gap:12px;border-top:1px solid #E2E8F0;padding-top:16px;">
+                <button type="button" onclick="closeRecordModal()" class="btn btn-outline" style="padding:8px 20px;">Cancel</button>
+                <button type="submit" class="btn btn-indigo" style="padding:8px 24px;font-weight:700;">
+                    <i class="bi bi-check2-circle"></i> Save &amp; Issue Record to Patient
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Doctor to View Clinical Record -->
+<div id="docViewModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:18px;max-width:620px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;border:1px solid #E2E8F0;">
+        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h3 style="margin:0;font-size:1.18rem;font-weight:700;"><i class="bi bi-clipboard2-pulse"></i> Consultation Medical Summary</h3>
+                <span id="docViewRecordId" style="font-size:0.8rem;color:#E0E7FF;">#MR-801</span>
+            </div>
+            <button onclick="document.getElementById('docViewModal').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;">&times;</button>
+        </div>
+        <div style="padding:22px;display:flex;flex-direction:column;gap:14px;font-size:0.9rem;">
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Patient Name &amp; ID</strong><div id="docViewPatient" style="font-weight:700;color:#0F2042;font-size:1.05rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Clinical Diagnosis</strong><div id="docViewDiag" style="font-weight:700;color:#4F46E5;font-size:1.1rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Symptoms &amp; Clinical Findings</strong><div id="docViewSymptoms" style="color:#475569;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Treatment Plan &amp; Lifestyle Advice</strong><div id="docViewTreatment" style="color:#334155;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.5;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Follow-Up Schedule</strong><div id="docViewFollowUp" style="color:#475569;"></div></div>
+            <div style="text-align:right;margin-top:10px;">
+                <button onclick="document.getElementById('docViewModal').style.display='none'" class="btn btn-outline btn-sm">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function openRecordModal() {
+        document.getElementById('recordModal').style.display = 'flex';
+    }
+
+    function openRecordModalForPatient(patVal) {
+        document.getElementById('mPatientSelect').value = patVal;
+        openRecordModal();
+    }
+
+    function closeRecordModal() {
+        document.getElementById('recordModal').style.display = 'none';
+    }
+
+    function addRxItem() {
+        const container = document.getElementById('rxItemsContainer');
+        const row = document.createElement('div');
+        row.className = 'rx-row';
+        row.style.cssText = 'background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px;';
+        row.innerHTML = \`
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:8px;">
+                <div>
+                    <label style="font-size:0.75rem;font-weight:600;color:#475569;">Medicine Name &amp; Strength <span style="color:#DC2626;">*</span></label>
+                    <input type="text" class="form-control rx-name" placeholder="e.g. Metoprolol Succinate 50mg" required/>
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;font-weight:600;color:#475569;">Dosage</label>
+                    <input type="text" class="form-control rx-dosage" placeholder="e.g. 1 Tablet" value="1 Tablet"/>
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;font-weight:600;color:#475569;">Frequency</label>
+                    <select class="form-control rx-frequency">
+                        <option value="Once Daily (Morning)">Once Daily (Morning)</option>
+                        <option value="Once Daily (Night)">Once Daily (Night)</option>
+                        <option value="Twice Daily (Morning/Night)">Twice Daily (Morning/Night)</option>
+                        <option value="Thrice Daily">Thrice Daily</option>
+                        <option value="SOS / As Needed">SOS / As Needed</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end;">
+                <div>
+                    <label style="font-size:0.75rem;font-weight:600;color:#475569;">Duration</label>
+                    <input type="text" class="form-control rx-duration" placeholder="e.g. 30 Days" value="30 Days"/>
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;font-weight:600;color:#475569;">Special Instructions</label>
+                    <input type="text" class="form-control rx-instructions" placeholder="e.g. Take after breakfast"/>
+                </div>
+                <button type="button" onclick="this.closest('.rx-row').remove()" class="btn btn-sm btn-outline" style="color:#DC2626;border-color:#FCA5A5;" title="Remove">&times;</button>
+            </div>
+        \`;
+        container.appendChild(row);
+    }
+
+    function submitDoctorRecord(e) {
+        e.preventDefault();
+        const patVal = document.getElementById('mPatientSelect').value.split('|');
+        const patientName = patVal[0];
+        const patientId = patVal[1];
+        const apptId = patVal[2];
+
+        const diagnosis = document.getElementById('mDiagnosis').value;
+        const symptoms = document.getElementById('mSymptoms').value;
+        const treatment = document.getElementById('mTreatment').value;
+        const followUp = document.getElementById('mFollowUp').value;
+
+        // Collect Prescriptions
+        const rxRows = document.querySelectorAll('.rx-row');
+        const rxList = [];
+        rxRows.forEach(row => {
+            const medName = row.querySelector('.rx-name').value;
+            const dosage = row.querySelector('.rx-dosage').value;
+            const freq = row.querySelector('.rx-frequency').value;
+            const dur = row.querySelector('.rx-duration').value;
+            const inst = row.querySelector('.rx-instructions').value;
+            if (medName && medName.trim()) {
+                rxList.push({ medicineName: medName, dosage, frequency: freq, duration: dur, instructions: inst });
+            }
+        });
+
+        const newRec = HealixStore.addRecordWithPrescriptions({
+            patientName,
+            patientId,
+            appointmentId: apptId,
+            diagnosis,
+            symptoms,
+            treatment,
+            followUpDate: followUp
+        }, rxList);
+
+        closeRecordModal();
+        showToast('Medical Record #' + newRec.id + ' & ' + rxList.length + ' prescription(s) successfully issued for ' + patientName + '! Visible on Patient Portal.');
+        renderDoctorRecordsTable();
+    }
+
+    function viewClinicalRecordModal(id) {
+        const r = HealixStore.getMedicalRecords().find(item => item.id === id);
+        if (!r) return;
+        document.getElementById('docViewRecordId').innerText = '#' + r.id + ' • ' + r.date;
+        document.getElementById('docViewPatient').innerText = r.patientName + ' (' + r.patientId + ')';
+        document.getElementById('docViewDiag').innerText = r.diagnosis;
+        document.getElementById('docViewSymptoms').innerText = r.symptoms || 'None recorded';
+        document.getElementById('docViewTreatment').innerText = r.treatment || 'Consultation plan logged';
+        document.getElementById('docViewFollowUp').innerText = r.followUpDate || 'None specified';
+        document.getElementById('docViewModal').style.display = 'flex';
+    }
+
+    function renderDoctorRecordsTable() {
+        const records = HealixStore.getMedicalRecords();
+        const tbody = document.getElementById('docIssuedRecordsTbody');
+        const badge = document.getElementById('docRecordCountBadge');
+        if (badge) badge.innerText = records.length + ' Active Records';
+
+        if (tbody) {
+            tbody.innerHTML = records.map(r => {
+                const rxCount = HealixStore.getPrescriptions().filter(p => p.patientName === r.patientName).length;
+                return \`
+                    <tr>
+                        <td style="font-weight:700;color:#0F2042;">#\${r.id}</td>
+                        <td style="font-weight:600;">\${r.date}</td>
+                        <td>
+                            <div style="font-weight:700;color:#0F2042;">\${r.patientName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">\${r.patientId}</div>
+                        </td>
+                        <td><strong style="color:#4F46E5;">\${r.diagnosis}</strong></td>
+                        <td style="font-size:0.85rem;color:#475569;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">\${r.treatment || 'Prescriptions issued'}</td>
+                        <td><span class="badge" style="background:#CCFBF1;color:#0F766E;font-weight:700;">\${rxCount} Meds</span></td>
+                        <td style="font-size:0.85rem;color:#475569;">\${r.followUpDate || 'None'}</td>
+                        <td>
+                            <button onclick="viewClinicalRecordModal('\${r.id}')" class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
+                        </td>
+                    </tr>
+                \`;
+            }).join('');
+        }
+    }
+
+    renderDoctorRecordsTable();
+</script>
+`;
+
+docRecordsHtml = docRecordsHtml.replace('</body>', `${doctorRecordsWriterModalHtml}</body>`);
 writePage('doctor/medical-records/index.html', docRecordsHtml);
 
 // ----------------------------------------------------
@@ -1394,44 +1964,225 @@ const docScheduleTableHtml = `
         <td style="font-weight:600;">Arun Chandran</td>
         <td>Chest pain &amp; shortness of breath</td>
         <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><button onclick="alert('Opening OPD slot for Arun Chandran');" class="btn btn-sm btn-indigo">Start</button></td>
+        <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
     </tr>
     <tr>
-        <td style="font-weight:700;color:#0F2042;">Tomorrow</td>
+        <td style="font-weight:700;color:#0F2042;">In 2 Days</td>
         <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
         <td style="font-weight:600;">Divya Rajan</td>
         <td>Hypertension checkup</td>
         <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><button onclick="alert('Opening OPD slot for Divya Rajan');" class="btn btn-sm btn-indigo">Start</button></td>
+        <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
     </tr>
     <tr>
-        <td style="font-weight:700;color:#0F2042;">In 2 Days</td>
-        <td style="font-weight:700;color:#6366F1;">10:00 AM</td>
-        <td style="font-weight:600;">K. V. Ramanathan</td>
-        <td>Post-CABG routine follow-up</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><button onclick="alert('Opening OPD slot for K. V. Ramanathan');" class="btn btn-sm btn-indigo">Start</button></td>
+        <td style="font-weight:700;color:#0F2042;">Today</td>
+        <td style="font-weight:700;color:#6366F1;">03:30 PM</td>
+        <td style="font-weight:600;">Mohammed Faisal</td>
+        <td>Cardiac stress test review</td>
+        <td><span class="badge badge-pending">PENDING</span></td>
+        <td><a href="/doctor/appointments" class="btn btn-sm btn-outline">Review</a></td>
     </tr>
 `;
 docScheduleHtml = docScheduleHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${docScheduleTableHtml}</tbody>`);
 writePage('doctor/schedule/index.html', docScheduleHtml);
 
 // ----------------------------------------------------
-// 25. Generate Doctor Profile (/doctor/profile/index.html)
+// 25. Generate Doctor Profile (/doctor/profile/index.html) with Real-Time Profile Editor
 // ----------------------------------------------------
 const rawDocProfile = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'doctor', 'profile.html'), 'utf8');
 let docProfileHtml = cleanThymeleaf(rawDocProfile);
 
-docProfileHtml = docProfileHtml
-    .replace("<h3 style=\"font-size: 1.35rem; font-weight: 800; color: #0F2042; margin-bottom: 4px;\" th:text=\"'Dr. ' + \${doctor.name}\">Dr. Doctor</h3>", '<h3 style="font-size: 1.35rem; font-weight: 800; color: #0F2042; margin-bottom: 4px;">Dr. Rajesh Kumar</h3>')
-    .replace('<div style="color: #6366F1; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;" th:text="${doctor.specialization}">Specialization</div>', '<div style="color: #6366F1; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">Senior Cardiologist</div>')
-    .replace('<strong style="color:#1E293B;" th:text="${doctor.qualification}">MBBS, MD</strong>', '<strong style="color:#1E293B;">MBBS, MD (Cardiology), DM (Cardiology)</strong>')
-    .replace(/th:value="\${doctor\.name}"/g, 'value="Rajesh Kumar"')
-    .replace(/th:value="\${doctor\.email}"/g, 'value="doctor@healix.com"')
-    .replace(/th:value="\${doctor\.phone}"/g, 'value="9876501234"')
-    .replace(/th:value="\${doctor\.specialization}"/g, 'value="Cardiology"')
-    .replace(/th:value="\${doctor\.qualification}"/g, 'value="MBBS, MD (Cardiology), DM (Cardiology)"')
-    .replace(/th:value="\${doctor\.consultationFee}"/g, 'value="800.00"');
+const docProfileContentBlock = `
+<div class="page-content">
+    <div class="grid-2" style="gap: 24px; align-items: flex-start;">
+        <!-- Left: Live Profile Summary Card -->
+        <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 16px; border: 1px solid #E2E8F0;">
+            <div class="card-body" style="padding: 28px; text-align: center;">
+                <div id="sideDocAvatar" class="avatar avatar-xl" style="background:#6366F1; color:#fff; margin: 0 auto 16px; font-size: 2rem; width: 72px; height: 72px; line-height: 72px; border-radius: 50%;">R</div>
+                <h3 id="sideDocName" style="font-size: 1.35rem; font-weight: 800; color: #0F2042; margin-bottom: 4px;">Dr. Rajesh Kumar</h3>
+                <div id="sideDocSpec" style="color: #6366F1; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">Senior Cardiologist</div>
+                <span class="badge badge-indigo">Cardiology • OPD Room 104</span>
+
+                <div style="margin-top: 24px; border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Hospital:</span>
+                        <strong style="color:#1E293B;" id="sideDocHosp">MediCare City Hospital</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Qualification:</span>
+                        <strong style="color:#1E293B;" id="sideDocQual">MBBS, MD (Cardiology), DM (Cardiology)</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Experience:</span>
+                        <strong style="color:#1E293B;" id="sideDocExp">15 Years</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Consultation Fee:</span>
+                        <strong style="color:#10B981;" id="sideDocFee">₹800.00</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Email:</span>
+                        <strong style="color:#1E293B;" id="sideDocEmail">doctor@healix.com</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748B;">Phone:</span>
+                        <strong style="color:#1E293B;" id="sideDocPhone">+91 98765 01234</strong>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 12px 14px; border-radius: 8px; color: #166534; font-size: 0.82rem; font-weight: 600;">
+                    <i class="bi bi-patch-check-fill"></i> Verified Medical Practitioner • Healix Board
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Interactive Profile & Practice Details Editor -->
+        <div class="card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 16px; border: 1px solid #E2E8F0;">
+            <div class="card-header" style="background:#fff; border-bottom: 1px solid #E2E8F0; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin:0; font-size: 1.1rem; font-weight: 700; color: #0F2042;">
+                    <i class="bi bi-pencil-square" style="color:#6366F1; margin-right: 8px;"></i> Edit Doctor Profile &amp; Practice Details
+                </h5>
+                <span class="badge" style="background:#EEF2FF; color:#4F46E5; font-weight:600; padding:4px 10px; border-radius:6px; font-size:0.75rem;">Instant Sync</span>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <form id="doctorProfileEditForm" onsubmit="handleDoctorProfileSave(event)" style="display:flex; flex-direction:column; gap:18px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Doctor Full Name <span style="color:#DC2626;">*</span></label>
+                            <input type="text" id="editDocName" class="form-control" required style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Specialization <span style="color:#DC2626;">*</span></label>
+                            <input type="text" id="editDocSpec" class="form-control" required style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Medical Qualifications</label>
+                            <input type="text" id="editDocQual" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Consultation Fee (₹)</label>
+                            <input type="number" id="editDocFee" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Experience (Years)</label>
+                            <input type="number" id="editDocExp" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Contact Phone</label>
+                            <input type="tel" id="editDocPhone" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Contact Email</label>
+                            <input type="email" id="editDocEmail" class="form-control" style="border-radius:8px;"/>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Working Hours &amp; Availability</label>
+                            <input type="text" id="editDocAvail" class="form-control" placeholder="Mon-Sat: 9AM-1PM, 3PM-6PM" style="border-radius:8px;"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display:block; font-size:0.82rem; font-weight:700; color:#334155; margin-bottom:6px;">Biography &amp; Clinical Focus</label>
+                        <textarea id="editDocBio" class="form-control" rows="3" style="border-radius:8px;"></textarea>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #E2E8F0; padding-top:16px;">
+                        <button type="submit" class="btn btn-indigo" style="font-weight:700; padding:10px 24px; border-radius:8px;">
+                            <i class="bi bi-check2-circle"></i> Save Profile Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+`;
+docProfileHtml = docProfileHtml.replace(/<div class="page-content">[\s\S]*?<\/main>/, docProfileContentBlock);
+
+const doctorProfileEditorScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    function loadDoctorProfileForm() {
+        const doc = HealixStore.getDoctorProfile();
+        
+        // Fill form fields
+        if (document.getElementById('editDocName')) document.getElementById('editDocName').value = doc.name || 'Rajesh Kumar';
+        if (document.getElementById('editDocEmail')) document.getElementById('editDocEmail').value = doc.email || 'doctor@healix.com';
+        if (document.getElementById('editDocPhone')) document.getElementById('editDocPhone').value = doc.phone || '9876501234';
+        if (document.getElementById('editDocSpec')) document.getElementById('editDocSpec').value = doc.specialization || 'Senior Cardiologist';
+        if (document.getElementById('editDocQual')) document.getElementById('editDocQual').value = doc.qualification || 'MBBS, MD (Cardiology), DM (Cardiology)';
+        if (document.getElementById('editDocFee')) document.getElementById('editDocFee').value = doc.consultationFee || '800.00';
+        if (document.getElementById('editDocExp')) document.getElementById('editDocExp').value = doc.experienceYears || 15;
+        if (document.getElementById('editDocAvail')) document.getElementById('editDocAvail').value = doc.availability || 'Mon-Sat: 9AM-1PM, 3PM-6PM';
+        if (document.getElementById('editDocBio')) document.getElementById('editDocBio').value = doc.bio || 'Senior interventional cardiologist with 15+ years of clinical experience in preventative and interventional cardiology.';
+
+        // Update profile card side elements
+        const nameCard = document.getElementById('sideDocName');
+        if (nameCard) nameCard.innerText = doc.fullName || ('Dr. ' + doc.name);
+        const avatarCard = document.getElementById('sideDocAvatar');
+        if (avatarCard && doc.name) avatarCard.innerText = doc.name.charAt(0);
+        const specCard = document.getElementById('sideDocSpec');
+        if (specCard) specCard.innerText = doc.specialization;
+        const hospCard = document.getElementById('sideDocHosp');
+        if (hospCard) hospCard.innerText = doc.hospital || 'MediCare City Hospital';
+        const qualCard = document.getElementById('sideDocQual');
+        if (qualCard) qualCard.innerText = doc.qualification;
+        const expCard = document.getElementById('sideDocExp');
+        if (expCard) expCard.innerText = (doc.experienceYears || 15) + ' Years';
+        const feeCard = document.getElementById('sideDocFee');
+        if (feeCard) feeCard.innerText = '₹' + (doc.consultationFee || '800.00');
+        const emailCard = document.getElementById('sideDocEmail');
+        if (emailCard) emailCard.innerText = doc.email || 'doctor@healix.com';
+        const phoneCard = document.getElementById('sideDocPhone');
+        if (phoneCard) phoneCard.innerText = doc.phone || '+91 98765 01234';
+    }
+
+    function handleDoctorProfileSave(e) {
+        e.preventDefault();
+        const name = document.getElementById('editDocName').value.trim();
+        const email = document.getElementById('editDocEmail').value.trim();
+        const phone = document.getElementById('editDocPhone').value.trim();
+        const specialization = document.getElementById('editDocSpec').value.trim();
+        const qualification = document.getElementById('editDocQual').value.trim();
+        const fee = document.getElementById('editDocFee').value.trim();
+        const exp = document.getElementById('editDocExp').value.trim();
+        const availability = document.getElementById('editDocAvail').value.trim();
+        const bio = document.getElementById('editDocBio').value.trim();
+
+        const updated = {
+            name: name,
+            fullName: 'Dr. ' + name,
+            email: email,
+            phone: phone,
+            specialization: specialization,
+            qualification: qualification,
+            consultationFee: fee,
+            experienceYears: exp,
+            availability: availability,
+            department: "Cardiology",
+            hospital: "MediCare City Hospital",
+            room: "OPD Room 104",
+            bio: bio
+        };
+
+        HealixStore.saveDoctorProfile(updated);
+        showToast('Doctor Profile updated successfully! Changes saved across the platform.');
+        loadDoctorProfileForm();
+    }
+
+    loadDoctorProfileForm();
+</script>
+`;
+docProfileHtml = docProfileHtml.replace('</body>', `${doctorProfileEditorScript}</body>`);
 writePage('doctor/profile/index.html', docProfileHtml);
 
 // ----------------------------------------------------

@@ -51,62 +51,110 @@
                               th:text="'(' + ${records != null ? records.size() : 0} + ' Records)'"></span>
                     </h5>
                 </div>
-                <div class="table-container">
-                    <table class="data-table" th:if="${records != null and !records.isEmpty()}">
-                        <thead>
-                        <tr>
-                            <th>Record #</th>
-                            <th>Date</th>
-                            <th>Attending Doctor</th>
-                            <th>Diagnosis</th>
-                            <th>Prescriptions</th>
-                            <th>Follow-up</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#REC-2026-081</td>
-        <td style="font-weight:600;">10 Sep 2026</td>
-        <td>
-            <div style="font-weight:700;">Dr. Rajesh Kumar</div>
-            <div style="font-size:0.75rem;color:#64748B;">Cardiology • MediCare City Hospital</div>
-        </td>
-        <td><strong style="color:#0D9488;">Angina Pectoris / Mild HTN</strong></td>
-        <td style="font-size:0.85rem;color:#475569;">Atorvastatin 20mg (night), Metoprolol 50mg (morning)</td>
-        <td>
-            <button onclick="alert('Clinical Summary:\nPatient reported mild exertional retrosternal discomfort.\nBP: 138/88 mmHg, ECG sinus rhythm.\nAdvised lifestyle modifications and 2D Echo review in 4 weeks.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">#REC-2026-044</td>
-        <td style="font-weight:600;">22 Jun 2026</td>
-        <td>
-            <div style="font-weight:700;">Dr. Priya Nair</div>
-            <div style="font-size:0.75rem;color:#64748B;">Neurology • MediCare City Hospital</div>
-        </td>
-        <td><strong style="color:#0D9488;">Tension Headache &amp; Fatigue</strong></td>
-        <td style="font-size:0.85rem;color:#475569;">Naproxen 250mg PRN, Vitamin B-Complex</td>
-        <td>
-            <button onclick="alert('Clinical Summary:\nCervicogenic tension headache related to prolonged screen work.\nNeuro exam normal. Hydration and neck posture therapy advised.');"
-                    class="btn btn-sm btn-outline"><i class="bi bi-eye"></i> View</button>
-        </td>
-    </tr>
-</tbody>
-                    </table>
-
-                    <div th:if="${records == null or records.isEmpty()}" class="empty-state" style="padding: 48px 24px;">
-                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-clipboard2-x"></i></div>
-                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No medical records yet</h3>
-                        <p style="color: #6B7280; font-size: 0.9rem;">Once your doctors complete consultations, detailed diagnoses and treatments will be logged here.</p>
-                    </div>
-                </div>
-            </div>
-
+                
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Record #</th>
+                    <th>Date</th>
+                    <th>Attending Doctor</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment Plan &amp; Advice</th>
+                    <th>Prescriptions</th>
+                    <th>Follow-up</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="patientRecordsTbody"></tbody>
+        </table>
+        <div id="patientRecordsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
+            <div class="empty-state-icon" style="font-size:3rem; color:#9CA3AF;"><i class="bi bi-clipboard2-x"></i></div>
+            <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No medical records yet</h3>
+            <p style="color:#6B7280; font-size:0.9rem;">Once your doctors complete consultations, detailed diagnoses and treatments will be logged here.</p>
         </div>
-    </main>
+    </div>
+</div></div></main>
 </div>
 <script src="/js/main.js"></script>
+
+<!-- Patient Record View Modal -->
+<div id="patientRecordModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:18px;max-width:620px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;border:1px solid #E2E8F0;">
+        <div style="background:linear-gradient(135deg,#0D9488,#0F766E);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h3 style="margin:0;font-size:1.18rem;font-weight:700;"><i class="bi bi-file-earmark-medical"></i> Medical Consultation Record</h3>
+                <span id="pModalRecordId" style="font-size:0.8rem;color:#CCFBF1;">#MR-801</span>
+            </div>
+            <button onclick="document.getElementById('patientRecordModal').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;">&times;</button>
+        </div>
+        <div style="padding:22px;display:flex;flex-direction:column;gap:14px;font-size:0.9rem;">
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Attending Doctor</strong><div id="pModalDoc" style="font-weight:700;color:#0F2042;font-size:1.05rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Clinical Diagnosis</strong><div id="pModalDiag" style="font-weight:700;color:#0D9488;font-size:1.1rem;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Reported Symptoms</strong><div id="pModalSymptoms" style="color:#475569;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Treatment Plan &amp; Advice</strong><div id="pModalTreatment" style="color:#334155;background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.5;"></div></div>
+            <div><strong style="color:#64748B;font-size:0.78rem;text-transform:uppercase;">Doctor's Notes &amp; Follow-Up</strong><div id="pModalNotes" style="color:#475569;"></div></div>
+            <div style="text-align:right;margin-top:10px;display:flex;justify-content:flex-end;gap:10px;">
+                <a href="/patient/prescriptions" class="btn btn-teal btn-sm" style="font-weight:600;"><i class="bi bi-capsule"></i> View Prescriptions</a>
+                <button onclick="document.getElementById('patientRecordModal').style.display='none'" class="btn btn-outline btn-sm">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderPatientRecords() {
+        const records = HealixStore.getMedicalRecords().filter(r => r.patientName === 'Arun Chandran' || r.patientId === 'PAT-TRV-000001');
+        const tbody = document.getElementById('patientRecordsTbody');
+        const empty = document.getElementById('patientRecordsEmpty');
+        const countSpan = document.querySelector('.card-header h5 span');
+        if (countSpan) countSpan.innerText = '(' + records.length + ' Records)';
+
+        if (!records || records.length === 0) {
+            if (tbody) tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        if (tbody) {
+            tbody.innerHTML = records.map(r => {
+                const rxCount = HealixStore.getPrescriptions().filter(p => p.patientName === 'Arun Chandran' || p.patientId === 'PAT-TRV-000001').length;
+                return `
+                    <tr>
+                        <td style="font-weight:700;color:#0F2042;">#${r.id}</td>
+                        <td style="font-weight:600;">${r.date}</td>
+                        <td>
+                            <div style="font-weight:700;color:#0F2042;">${r.doctorName}</div>
+                            <div style="font-size:0.75rem;color:#64748B;">${r.hospitalName}</div>
+                        </td>
+                        <td><strong style="color:#0D9488;">${r.diagnosis}</strong></td>
+                        <td style="font-size:0.85rem;color:#475569;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.treatment || 'Consultation advice provided'}</td>
+                        <td><span class="badge" style="background:#CCFBF1;color:#0F766E;font-weight:700;">${rxCount} Meds</span></td>
+                        <td style="font-size:0.85rem;color:#475569;">${r.followUpDate || 'None'}</td>
+                        <td>
+                            <button onclick="openPatientRecordModal('${r.id}')" class="btn btn-sm btn-teal"><i class="bi bi-eye"></i> View</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    }
+
+    function openPatientRecordModal(recordId) {
+        const r = HealixStore.getMedicalRecords().find(item => item.id === recordId);
+        if (!r) return;
+        document.getElementById('pModalRecordId').innerText = '#' + r.id + ' • ' + r.date;
+        document.getElementById('pModalDoc').innerText = r.doctorName + ' (' + r.hospitalName + ')';
+        document.getElementById('pModalDiag').innerText = r.diagnosis;
+        document.getElementById('pModalSymptoms').innerText = r.symptoms || 'None recorded';
+        document.getElementById('pModalTreatment').innerText = r.treatment || 'Routine monitoring & lifestyle advice.';
+        document.getElementById('pModalNotes').innerText = (r.notes || 'None') + (r.followUpDate ? ' (Follow-up: ' + r.followUpDate + ')' : '');
+        document.getElementById('patientRecordModal').style.display = 'flex';
+    }
+
+    renderPatientRecords();
+</script>
 </body>
 </html>
