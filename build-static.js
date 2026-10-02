@@ -1021,11 +1021,17 @@ const detailedPatientPageContent = `
                                 </div>
 
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                    <button onclick="openOpdPassModal()" class="btn btn-teal btn-sm" style="font-weight: 600; cursor: pointer;">
-                                        <i class="bi bi-receipt"></i> Digital OPD Slip
+                                    <button onclick="downloadOfficialAppointmentLetter(1082)" class="btn btn-teal btn-sm" style="font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="bi bi-file-earmark-arrow-down-fill"></i> Download Letter
+                                    </button>
+                                    <button onclick="openPaymentQrModal(1082, 'Dr. Rajesh Kumar', 'MediCare City Hospital', 800)" class="btn btn-sm" style="background: #4F46E5; color: #fff; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="bi bi-qr-code"></i> Pay Fee (UPI QR)
+                                    </button>
+                                    <button onclick="openOpdPassModal()" class="btn btn-outline btn-sm" style="font-weight: 600; cursor: pointer;">
+                                        <i class="bi bi-receipt"></i> Digital Slip
                                     </button>
                                     <a href="/patient/book-appointment" class="btn btn-outline btn-sm" style="font-weight: 600;">
-                                        <i class="bi bi-calendar2-plus"></i> Book Another Appointment
+                                        <i class="bi bi-calendar2-plus"></i> Book Another
                                     </a>
                                 </div>
                             </div>
@@ -1308,9 +1314,21 @@ const detailedPatientPageContent = `
                             <strong style="color: #E11D48;">09:15 AM (15 min prior)</strong>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="window.print()" class="btn btn-teal w-100" style="padding: 10px; font-weight: 600;"><i class="bi bi-printer"></i> Print OPD Slip</button>
-                        <button onclick="closeOpdPassModal()" class="btn btn-outline w-100" style="padding: 10px; font-weight: 600;">Close</button>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="downloadOfficialAppointmentLetter(1082)" class="btn btn-teal w-100" style="padding: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="bi bi-file-earmark-arrow-down-fill"></i> Download Letter
+                            </button>
+                            <button onclick="openPaymentQrModal(1082, 'Dr. Rajesh Kumar', 'MediCare City Hospital', 800)" class="btn w-100" style="background: #4F46E5; color: #fff; padding: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="bi bi-qr-code"></i> Pay Fee (UPI QR)
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="printOfficialAppointmentLetter(1082)" class="btn btn-outline w-100" style="padding: 8px; font-weight: 600;">
+                                <i class="bi bi-printer"></i> Print / Save PDF
+                            </button>
+                            <button onclick="closeOpdPassModal()" class="btn btn-outline w-100" style="padding: 8px; font-weight: 600;">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1327,6 +1345,7 @@ patientDashHtml = patientDashHtml
 
 const patientDashScript = `
 <script src="/js/clinical-store.js"></script>
+<script src="/js/patient-features.js"></script>
 <script>
     function openHealthCardModal() {
         const m = document.getElementById('healthCardModal');
@@ -1576,6 +1595,7 @@ bookHtml = bookHtml.replace(/<div class="page-content">[\s\S]*?<\/main>/, richBo
 
 const richBookScript = `
 <script src="/js/clinical-store.js"></script>
+<script src="/js/patient-features.js"></script>
 <script>
     const doctorsData = ${JSON.stringify(PATIENT_DOCTORS)};
 
@@ -1640,20 +1660,21 @@ const richBookScript = `
             patientId: "PAT-TRV-000001",
             patientPhone: "9876510001",
             doctorName: 'Dr. ' + doc.name,
+            doctorSpec: doc.specialization,
             hospitalName: hospital,
             date: date,
             time: time,
             reason: reason,
             status: "CONFIRMED",
-            fee: doc.consultationFee
+            fee: doc.consultationFee,
+            paymentStatus: "PENDING"
         };
 
         const appts = HealixStore.getAppointments();
         appts.unshift(newAppt);
         HealixStore.saveAppointments(appts);
 
-        alert('Consultation Confirmed with Dr. ' + doc.name + ' at ' + hospital + ' on ' + date + ' at ' + time + '!\\n\\nDigital OPD Token: #01\\nRegistration Slip: #APT-' + newApptId + '\\n\\nRedirecting to My Appointments...');
-        window.location.href = '/patient/appointments';
+        showBookingSuccessModal(newAppt);
     });
 </script>
 `;
@@ -1677,11 +1698,11 @@ const patientApptsTableBlock = `
                 <tr>
                     <th>#ID</th>
                     <th>Doctor &amp; Hospital</th>
-                    <th>Date</th>
-                    <th>Time Slot</th>
+                    <th>Date &amp; Slot</th>
                     <th>Chief Complaint</th>
+                    <th>Fee &amp; Payment</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th>Letter &amp; Actions</th>
                 </tr>
             </thead>
             <tbody id="patientApptsTbody"></tbody>
@@ -1710,9 +1731,19 @@ const patientApptsTableBlock = `
                     <div style="font-size:0.82rem; color:#065F46; font-weight:700;">CONFIRMED CONSULTATION</div>
                 </div>
                 <div style="font-size:0.86rem; color:#334155; line-height:1.7; margin-bottom:18px;" id="modalSlipDetails"></div>
-                <div style="display:flex; gap:10px;">
-                    <button onclick="window.print()" class="btn btn-teal w-100" style="padding:10px; font-weight:600;"><i class="bi bi-printer"></i> Print Pass</button>
-                    <button onclick="document.getElementById('apptsSlipModal').style.display='none'" class="btn btn-outline w-100" style="padding:10px; font-weight:600;">Close</button>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="downloadOfficialAppointmentLetter(window.currentSlipApptId || 1082)" class="btn btn-teal w-100" style="padding:10px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <i class="bi bi-file-earmark-arrow-down-fill"></i> Download Letter
+                        </button>
+                        <button onclick="openPaymentQrModal(window.currentSlipApptId || 1082, window.currentSlipDoc || 'Dr. Rajesh Kumar', window.currentSlipHosp || 'MediCare City Hospital', 800)" class="btn w-100" style="background:#4F46E5; color:#fff; padding:10px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <i class="bi bi-qr-code"></i> Pay Fee (UPI QR)
+                        </button>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="printOfficialAppointmentLetter(window.currentSlipApptId || 1082)" class="btn btn-outline w-100" style="padding:8px; font-weight:600;"><i class="bi bi-printer"></i> Print / Save PDF</button>
+                        <button onclick="document.getElementById('apptsSlipModal').style.display='none'" class="btn btn-outline w-100" style="padding:8px; font-weight:600;">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1722,6 +1753,7 @@ apptsHtml = apptsHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\
 
 const patientApptsScript = `
 <script src="/js/clinical-store.js"></script>
+<script src="/js/patient-features.js"></script>
 <script>
     function renderPatientAppointments() {
         const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
@@ -1740,11 +1772,10 @@ const patientApptsScript = `
                     ? '<span class="badge badge-confirmed" style="background:#D1FAE5;color:#065F46;font-weight:700;"><i class="bi bi-check-circle-fill"></i> CONFIRMED</span>'
                     : (a.status === 'COMPLETED' ? '<span class="badge badge-completed" style="background:#E0F2FE;color:#0369A1;font-weight:700;"><i class="bi bi-check2-all"></i> COMPLETED</span>' : '<span class="badge badge-pending" style="background:#FEF3C7;color:#92400E;font-weight:700;"><i class="bi bi-clock"></i> PENDING</span>');
                 
-                const slipAction = a.status === 'CONFIRMED'
-                    ? \`<button onclick="viewSlip(\${a.id})" class="btn btn-sm btn-teal" style="font-weight:600;"><i class="bi bi-receipt"></i> Digital Slip</button>\`
-                    : (a.status === 'COMPLETED'
-                        ? \`<a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> View Record</a>\`
-                        : \`<button onclick="alert('Doctor confirmation pending. Dr. Rajesh Kumar confirms appointments within 1 hour.');" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Pending</button>\`);
+                const isPaid = (a.paymentStatus === 'PAID');
+                const paymentBadge = isPaid
+                    ? '<span class="badge" style="background:#D1FAE5;color:#065F46;font-weight:700;"><i class="bi bi-patch-check-fill"></i> ₹' + (a.fee || 800) + ' PAID</span>'
+                    : \`<button onclick="openPaymentQrModal('\${a.id}', '\${a.doctorName}', '\${a.hospitalName}', \${a.fee || 800})" class="btn btn-xs" style="background:#4F46E5;color:#fff;font-weight:700;padding:4px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;"><i class="bi bi-qr-code"></i> Pay ₹\${a.fee || 800}</button>\`;
 
                 return \`
                     <tr>
@@ -1753,14 +1784,19 @@ const patientApptsScript = `
                             <div style="font-weight:800;color:#0F2042;">\${a.doctorName}</div>
                             <div style="font-size:0.76rem;color:#0D9488;font-weight:600;"><i class="bi bi-geo-alt"></i> \${a.hospitalName}</div>
                         </td>
-                        <td style="font-weight:700;color:#1E293B;">\${a.date}</td>
-                        <td style="font-weight:800;color:#0D9488;">\${a.time}</td>
-                        <td style="font-size:0.85rem;color:#475569;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">\${a.reason}</td>
+                        <td>
+                            <div style="font-weight:700;color:#1E293B;">\${a.date}</div>
+                            <div style="font-weight:800;color:#0D9488;font-size:0.85rem;">\${a.time}</div>
+                        </td>
+                        <td style="font-size:0.85rem;color:#475569;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">\${a.reason}</td>
+                        <td>\${paymentBadge}</td>
                         <td>\${statusBadge}</td>
                         <td>
-                            <div style="display:flex;gap:6px;">
-                                \${slipAction}
-                                <button onclick="cancelAppt(\${a.id})" class="btn btn-sm btn-outline" style="color:#EF4444;border-color:#FCA5A5;" title="Cancel Appointment"><i class="bi bi-x"></i></button>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <button onclick="downloadOfficialAppointmentLetter('\${a.id}')" class="btn btn-sm btn-teal" style="font-weight:700;display:flex;align-items:center;gap:4px;" title="Download Official Letter"><i class="bi bi-file-earmark-arrow-down-fill"></i> Letter</button>
+                                <button onclick="openPaymentQrModal('\${a.id}', '\${a.doctorName}', '\${a.hospitalName}', \${a.fee || 800})" class="btn btn-sm btn-outline" title="UPI Payment QR Code" style="display:flex;align-items:center;gap:4px;"><i class="bi bi-qr-code"></i> Pay</button>
+                                <button onclick="viewSlip('\${a.id}')" class="btn btn-sm btn-outline" title="Digital Slip"><i class="bi bi-receipt"></i></button>
+                                <button onclick="cancelAppt('\${a.id}')" class="btn btn-sm btn-outline" style="color:#EF4444;border-color:#FCA5A5;" title="Cancel Appointment"><i class="bi bi-x"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1773,6 +1809,10 @@ const patientApptsScript = `
         const appts = HealixStore.getAppointments();
         const a = appts.find(item => item.id == apptId);
         if (!a) return;
+        window.currentSlipApptId = a.id;
+        window.currentSlipDoc = a.doctorName;
+        window.currentSlipHosp = a.hospitalName;
+
         document.getElementById('modalSlipId').innerText = '#APT-' + a.id;
         document.getElementById('modalSlipDetails').innerHTML = \`
             <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding-bottom:6px;">
@@ -1790,6 +1830,10 @@ const patientApptsScript = `
             <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding:6px 0;">
                 <span style="color:#64748B;">Date & Slot:</span>
                 <strong style="color:#0D9488;">\${a.date} at \${a.time}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding:6px 0;">
+                <span style="color:#64748B;">Billing Clearance:</span>
+                <strong style="color:\${a.paymentStatus === 'PAID' ? '#059669' : '#D97706'};">\${a.paymentStatus === 'PAID' ? 'PAID (VERIFIED VIA UPI)' : 'PENDING PAYMENT (₹' + (a.fee || 800) + ')'}</strong>
             </div>
             <div style="display:flex;justify-content:space-between;padding-top:6px;">
                 <span style="color:#64748B;">Reporting Time:</span>

@@ -22,7 +22,9 @@ const HealixStore = {
                     time: "09:30 AM",
                     reason: "Chest pain and shortness of breath during exercise",
                     status: "CONFIRMED",
-                    fee: 800
+                    fee: 800,
+                    paymentStatus: "PAID",
+                    paymentTxn: "UPI/TXN/8492019482"
                 },
                 {
                     id: 1084,
@@ -35,7 +37,8 @@ const HealixStore = {
                     time: "11:00 AM",
                     reason: "Hypertension check and medication adjustment",
                     status: "CONFIRMED",
-                    fee: 800
+                    fee: 800,
+                    paymentStatus: "PENDING"
                 },
                 {
                     id: 1085,
@@ -48,7 +51,8 @@ const HealixStore = {
                     time: "03:30 PM",
                     reason: "Cardiac stress test review",
                     status: "PENDING",
-                    fee: 800
+                    fee: 800,
+                    paymentStatus: "PENDING"
                 }
             ]));
         }
@@ -172,6 +176,19 @@ const HealixStore = {
         const appt = appts.find(a => a.id === Number(id));
         if (appt) {
             appt.status = 'CONFIRMED';
+            this.saveAppointments(appts);
+            return true;
+        }
+        return false;
+    },
+
+    // Mark Appointment Paid via UPI
+    markAppointmentPaid(id, txnRef) {
+        const appts = this.getAppointments();
+        const appt = appts.find(a => a.id === Number(id));
+        if (appt) {
+            appt.paymentStatus = 'PAID';
+            appt.paymentTxn = txnRef || ('UPI/TXN/' + Math.floor(1000000000 + Math.random() * 9000000000));
             this.saveAppointments(appts);
             return true;
         }
