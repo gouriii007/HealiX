@@ -528,25 +528,9 @@ writePage('login/index.html', loginHtml);
 const rawRegister = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'register.html'), 'utf8');
 let registerHtml = cleanThymeleaf(rawRegister);
 
-const registerScript = `
-<script src="/js/clinical-store.js"></script>
-<script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.querySelector('input[placeholder="e.g. John Doe"]').value.trim();
-        const email = document.querySelector('input[type="email"]').value.trim();
-        const phone = document.querySelector('input[type="tel"]').value.trim();
-
-        const user = { name: name || 'Patient User', email: email || 'patient@example.com', phone, role: 'PATIENT' };
-        localStorage.setItem('healix_user', JSON.stringify(user));
-
-        alert('Registration successful! Your patient identifier PAT-TRV-000004 has been generated. Redirecting to Patient Portal...');
-        window.location.href = '/patient/dashboard';
-    });
-</script>
-`;
-
-registerHtml = registerHtml.replace('</body>', `${registerScript}</body>`);
+if (!registerHtml.includes('/js/clinical-store.js')) {
+    registerHtml = registerHtml.replace('</body>', '<script src="/js/clinical-store.js"></script>\n</body>');
+}
 writePage('register/index.html', registerHtml);
 
 // ----------------------------------------------------

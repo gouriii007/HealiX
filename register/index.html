@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Patient Registration | Healix HMS</title>
-    <meta name="description" content="Register as a patient on Healix Hospital Management System"/>
+    <title>Patient Registration &amp; Email Verification | HealiX HMS</title>
+    <meta name="description" content="Register as a verified patient on HealiX Multi-Hospital Management System with secure Email OTP verification"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
-    <link rel="stylesheet" href="/css/main.css"/>
+    <link rel="stylesheet" href="/css/main.css" href="/css/main.css"/>
     <style>
-        .register-page { min-height: 100vh; display: flex; }
+        .register-page { min-height: 100vh; display: flex; font-family: 'Inter', sans-serif; background: #F8FAFC; }
         .register-left {
-            flex: 1; background: linear-gradient(145deg, #0F2042 0%, #0D9488 100%);
+            flex: 1; background: linear-gradient(145deg, #0F2042 0%, #1E3A8A 50%, #4B3A82 100%);
             display: flex; align-items: center; justify-content: center; padding: 60px;
             position: relative; overflow: hidden;
         }
@@ -23,17 +23,48 @@
         }
         .register-left-content { position: relative; z-index: 1; max-width: 460px; color: #fff; }
         .register-brand-logo {
-            width: 56px; height: 56px; background: #0D9488; border-radius: 14px;
+            width: 56px; height: 56px; background: #8070A6; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; font-weight: 900; color: #fff; margin-bottom: 24px;
         }
         .register-right {
-            width: 620px; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; padding: 48px 44px; background: #fff; overflow-y: auto;
+            width: 640px; display: flex; flex-direction: column; align-items: center;
+            justify-content: flex-start; padding: 48px 40px; background: #fff; overflow-y: auto;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.04);
         }
+        
+        .form-control-icon-wrap { position: relative; }
+        .form-control-icon-wrap i.field-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: #94A3B8; font-size: 1.05rem; pointer-events: none;
+        }
+        .form-control-icon-wrap .form-control {
+            padding-left: 40px;
+        }
+        .password-toggle-btn {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: transparent; border: none; color: #94A3B8; cursor: pointer;
+            padding: 4px; font-size: 1.05rem; display: flex; align-items: center;
+        }
+        .password-toggle-btn:hover { color: #475569; }
+
+        .otp-digit {
+            width: 50px; height: 58px; border: 2px solid #CBD5E1; border-radius: 12px;
+            font-size: 1.6rem; font-weight: 800; text-align: center; color: #0F172A;
+            background: #F8FAFC; outline: none; transition: all 0.2s ease;
+        }
+        .otp-digit:focus {
+            border-color: #0D9488; background: #fff; box-shadow: 0 0 0 3px rgba(13,148,136,0.18);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 960px) {
             .register-left { display: none; }
-            .register-right { width: 100%; padding: 36px 24px; }
+            .register-right { width: 100%; padding: 36px 20px; }
         }
     </style>
 </head>
@@ -41,31 +72,31 @@
 <div class="register-page">
 
     <!-- Left Banner -->
-    <div class="register-left" style="background: linear-gradient(145deg, #0F2042 0%, #1E3A8A 50%, #4B3A82 100%);">
+    <div class="register-left">
         <div class="register-left-content" style="max-width: 480px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-                <div class="register-brand-logo" style="margin-bottom: 0; background: #8070A6;">H</div>
+                <div class="register-brand-logo" style="margin-bottom: 0;">H</div>
                 <div>
-                    <div style="font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1;">Healix HMS</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1;">HealiX Platform</div>
                     <div style="font-size: 0.78rem; color: #D1C4E9; font-weight: 500;">Multi-Hospital Healthcare Network</div>
                 </div>
             </div>
 
-            <!-- 3D Desk Scene matching Image 3 -->
+            <!-- 3D Desk Scene -->
             <div style="position: relative; margin-bottom: 28px;">
                 <div style="position: absolute; width: 100%; height: 100%; top: -8px; left: -8px; background: rgba(128, 112, 166, 0.35); border-radius: 28px; z-index: 0;"></div>
-                <img src="/images/signup-desk.jpg" alt="Easy Patient Registration" 
+                <img src="/images/signup-desk.jpg" src="/images/signup-desk.jpg" alt="Easy Patient Registration" 
                      style="position: relative; z-index: 1; width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.2); object-fit: cover; aspect-ratio: 4/3; display: block;"/>
                 <div style="position: absolute; bottom: -14px; right: 14px; z-index: 2; background: #FFFFFF; color: #0F2042; padding: 8px 16px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
-                    <i class="bi bi-clock-history" style="color: #8070A6; font-size: 1rem;"></i> 2-Min Instant Registration
+                    <i class="bi bi-shield-check" style="color: #0D9488; font-size: 1rem;"></i> Email OTP Verified Sign-Up
                 </div>
             </div>
 
             <h2 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 10px; line-height: 1.25;">
-                We help people to <span style="color: #C4B5FD;">get appointment</span> in online
+                We help people to <span style="color: #C4B5FD;">get appointment</span> online
             </h2>
             <p style="font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 24px;">
-                Create your verified patient identity to book consultations across 3 top multi-speciality hospitals in Thiruvananthapuram.
+                Create your verified central patient identity to book consultations across 3 top multi-speciality hospitals in Thiruvananthapuram.
             </p>
             <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -78,7 +109,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="bi bi-check2-circle" style="color: #A78BFA; font-size: 1.2rem;"></i>
-                    <span>Preliminary AI Symptom Guidance &amp; Triage</span>
+                    <span>Secure Email OTP Identity Authorization</span>
                 </div>
             </div>
         </div>
@@ -86,101 +117,260 @@
 
     <!-- Right Form -->
     <div class="register-right">
-        <div style="width: 100%; max-width: 500px;">
+        <div style="width: 100%; max-width: 520px;">
             <div style="margin-bottom: 20px;">
-                <a href="/" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-alt); margin-bottom: 12px;">
+                <a href="/" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #64748B; text-decoration: none; margin-bottom: 14px; font-weight: 600;">
                     <i class="bi bi-arrow-left"></i> Back to Home
                 </a>
-                <h1 style="font-size: 2.2rem; font-weight: 800; color: #111827; margin-bottom: 4px;">Sign Up</h1>
-                <h3 style="font-size: 1.15rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Please Sign Up To Continue</h3>
-                <p style="color: #6B7280; font-size: 0.88rem; margin-bottom: 1.25rem;">Select your role to proceed with account creation on MediCare Platform.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h1 style="font-size: 2.1rem; font-weight: 800; color: #111827; margin: 0;">Patient Sign Up</h1>
+                    <span class="hospital-badge" style="background: #EDE7F6; color: #5E35B1; font-weight: 700; font-size: 0.75rem;">
+                        <i class="bi bi-shield-lock-fill"></i> SECURE OTP
+                    </span>
+                </div>
+                <p style="color: #6B7280; font-size: 0.88rem; margin: 0 0 1.25rem 0;">Register your Central Patient identity with two-factor email verification.</p>
 
                 <!-- Reference Role Tabs -->
                 <div class="ref-role-tabs">
-                    <span class="ref-role-tab active">Patient</span>
-                    <a href="/login" class="ref-role-tab">Doctor</a>
-                    <a href="/login" class="ref-role-tab">Admin</a>
+                    <span class="ref-role-tab active"><i class="bi bi-person-fill"></i> Patient Registration</span>
+                    <a href="/login" class="ref-role-tab"><i class="bi bi-hospital"></i> Doctor Login</a>
+                    <a href="/login" class="ref-role-tab"><i class="bi bi-shield-lock"></i> Admin Login</a>
                 </div>
             </div>
 
-            <div th:if="${error}" class="alert alert-error mb-3">
-                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
+            <!-- Validation / Error Alert Box -->
+            <div id="registerErrorBox" style="display: none; background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; border-radius: 10px; padding: 12px 16px; font-size: 0.88rem; margin-bottom: 18px; align-items: center; gap: 10px;">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.15rem;"></i>
+                <span id="registerErrorMsg">Please check all required fields.</span>
             </div>
 
-            <form action="/register"  method="post" style="display: flex; flex-direction: column; gap: 14px;">
-                
+            <form id="patientRegisterForm" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Full Legal Name <span class="required" style="color:#DC2626;">*</span></label>
+                    <div class="form-control-icon-wrap">
+                        <i class="bi bi-person field-icon"></i>
+                        <input type="text" id="regName" class="form-control" placeholder="e.g. Arun Chandran" required style="border-radius: 10px; height: 44px;"/>
+                    </div>
+                </div>
 
                 <div class="form-group">
-                    <label class="form-label">Full Name <span class="required">*</span></label>
-                    <input type="text"  class="form-control" placeholder="e.g. John Doe" required/>
-                    <div th:if="${#fields.hasErrors('name')}" class="form-error" th:errors="*{name}"></div>
-                </div>
-
-                <div class="grid-2" style="gap: 12px;">
-                    <div class="form-group">
-                        <label class="form-label">Email Address <span class="required">*</span></label>
-                        <input type="email"  class="form-control" placeholder="name@example.com" required/>
-                        <div th:if="${#fields.hasErrors('email')}" class="form-error" th:errors="*{email}"></div>
+                    <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Email Address <span class="required" style="color:#DC2626;">*</span></label>
+                    <div class="form-control-icon-wrap">
+                        <i class="bi bi-envelope field-icon"></i>
+                        <input type="email" id="regEmail" class="form-control" placeholder="e.g. arun.chandran@healix.com" required style="border-radius: 10px; height: 44px;"/>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Password <span class="required">*</span></label>
-                        <input type="password"  class="form-control" placeholder="Min 8 characters" required/>
-                        <div th:if="${#fields.hasErrors('password')}" class="form-error" th:errors="*{password}"></div>
+                    <div style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">
+                        <i class="bi bi-info-circle"></i> A 6-digit confirmation code will be dispatched to this email.
                     </div>
                 </div>
 
                 <div class="grid-2" style="gap: 12px;">
                     <div class="form-group">
-                        <label class="form-label">Phone Number <span class="required">*</span></label>
-                        <input type="tel"  class="form-control" placeholder="10-digit mobile" required/>
-                        <div th:if="${#fields.hasErrors('phone')}" class="form-error" th:errors="*{phone}"></div>
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Password <span class="required" style="color:#DC2626;">*</span></label>
+                        <div class="form-control-icon-wrap">
+                            <i class="bi bi-key field-icon"></i>
+                            <input type="password" id="regPassword" class="form-control" placeholder="Min 8 characters" required style="border-radius: 10px; height: 44px; padding-right: 38px;"/>
+                            <button type="button" class="password-toggle-btn" onclick="togglePass('regPassword', this)"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Date of Birth</label>
-                        <input type="date"  class="form-control"/>
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Confirm Password <span class="required" style="color:#DC2626;">*</span></label>
+                        <div class="form-control-icon-wrap">
+                            <i class="bi bi-shield-check field-icon"></i>
+                            <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat password" required style="border-radius: 10px; height: 44px; padding-right: 38px;"/>
+                            <button type="button" class="password-toggle-btn" onclick="togglePass('regConfirmPassword', this)"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="grid-2" style="gap: 12px;">
                     <div class="form-group">
-                        <label class="form-label">Gender</label>
-                        <select  class="form-control form-select">
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Mobile Phone <span class="required" style="color:#DC2626;">*</span></label>
+                        <div class="form-control-icon-wrap">
+                            <i class="bi bi-phone field-icon"></i>
+                            <input type="tel" id="regPhone" class="form-control" placeholder="10-digit mobile number" required style="border-radius: 10px; height: 44px;"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Date of Birth</label>
+                        <input type="date" id="regDob" class="form-control" style="border-radius: 10px; height: 44px;"/>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Gender</label>
+                        <select id="regGender" class="form-control form-select" style="border-radius: 10px; height: 44px; background: #fff;">
                             <option value="">Select Gender</option>
-                            <option th:each="g : ${T(com.healix.hms.model.enums.Gender).values()}" th:value="${g}" th:text="${g}"></option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Blood Group</label>
-                        <select  class="form-control form-select">
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Blood Group</label>
+                        <select id="regBloodGroup" class="form-control form-select" style="border-radius: 10px; height: 44px; background: #fff;">
                             <option value="">Select Blood Group</option>
-                            <option th:each="bg : ${T(com.healix.hms.model.enums.BloodGroup).values()}" th:value="${bg}" th:text="${bg.displayName}"></option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Residential Address</label>
-                    <textarea  class="form-control" rows="2" placeholder="Street, City, Pin code"></textarea>
+                    <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Residential Address</label>
+                    <textarea id="regAddress" class="form-control" rows="2" placeholder="House / Flat No., Street, Trivandrum - 695001" style="border-radius: 10px; resize: vertical;"></textarea>
                 </div>
 
                 <div class="grid-2" style="gap: 12px;">
                     <div class="form-group">
-                        <label class="form-label">Emergency Contact Name</label>
-                        <input type="text"  class="form-control" placeholder="Relation / Name"/>
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Emergency Contact Name</label>
+                        <input type="text" id="regEmergencyName" class="form-control" placeholder="Kin / Relation Name" style="border-radius: 10px; height: 44px;"/>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Emergency Phone</label>
-                        <input type="tel"  class="form-control" placeholder="Contact number"/>
+                        <label class="form-label" style="font-weight: 700; color: #374151; font-size: 0.85rem;">Emergency Contact Phone</label>
+                        <input type="tel" id="regEmergencyPhone" class="form-control" placeholder="Emergency phone" style="border-radius: 10px; height: 44px;"/>
                     </div>
                 </div>
 
-                <button type="submit" class="ref-pill-btn" style="width: 100%; justify-content: center; margin-top: 10px; padding: 0.85rem;">
-                    Register
+                <div style="margin-top: 4px; display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="checkbox" id="regConsent" required checked style="margin-top: 4px; cursor: pointer;"/>
+                    <label for="regConsent" style="font-size: 0.8rem; color: #64748B; cursor: pointer; line-height: 1.4;">
+                        I agree to HealiX Electronic Medical Records policy and consent to central multi-hospital profile linkage.
+                    </label>
+                </div>
+
+                <button type="submit" id="btnSendOtp" class="ref-pill-btn" style="width: 100%; justify-content: center; margin-top: 10px; padding: 0.95rem; font-size: 1rem; font-weight: 700; gap: 8px; background: linear-gradient(135deg, #0D9488, #0F766E); color:#fff; border:none; border-radius:9999px; cursor:pointer; box-shadow:0 4px 14px rgba(13,148,136,0.3);">
+                    <span>Verify Email &amp; Send OTP</span> <i class="bi bi-arrow-right-circle-fill"></i>
                 </button>
             </form>
 
-            <div style="margin-top: 24px; text-align: center; font-size: 0.88rem; color: var(--text-alt);">
-                Already have an account? <a href="/login" style="color: #0D9488; font-weight: 600;">Sign in here</a>
+            <div style="margin-top: 24px; text-align: center; font-size: 0.88rem; color: #64748B;">
+                Already have a registered account? <a href="/login" style="color: #0D9488; font-weight: 700; text-decoration: none;">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================================================== -->
+<!-- Email OTP Verification Modal -->
+<!-- ==================================================== -->
+<div id="emailOtpModal" style="display:none; position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 24px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 1px solid #E2E8F0; overflow: hidden; margin: auto; animation: slideUp 0.3s ease;">
+        <div style="background: linear-gradient(135deg, #F0FDFA, #E6FFFA); padding: 1.75rem 1.75rem 1.25rem; border-bottom: 1px solid #99F6E4; text-align: center; position: relative;">
+            <button type="button" onclick="closeOtpModal()" style="position: absolute; right: 16px; top: 16px; background: transparent; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer; line-height: 1;">&times;</button>
+            <div style="width: 60px; height: 60px; border-radius: 20px; background: #0D9488; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 12px; box-shadow: 0 8px 16px rgba(13,148,136,0.25);">
+                <i class="bi bi-envelope-check-fill"></i>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Verify Your Email</h3>
+            <p style="font-size: 0.88rem; color: #475569; margin: 0;">
+                We sent a 6-digit confirmation code to <strong id="otpTargetEmailText" style="color: #0F766E;">patient@example.com</strong>
+            </p>
+        </div>
+
+        <div style="padding: 1.75rem;">
+            <!-- Live Email Simulation Banner -->
+            <div style="background: #F8FAFC; border: 1px dashed #0D9488; border-radius: 14px; padding: 14px 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(13,148,136,0.06);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #0D9488; display: flex; align-items: center; gap: 6px;">
+                        <i class="bi bi-bell-fill"></i> Inbound Email Simulation
+                    </div>
+                    <span style="font-size: 0.72rem; color: #047857; font-weight: 700; background: #D1FAE5; padding: 2px 8px; border-radius: 9999px;">DELIVERED</span>
+                </div>
+                <div style="font-size: 0.84rem; color: #334155; line-height: 1.5;">
+                    Your HealiX Verification OTP is: 
+                    <strong id="simulatedOtpCode" style="font-size: 1.2rem; letter-spacing: 3px; color: #0F766E; background: #E6FFFA; padding: 3px 10px; border-radius: 8px; border: 1px solid #99F6E4; margin-left: 4px;">849201</strong>
+                </div>
+                <div style="font-size: 0.76rem; color: #0D9488; margin-top: 6px;">
+                    <a href="javascript:void(0)" onclick="autoFillOtp()" style="color: #0D9488; font-weight: 700; text-decoration: underline;">
+                        <i class="bi bi-magic"></i> Click here to auto-fill code instantly
+                    </a>
+                </div>
+            </div>
+
+            <!-- OTP Error Alert -->
+            <div id="otpErrorAlert" style="display: none; background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; margin-bottom: 16px; align-items: center; gap: 8px;">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span id="otpErrorMsg">Invalid verification code. Please check and try again.</span>
+            </div>
+
+            <!-- 6-digit individual input boxes -->
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;">
+                <input type="text" maxlength="1" class="otp-digit" id="otp_0" autocomplete="off" inputmode="numeric"/>
+                <input type="text" maxlength="1" class="otp-digit" id="otp_1" autocomplete="off" inputmode="numeric"/>
+                <input type="text" maxlength="1" class="otp-digit" id="otp_2" autocomplete="off" inputmode="numeric"/>
+                <input type="text" maxlength="1" class="otp-digit" id="otp_3" autocomplete="off" inputmode="numeric"/>
+                <input type="text" maxlength="1" class="otp-digit" id="otp_4" autocomplete="off" inputmode="numeric"/>
+                <input type="text" maxlength="1" class="otp-digit" id="otp_5" autocomplete="off" inputmode="numeric"/>
+            </div>
+
+            <button type="button" onclick="verifyOtpAndRegister()" class="ref-pill-btn" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; font-weight: 700; background: linear-gradient(135deg, #0D9488, #0F766E); color: #fff; border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 4px 14px rgba(13,148,136,0.3);">
+                <i class="bi bi-check2-circle"></i> Verify &amp; Complete Registration
+            </button>
+
+            <div style="margin-top: 16px; text-align: center; font-size: 0.85rem; color: #64748B;">
+                Didn't receive code? 
+                <span id="resendCountdownWrap">Resend in <strong id="resendTimer">30s</strong></span>
+                <a href="javascript:void(0)" id="resendOtpBtn" onclick="resendOtp()" style="display: none; color: #0D9488; font-weight: 700; text-decoration: none;">Resend OTP Now</a>
+            </div>
+
+            <div style="margin-top: 12px; text-align: center;">
+                <a href="javascript:void(0)" onclick="closeOtpModal()" style="font-size: 0.82rem; color: #64748B; text-decoration: underline;">
+                    Change email or edit registration details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================================================== -->
+<!-- Registration Success Modal with Digital Patient Pass -->
+<!-- ==================================================== -->
+<div id="regSuccessModal" style="display:none; position: fixed; inset: 0; background: rgba(15,23,42,0.7); backdrop-filter: blur(6px); z-index: 10000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 24px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1px solid #E2E8F0; overflow: hidden; margin: auto; animation: slideUp 0.3s ease;">
+        <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 2rem 1.75rem 1.5rem; text-align: center; color: #fff;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #fff; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+                <i class="bi bi-patch-check-fill"></i>
+            </div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin: 0 0 4px;">Registration Verified!</h3>
+            <p style="font-size: 0.9rem; color: #D1FAE5; margin: 0;">Your Central Patient Profile is active and ready for appointments.</p>
+        </div>
+
+        <div style="padding: 1.75rem;">
+            <!-- HealiX Digital Health Pass Card -->
+            <div style="background: linear-gradient(135deg, #0F2042, #1E3A8A); border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(15,32,66,0.25); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: -20px; bottom: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.06); border-radius: 50%;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #93C5FD; font-weight: 700;">HEALIX CENTRAL HEALTH PASS</div>
+                        <div id="cardPatientName" style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-top: 2px;">Arun Chandran</div>
+                    </div>
+                    <span class="hospital-badge" style="background: #10B981; color: #fff; font-size: 0.72rem; font-weight: 800;">VERIFIED PATIENT</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.82rem; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px;">
+                    <div>
+                        <div style="color: #94A3B8; font-size: 0.72rem;">Central Patient ID</div>
+                        <div id="cardPatientId" style="font-weight: 700; color: #67E8F9; font-size: 0.95rem;">PAT-TRV-000004</div>
+                    </div>
+                    <div>
+                        <div style="color: #94A3B8; font-size: 0.72rem;">Email &amp; Mobile</div>
+                        <div id="cardPatientContact" style="font-weight: 600; color: #F1F5F9; font-size: 0.8rem;">patient@example.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" onclick="goToDashboard()" class="ref-pill-btn" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; background: linear-gradient(135deg, #0D9488, #0F766E); color: #fff; border: none; border-radius: 9999px; cursor: pointer;">
+                    <i class="bi bi-speedometer2"></i> Enter Patient Portal
+                </button>
+                <button type="button" onclick="goToBookAppointment()" class="btn" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.92rem; font-weight: 700; background: #F8FAFC; color: #334155; border: 1px solid #CBD5E1; border-radius: 9999px; cursor: pointer;">
+                    <i class="bi bi-calendar-plus"></i> Book Doctor Consultation
+                </button>
             </div>
         </div>
     </div>
@@ -188,18 +378,276 @@
 
 <script src="/js/clinical-store.js"></script>
 <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.querySelector('input[placeholder="e.g. John Doe"]').value.trim();
-        const email = document.querySelector('input[type="email"]').value.trim();
-        const phone = document.querySelector('input[type="tel"]').value.trim();
+    // State storage for registration & OTP
+    let currentRegState = {
+        name: '',
+        email: '',
+        password: '',
+        phone: '',
+        dob: '',
+        gender: '',
+        bloodGroup: '',
+        address: '',
+        emergencyName: '',
+        emergencyPhone: '',
+        otp: '',
+        patientId: ''
+    };
+    let resendInterval = null;
 
-        const user = { name: name || 'Patient User', email: email || 'patient@example.com', phone, role: 'PATIENT' };
-        localStorage.setItem('healix_user', JSON.stringify(user));
+    function togglePass(inputId, btn) {
+        const inp = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            inp.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
 
-        alert('Registration successful! Your patient identifier PAT-TRV-000004 has been generated. Redirecting to Patient Portal...');
-        window.location.href = '/patient/dashboard';
+    function showError(msg) {
+        const box = document.getElementById('registerErrorBox');
+        const txt = document.getElementById('registerErrorMsg');
+        txt.innerText = msg;
+        box.style.display = 'flex';
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearError() {
+        document.getElementById('registerErrorBox').style.display = 'none';
+    }
+
+    // OTP Input Boxes keyboard handling
+    const otpInputs = [
+        document.getElementById('otp_0'),
+        document.getElementById('otp_1'),
+        document.getElementById('otp_2'),
+        document.getElementById('otp_3'),
+        document.getElementById('otp_4'),
+        document.getElementById('otp_5')
+    ];
+
+    otpInputs.forEach((input, idx) => {
+        input.addEventListener('input', function(e) {
+            const val = this.value.replace(/[^0-9]/g, '');
+            this.value = val ? val[0] : '';
+            if (this.value && idx < 5) {
+                otpInputs[idx + 1].focus();
+            }
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !this.value && idx > 0) {
+                otpInputs[idx - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim().replace(/[^0-9]/g, '');
+            if (pasteData) {
+                for (let i = 0; i < 6; i++) {
+                    if (i < pasteData.length) {
+                        otpInputs[i].value = pasteData[i];
+                    }
+                }
+                const nextIdx = Math.min(pasteData.length, 5);
+                otpInputs[nextIdx].focus();
+            }
+        });
     });
+
+    function generateOtp() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function startResendTimer() {
+        let timeLeft = 30;
+        const timerEl = document.getElementById('resendTimer');
+        const wrapEl = document.getElementById('resendCountdownWrap');
+        const btnEl = document.getElementById('resendOtpBtn');
+
+        wrapEl.style.display = 'inline';
+        btnEl.style.display = 'none';
+        timerEl.innerText = timeLeft + 's';
+
+        if (resendInterval) clearInterval(resendInterval);
+        resendInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(resendInterval);
+                wrapEl.style.display = 'none';
+                btnEl.style.display = 'inline';
+            } else {
+                timerEl.innerText = timeLeft + 's';
+            }
+        }, 1000);
+    }
+
+    function openOtpModal() {
+        document.getElementById('emailOtpModal').style.display = 'flex';
+        document.getElementById('otpTargetEmailText').innerText = currentRegState.email;
+        document.getElementById('simulatedOtpCode').innerText = currentRegState.otp;
+        document.getElementById('otpErrorAlert').style.display = 'none';
+        
+        // Reset inputs
+        otpInputs.forEach(inp => inp.value = '');
+        setTimeout(() => otpInputs[0].focus(), 150);
+
+        startResendTimer();
+    }
+
+    function closeOtpModal() {
+        document.getElementById('emailOtpModal').style.display = 'none';
+        if (resendInterval) clearInterval(resendInterval);
+    }
+
+    function autoFillOtp() {
+        const code = currentRegState.otp;
+        for (let i = 0; i < 6; i++) {
+            otpInputs[i].value = code[i] || '';
+        }
+        otpInputs[5].focus();
+    }
+
+    function resendOtp() {
+        currentRegState.otp = generateOtp();
+        document.getElementById('simulatedOtpCode').innerText = currentRegState.otp;
+        document.getElementById('otpErrorAlert').style.display = 'none';
+        startResendTimer();
+        alert('A new 6-digit verification code has been dispatched to ' + currentRegState.email + ': ' + currentRegState.otp);
+    }
+
+    // Form Submit => Validates fields and generates OTP
+    document.getElementById('patientRegisterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearError();
+
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('regConfirmPassword').value;
+        const phone = document.getElementById('regPhone').value.trim();
+        const dob = document.getElementById('regDob').value;
+        const gender = document.getElementById('regGender').value;
+        const bloodGroup = document.getElementById('regBloodGroup').value;
+        const address = document.getElementById('regAddress').value.trim();
+        const emergencyName = document.getElementById('regEmergencyName').value.trim();
+        const emergencyPhone = document.getElementById('regEmergencyPhone').value.trim();
+
+        if (!name || name.length < 2) {
+            showError('Please enter your full legal name.');
+            document.getElementById('regName').focus();
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            showError('Please enter a valid email address.');
+            document.getElementById('regEmail').focus();
+            return;
+        }
+
+        if (!password || password.length < 8) {
+            showError('Password must be at least 8 characters long.');
+            document.getElementById('regPassword').focus();
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError('Password and Confirm Password do not match.');
+            document.getElementById('regConfirmPassword').focus();
+            return;
+        }
+
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        if (cleanPhone.length < 10) {
+            showError('Please enter a valid 10-digit mobile number.');
+            document.getElementById('regPhone').focus();
+            return;
+        }
+
+        // Store state
+        currentRegState = {
+            name: name,
+            email: email,
+            password: password,
+            phone: phone,
+            dob: dob,
+            gender: gender || 'Not Specified',
+            bloodGroup: bloodGroup || 'O+',
+            address: address || 'Thiruvananthapuram, Kerala',
+            emergencyName: emergencyName,
+            emergencyPhone: emergencyPhone,
+            otp: generateOtp(),
+            patientId: 'PAT-TRV-' + String(Math.floor(100000 + Math.random() * 900000))
+        };
+
+        openOtpModal();
+    });
+
+    // Verification step
+    function verifyOtpAndRegister() {
+        const enteredOtp = otpInputs.map(inp => inp.value.trim()).join('');
+        const errAlert = document.getElementById('otpErrorAlert');
+        const errMsg = document.getElementById('otpErrorMsg');
+
+        if (enteredOtp.length < 6) {
+            errMsg.innerText = 'Please enter all 6 digits of the verification code.';
+            errAlert.style.display = 'flex';
+            return;
+        }
+
+        if (enteredOtp !== currentRegState.otp) {
+            errMsg.innerText = 'Invalid verification code (' + enteredOtp + '). Please check the simulated email notification.';
+            errAlert.style.display = 'flex';
+            otpInputs.forEach(i => {
+                i.style.borderColor = '#DC2626';
+                setTimeout(() => i.style.borderColor = '#CBD5E1', 1500);
+            });
+            return;
+        }
+
+        // OTP Verified successfully!
+        closeOtpModal();
+
+        // Save active user in localStorage
+        const userObj = {
+            name: currentRegState.name,
+            email: currentRegState.email,
+            phone: currentRegState.phone,
+            patientId: currentRegState.patientId,
+            role: 'PATIENT',
+            bloodGroup: currentRegState.bloodGroup,
+            gender: currentRegState.gender,
+            address: currentRegState.address,
+            dob: currentRegState.dob,
+            verified: true,
+            verifiedAt: new Date().toISOString()
+        };
+        localStorage.setItem('healix_user', JSON.stringify(userObj));
+
+        // Save into registered patients list
+        let regList = JSON.parse(localStorage.getItem('healix_registered_patients') || '[]');
+        regList.unshift(userObj);
+        localStorage.setItem('healix_registered_patients', JSON.stringify(regList));
+
+        // Display Success Modal
+        document.getElementById('cardPatientName').innerText = currentRegState.name;
+        document.getElementById('cardPatientId').innerText = currentRegState.patientId;
+        document.getElementById('cardPatientContact').innerText = currentRegState.email + ' • ' + currentRegState.phone;
+        document.getElementById('regSuccessModal').style.display = 'flex';
+    }
+
+    function goToDashboard() {
+        window.location.href = '/patient/dashboard';
+    }
+
+    function goToBookAppointment() {
+        window.location.href = '/patient/book-appointment';
+    }
 </script>
 </body>
 </html>
