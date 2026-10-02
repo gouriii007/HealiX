@@ -16,18 +16,21 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item active"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
-        </nav>
-        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
+        <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
     <main class="main-content">
@@ -96,9 +99,14 @@
                             <div style="margin-top:4px;"><strong style="color:#0F2042;">Instructions:</strong> <span style="color:#334155;">${p.instructions}</span></div>
                         </div>
                     </div>
-                    <div style="font-size:0.78rem; color:#64748B; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #E2E8F0; padding-top:12px; margin-top:8px;">
-                        <span><i class="bi bi-calendar-event"></i> Issued: ${p.issuedDate}</span>
-                        <span style="color:#0D9488; font-weight:700;"><i class="bi bi-shield-check"></i> Digitally Signed</span>
+                    <div>
+                        <div style="font-size:0.78rem; color:#64748B; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #E2E8F0; padding-top:12px; margin-top:8px;">
+                            <span><i class="bi bi-calendar-event"></i> Issued: ${p.issuedDate}</span>
+                            <span style="color:#0D9488; font-weight:700;"><i class="bi bi-shield-check"></i> Digitally Signed</span>
+                        </div>
+                        <button onclick="alert('Refill order request placed for ' + '${p.medicineName}' + '! Sent to MediCare Pharmacy counter for fast-track dispensation.');" class="btn btn-outline btn-sm w-100" style="margin-top:10px; justify-content:center; display:flex; align-items:center; gap:6px;">
+                            <i class="bi bi-arrow-repeat"></i> Request Pharmacy Refill
+                        </button>
                     </div>
                 </div>
             `).join('');

@@ -16,18 +16,21 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item active"><i class="bi bi-bell nav-icon"></i> Notifications</a>
-        </nav>
-        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
+        <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
     <main class="main-content">
@@ -45,46 +48,49 @@
                 <div class="card-header">
                     <h5><i class="bi bi-bell" style="color:#0D9488;"></i> Notification History</h5>
                 </div>
-                <div class="card-body" style="padding: 16px 24px;">
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 14px 18px; border-radius: 10px; border: 1px solid #99F6E4; background: #F0FDFA;">
-            <div style="width: 38px; height: 38px; border-radius: 50%; background: #0D9488; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                <div class="card-body" style="padding: 20px 24px;">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 12px; border: 1px solid #99F6E4; background: #F0FDFA; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background: #0D9488; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                 <i class="bi bi-calendar-check-fill"></i>
             </div>
             <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <strong style="color: #0F2042; font-size: 0.95rem;">Appointment Confirmed</strong>
+                    <strong style="color: #0F2042; font-size: 1rem;">Appointment Confirmed • Token #01</strong>
                     <span style="font-size: 0.78rem; color: #94A3B8;">Today, 08:30 AM</span>
                 </div>
-                <p style="color: #475569; font-size: 0.88rem; margin: 0;">Your appointment with Dr. Rajesh Kumar at MediCare City Hospital is confirmed for tomorrow at 09:30 AM (Token #1).</p>
+                <p style="color: #475569; font-size: 0.88rem; margin: 0; line-height: 1.5;">Your appointment with Dr. Rajesh Kumar at MediCare City Hospital is confirmed for tomorrow at 09:30 AM (Token #1 in Cardiology OPD Room 104).</p>
             </div>
         </div>
 
-        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 14px 18px; border-radius: 10px; border: 1px solid #E2E8F0; background: #fff;">
-            <div style="width: 38px; height: 38px; border-radius: 50%; background: #6366F1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 12px; border: 1px solid #E2E8F0; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background: #6366F1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                 <i class="bi bi-file-earmark-medical-fill"></i>
             </div>
             <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <strong style="color: #0F2042; font-size: 0.95rem;">Diagnostic Lab Result Uploaded</strong>
+                    <strong style="color: #0F2042; font-size: 1rem;">Diagnostic Lab Result Uploaded</strong>
                     <span style="font-size: 0.78rem; color: #94A3B8;">Yesterday</span>
                 </div>
-                <p style="color: #475569; font-size: 0.88rem; margin: 0;">Your Lipid Profile and ECG investigation reports are available in your Medical Records vault.</p>
+                <p style="color: #475569; font-size: 0.88rem; margin: 0; line-height: 1.5;">Your Fasting Lipid Profile and 12-Lead Resting ECG reports from MediCare Diagnostics are now securely archived in your Medical Records vault.</p>
             </div>
         </div>
 
-        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 14px 18px; border-radius: 10px; border: 1px solid #E2E8F0; background: #fff;">
-            <div style="width: 38px; height: 38px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 12px; border: 1px solid #E2E8F0; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                 <i class="bi bi-capsule"></i>
             </div>
             <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <strong style="color: #0F2042; font-size: 0.95rem;">Prescription Renewal Reminder</strong>
+                    <strong style="color: #0F2042; font-size: 1rem;">Active Medication Course Active</strong>
                     <span style="font-size: 0.78rem; color: #94A3B8;">3 days ago</span>
                 </div>
-                <p style="color: #475569; font-size: 0.88rem; margin: 0;">Reminder: Your 30-day course of Atorvastatin 20mg is due for clinical renewal shortly.</p>
+                <p style="color: #475569; font-size: 0.88rem; margin: 0; line-height: 1.5;">Daily reminder: Take your evening dose of Atorvastatin 20mg after dinner and record your morning resting pulse rate.</p>
             </div>
         </div>
+    </div>
+    <div style="margin-top: 16px; text-align: right;">
+        <button onclick="alert('All notifications marked as read.'); this.style.opacity='0.6';" class="btn btn-outline btn-sm" style="font-weight: 600;"><i class="bi bi-check2-all"></i> Mark All as Read</button>
     </div>
 </div></div></div></main>
 </div>

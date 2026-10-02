@@ -16,18 +16,21 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item active"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
-        </nav>
-        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
+        <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
     <main class="main-content">
@@ -42,87 +45,325 @@
             </div>
         </header>
 
+        
         <div class="page-content">
-
             <!-- Search & Filter Card -->
-            <div class="card mb-4">
+            <div class="card mb-4" style="box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-radius: 14px;">
                 <div class="card-body" style="padding: 20px 24px;">
-                    <form action="/patient/doctors" method="get" style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
-                        <div class="form-group" style="margin:0; flex: 2; min-width: 220px;">
-                            <label class="form-label" style="margin-bottom: 4px;">Search by Name or Specialization</label>
+                    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+                        <div class="form-group" style="margin:0; flex: 2; min-width: 240px;">
+                            <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 4px;">Search by Doctor Name or Specialty</label>
                             <div style="position:relative;">
-                                <input type="text" name="search" th:value="${search}" class="form-control" placeholder="e.g. Dr. Sarah, Cardiology..."/>
-                                <i class="bi bi-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9CA3AF;"></i>
+                                <input type="text" id="docSearchInput" class="form-control" placeholder="e.g. Dr. Rajesh, Cardiology, Orthopedics..." style="padding: 10px 38px 10px 14px; border-radius: 8px;"/>
+                                <i class="bi bi-search" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#9CA3AF;"></i>
                             </div>
                         </div>
                         <div class="form-group" style="margin:0; flex: 1; min-width: 200px;">
-                            <label class="form-label" style="margin-bottom: 4px;">Filter by Department</label>
-                            <select name="departmentId" class="form-control form-select">
-                                <option value="">All Departments</option>
-                                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == selectedDept}"></option>
+                            <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 4px;">Filter by Department</label>
+                            <select id="deptFilterSelect" class="form-control form-select" style="padding: 10px 14px; border-radius: 8px;">
+                                <option value="">All Clinical Departments</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="Pulmonology">Pulmonology</option>
+                                <option value="Pediatrics">Pediatrics</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-teal"><i class="bi bi-funnel"></i> Apply Filter</button>
-                        <a href="/patient/doctors" class="btn btn-outline">Reset</a>
-                    </form>
+                        <button type="button" onclick="filterDoctors()" class="btn btn-teal" style="padding: 10px 18px; font-weight: 600; border-radius: 8px;"><i class="bi bi-funnel"></i> Apply Filter</button>
+                        <button type="button" onclick="resetFilters()" class="btn btn-outline" style="padding: 10px 18px; font-weight: 600; border-radius: 8px;">Reset</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Doctors Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
-                <div th:each="doc : ${doctors}" class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-                    <div class="card-body" style="padding: 24px;">
-                        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
-                            <div class="avatar avatar-lg" style="background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.4rem;"
-                                 th:text="${#strings.substring(doc.name, 0, 1)}">D</div>
-                            <div style="flex: 1;">
-                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #0F2042; margin-bottom: 4px;" th:text="'Dr. ' + ${doc.name}">Dr. Name</h4>
-                                <span class="badge badge-indigo" th:text="${doc.department != null ? doc.department.name : doc.specialization}">Specialty</span>
-                                <div style="font-size: 0.8rem; color: #6B7280; margin-top: 4px;" th:text="${doc.qualification}">MBBS, MD</div>
+            <div id="doctorsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                
+                    <div class="card doctor-card" data-name="rajesh kumar" data-spec="cardiology" data-dept="Cardiology" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    RK
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Rajesh Kumar</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">Cardiology</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, MD (Med), DM (Cardiology), FACC</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> MediCare City Hospital</div>
+                                </div>
                             </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Senior consultant interventional cardiologist specializing in coronary interventions, hypertension, chest pain triage, and preventive lipidology.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">15 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹800</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 104)</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=1" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
                         </div>
-
-                        <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px;" th:text="${doc.bio != null and !doc.bio.isBlank() ? doc.bio : 'Dedicated specialist committed to delivering exceptional patient care.'}">
-                            Doctor description.
-                        </p>
-
-                        <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
-                            <div>
-                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Experience</div>
-                                <div style="font-weight: 700; color: #1E293B;" th:text="${doc.experienceYears != null ? doc.experienceYears + ' Years' : '5+ Years'}">5 Years</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Consultation Fee</div>
-                                <div style="font-weight: 700; color: #0D9488;" th:text="${doc.consultationFee != null ? '₹' + doc.consultationFee : '₹500'}">₹500</div>
-                            </div>
-                            <div style="grid-column: span 2;" th:if="${doc.availability != null}">
-                                <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Timings</div>
-                                <div style="font-size: 0.82rem; font-weight: 600; color: #334155;" th:text="${doc.availability}">Mon-Fri: 9 AM - 4 PM</div>
-                            </div>
-                        </div>
-
-                        <a th:href="@{/patient/book-appointment(doctorId=${doc.id})}" class="btn btn-teal btn-block">
-                            <i class="bi bi-calendar2-plus"></i> Book Consultation
-                        </a>
                     </div>
-                </div>
+                
+                    <div class="card doctor-card" data-name="sarah varghese" data-spec="neurology" data-dept="Neurology" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    SV
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Sarah Varghese</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">Neurology</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, MD (Medicine), DM (Neurology)</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> MediCare City Hospital</div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Specialist in cerebrovascular disorders, migraine management, peripheral neuropathies, neuro-rehabilitation, and clinical EEG diagnostics.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">11 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹750</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Mon-Fri: 10:00 AM - 02:00 PM (OPD Room 202)</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=2" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                
+                    <div class="card doctor-card" data-name="suresh menon" data-spec="orthopedics & joint replacement" data-dept="Orthopedics" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    SM
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Suresh Menon</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">Orthopedics</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, MS (Ortho), MCh (Ortho, UK)</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> Trivandrum Medical Trust</div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Senior orthopedic joint replacement surgeon renowned for minimally invasive knee and hip arthroplasty, and arthroscopic ligament reconstruction.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">18 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹700</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Tue, Thu, Sat: 09:30 AM - 01:30 PM (OPD Block A)</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=3" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                
+                    <div class="card doctor-card" data-name="ananya pillai" data-spec="general medicine & diabetology" data-dept="General Medicine" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    AP
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Ananya Pillai</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">General Medicine</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, MD (General Medicine)</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> MediCare City Hospital</div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Experienced physician focusing on evidence-based management of metabolic syndrome, diabetes, hypertension, and preventative adult immunization.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">9 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹500</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Mon-Sat: 08:30 AM - 12:30 PM, 04:00 PM - 06:00 PM</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=4" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                
+                    <div class="card doctor-card" data-name="thomas mathew" data-spec="pulmonology & critical care" data-dept="Pulmonology" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    TM
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Thomas Mathew</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">Pulmonology</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, MD (Pulmonary Medicine), FCCP</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> Trivandrum Medical Trust</div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Chest physician and pulmonologist specializing in asthma, COPD, interstitial lung diseases, sleep studies, and post-viral respiratory recovery.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">14 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹650</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Mon, Wed, Fri: 11:00 AM - 03:00 PM (OPD Block C)</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=5" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                
+                    <div class="card doctor-card" data-name="priyamvada nair" data-spec="pediatrics & neonatology" data-dept="Pediatrics" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <div class="card-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, #0D9488, #059669); color: #fff; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                                    PN
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F2042; margin: 0 0 4px;">Dr. Priyamvada Nair</h4>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; font-size: 0.76rem; padding: 3px 8px; border-radius: 6px;">Pediatrics</span>
+                                    <div style="font-size: 0.8rem; color: #64748B; margin-top: 4px;">MBBS, DCH, DNB (Pediatrics)</div>
+                                    <div style="font-size: 0.78rem; color: #0D9488; font-weight: 600; margin-top: 2px;"><i class="bi bi-hospital"></i> MediCare City Hospital</div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.86rem; color: #4B5563; line-height: 1.5; margin-bottom: 18px; min-height: 52px;">
+                                Dedicated pediatric specialist committed to developmental pediatrics, infant nutrition, childhood asthma, and preventive pediatric care.
+                            </p>
+
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid #E2E8F0;">
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Experience</div>
+                                    <div style="font-weight: 800; color: #1E293B; font-size: 0.95rem;">10 Years</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Consultation Fee</div>
+                                    <div style="font-weight: 800; color: #0D9488; font-size: 0.95rem;">₹550</div>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">OPD Schedule</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: #334155;">Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 108)</div>
+                                </div>
+                            </div>
+
+                            <a href="/patient/book-appointment?doctorId=6" class="btn btn-teal btn-block" style="width: 100%; justify-content: center; padding: 10px 0; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar2-plus"></i> Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                
             </div>
 
-            <!-- Empty State -->
-            <div th:if="${doctors == null or doctors.isEmpty()}" class="card">
-                <div class="card-body">
-                    <div class="empty-state" style="padding: 48px 24px;">
-                        <div class="empty-state-icon" style="font-size: 3rem; color: #9CA3AF;"><i class="bi bi-person-x"></i></div>
-                        <h3 style="font-size: 1.1rem; color: #374151; margin-top: 12px;">No doctors found matching criteria</h3>
-                        <p style="color: #6B7280; font-size: 0.9rem;">Try selecting a different department or clearing the search query.</p>
-                        <a href="/patient/doctors" class="btn btn-teal btn-sm mt-3"><i class="bi bi-arrow-clockwise"></i> View All Doctors</a>
-                    </div>
+            <!-- Empty State for no search matches -->
+            <div id="noDocsMatch" class="card" style="display: none; margin-top: 20px;">
+                <div class="card-body" style="padding: 48px 24px; text-align: center;">
+                    <div style="font-size: 3rem; color: #9CA3AF; margin-bottom: 12px;"><i class="bi bi-person-x"></i></div>
+                    <h3 style="font-size: 1.1rem; color: #374151;">No doctors found matching criteria</h3>
+                    <p style="color: #6B7280; font-size: 0.9rem;">Try selecting a different clinical department or clearing the search query.</p>
+                    <button type="button" onclick="resetFilters()" class="btn btn-teal btn-sm mt-3"><i class="bi bi-arrow-clockwise"></i> View All Doctors</button>
                 </div>
             </div>
-
         </div>
-    </main>
+</main>
 </div>
 <script src="/js/main.js"></script>
+
+<script>
+    function filterDoctors() {
+        const query = (document.getElementById('docSearchInput').value || '').toLowerCase().trim();
+        const dept = document.getElementById('deptFilterSelect').value;
+        const cards = document.querySelectorAll('.doctor-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const spec = card.getAttribute('data-spec');
+            const cardDept = card.getAttribute('data-dept');
+
+            const matchesQuery = !query || name.includes(query) || spec.includes(query);
+            const matchesDept = !dept || cardDept === dept;
+
+            if (matchesQuery && matchesDept) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const empty = document.getElementById('noDocsMatch');
+        if (empty) empty.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    document.getElementById('docSearchInput').addEventListener('input', filterDoctors);
+    document.getElementById('deptFilterSelect').addEventListener('change', filterDoctors);
+
+    function resetFilters() {
+        document.getElementById('docSearchInput').value = '';
+        document.getElementById('deptFilterSelect').value = '';
+        filterDoctors();
+    }
+</script>
 </body>
 </html>

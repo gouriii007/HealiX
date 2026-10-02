@@ -16,23 +16,20 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item active"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/hospitals" class="nav-item"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
-            <a href="/patient/ai-assistant" class="nav-item" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
-            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <a href="/patient/consent-requests" class="nav-item"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item">
-                <i class="bi bi-bell nav-icon"></i> Notifications
-                <span class="badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">0</span>
-            </a>
-        </nav>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
         <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
@@ -52,179 +49,566 @@
             </div>
         </header>
 
+        
         <div class="page-content">
 
-            <!-- Welcome Banner with Reference Purple Style & Central Patient ID -->
-            <div style="background:linear-gradient(135deg, #7C5CBF 0%, #5E72E4 100%);border-radius:16px;padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;box-shadow: 0 10px 25px rgba(124, 92, 191, 0.2);">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <img src="/images/telehealth-doctor.jpg" alt="Virtual Doctor Consultation" 
-                         style="width: 100px; height: 80px; object-fit: cover; border-radius: 14px; border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 6px 16px rgba(0,0,0,0.18); flex-shrink: 0;" />
-                    <div>
-                        <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:9999px;font-size:0.8rem;color:#fff;font-weight:600;margin-bottom:6px;">
-                            Central Patient ID: <span th:text="${patient.patientIdentifier}">PAT-TRV-000102</span>
+            <!-- Welcome & Central Health Identity Banner -->
+            <div style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #2563EB 100%); border-radius: 18px; padding: 26px 30px; margin-bottom: 24px; color: #fff; box-shadow: 0 12px 30px rgba(79, 70, 229, 0.25); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: -30px; top: -30px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%; pointer-events: none;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; z-index: 1;">
+                    <div style="display: flex; align-items: center; gap: 22px;">
+                        <div style="position: relative;">
+                            <div style="width: 76px; height: 76px; border-radius: 50%; background: #EEF2FF; color: #4338CA; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; border: 3px solid rgba(255,255,255,0.8); box-shadow: 0 6px 16px rgba(0,0,0,0.18);">
+                                AC
+                            </div>
+                            <span style="position: absolute; bottom: 2px; right: 2px; width: 20px; height: 20px; background: #10B981; border: 2px solid #fff; border-radius: 50%;" title="Active Patient Identity"></span>
                         </div>
-                        <div style="font-size:1.35rem;font-weight:700;color:#fff;margin-bottom:4px;">Multi-Hospital Healthcare Connected</div>
-                        <p style="color:rgba(255,255,255,0.88);font-size:0.88rem;margin:0;max-width:520px;">
-                            Use your single account across all participating hospitals in Thiruvananthapuram with secure, privacy-guarded health records.
-                        </p>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                                <span style="background: rgba(255,255,255,0.22); backdrop-filter: blur(8px); padding: 3px 12px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.35);">
+                                    <i class="bi bi-shield-check"></i> CENTRAL PATIENT ID: <span id="dashPatientId">PAT-TRV-000001</span>
+                                </span>
+                                <span style="background: #10B981; color: #fff; padding: 2px 8px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700;">
+                                    <i class="bi bi-patch-check-fill"></i> VERIFIED
+                                </span>
+                            </div>
+                            <h2 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; color: #fff;">
+                                Welcome, <span class="js-user-name">Arun Chandran</span>!
+                            </h2>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.86rem; color: rgba(255,255,255,0.92);">
+                                <span><i class="bi bi-droplet-fill" style="color: #FCA5A5;"></i> Blood Group: <strong>B+</strong></span>
+                                <span>•</span>
+                                <span><i class="bi bi-person-fill"></i> Age: <strong>34 Yrs (Male)</strong></span>
+                                <span>•</span>
+                                <span><i class="bi bi-geo-alt-fill"></i> <strong>Thiruvananthapuram, Kerala</strong></span>
+                                <span>•</span>
+                                <span><i class="bi bi-hospital"></i> Primary: <strong>MediCare City Hospital</strong></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <a href="/patient/ai-assistant" class="btn btn-lg" style="background:#fff;color:#7C5CBF;font-weight:700;box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <i class="bi bi-robot"></i> AI Symptom Check
-                    </a>
-                    <a href="/patient/hospitals" class="btn btn-lg" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);font-weight:600;">
-                        <i class="bi bi-hospital"></i> My Hospitals
-                    </a>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="/patient/ai-assistant" class="btn btn-lg" style="background: #fff; color: #4F46E5; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,0.15); border: none;">
+                            <i class="bi bi-robot"></i> AI Symptom Check
+                        </a>
+                        <button onclick="openHealthCardModal()" class="btn btn-lg" style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.4); font-weight: 600; backdrop-filter: blur(8px); cursor: pointer;">
+                            <i class="bi bi-qr-code-scan"></i> Digital Health Card
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));">
+            <!-- Patient Vitals & Health Snapshot Strip -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="width: 46px; height: 46px; border-radius: 12px; background: #FEF2F2; color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748B;">Blood Pressure</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #0F2042;">128/82 <span style="font-size: 0.75rem; font-weight: 500; color: #64748B;">mmHg</span></div>
+                        <div style="font-size: 0.72rem; color: #10B981; font-weight: 600;"><i class="bi bi-check-circle"></i> Normal / Controlled</div>
+                    </div>
+                </div>
+
+                <div style="background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="width: 46px; height: 46px; border-radius: 12px; background: #EFF6FF; color: #3B82F6; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748B;">Heart Rate</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #0F2042;">72 <span style="font-size: 0.75rem; font-weight: 500; color: #64748B;">bpm</span></div>
+                        <div style="font-size: 0.72rem; color: #10B981; font-weight: 600;"><i class="bi bi-check-circle"></i> Regular Sinus Rhythm</div>
+                    </div>
+                </div>
+
+                <div style="background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="width: 46px; height: 46px; border-radius: 12px; background: #F0FDF4; color: #10B981; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <i class="bi bi-lungs-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748B;">SpO2 Oxygen</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #0F2042;">98% <span style="font-size: 0.75rem; font-weight: 500; color: #64748B;">Room air</span></div>
+                        <div style="font-size: 0.72rem; color: #10B981; font-weight: 600;"><i class="bi bi-check-circle"></i> Optimal Level</div>
+                    </div>
+                </div>
+
+                <div style="background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="width: 46px; height: 46px; border-radius: 12px; background: #FAF5FF; color: #A855F7; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <i class="bi bi-person-bounding-box"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748B;">BMI &amp; Weight</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #0F2042;">22.8 <span style="font-size: 0.75rem; font-weight: 500; color: #64748B;">BMI (71.5 kg)</span></div>
+                        <div style="font-size: 0.72rem; color: #10B981; font-weight: 600;"><i class="bi bi-check-circle"></i> Healthy Weight</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Metric Grid -->
+            <div class="stat-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-bottom: 24px;">
                 <div class="stat-card">
                     <div class="stat-icon teal"><i class="bi bi-calendar2-check-fill"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" th:text="${totalAppointments ?: 0}">0</div>
+                        <div class="stat-value" id="patDashTotalAppts">1</div>
                         <div class="stat-label">Total Appointments</div>
                     </div>
                 </div>
-                <div class="stat-card" th:if="${nextAppointment != null}">
+                <div class="stat-card">
                     <div class="stat-icon blue"><i class="bi bi-clock-fill"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" style="font-size:1.1rem;" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMM')}">Soon</div>
-                        <div class="stat-label">Next Appointment</div>
+                        <div class="stat-value" style="font-size:1.15rem; color:#0D9488;" id="patDashNextApptDate">Tomorrow, 09:30 AM</div>
+                        <div class="stat-label">Next Consultation</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon indigo"><i class="bi bi-capsule-pill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="patDashPrescriptionCount">2 Active</div>
+                        <div class="stat-label">Active Medications</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cyan"><i class="bi bi-hospital-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">2 Facilities</div>
+                        <div class="stat-label">Connected Hospitals</div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid-2" style="gap:20px;">
+            <!-- Two-Column Clinical Core Layout -->
+            <div class="grid-2" style="gap: 24px; margin-bottom: 24px;">
 
-                <!-- Next Appointment -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-calendar-event" style="color:#0D9488;"></i> Upcoming Appointment</h5>
-                        <a href="/patient/appointments" class="btn btn-sm btn-outline">View All</a>
-                    </div>
-                    <div class="card-body" th:if="${nextAppointment != null}">
-                        <div style="background:#F0FDFA;border:1px solid #99F6E4;border-radius:12px;padding:20px;">
-                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-                                <div class="avatar avatar-md" style="background:#0D9488;color:#fff;"
-                                     th:text="${#strings.substring(nextAppointment.doctor.name, 0, 1)}">D</div>
-                                <div>
-                                    <div style="font-weight:700;font-size:0.95rem;" th:text="'Dr. ' + ${nextAppointment.doctor.name}">Doctor</div>
-                                    <div style="color:#0D9488;font-size:0.82rem;font-weight:600;" th:text="${nextAppointment.doctor.specialization}">Spec</div>
+                <!-- LEFT COLUMN: Upcoming Appointment & Recent Medical Record -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                    <!-- Upcoming Appointment Card -->
+                    <div class="card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 14px;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                            <h5 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F2042; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-calendar-event" style="color: #0D9488;"></i> Upcoming Appointment
+                            </h5>
+                            <a href="/patient/appointments" class="btn btn-sm btn-outline"><i class="bi bi-list-ul"></i> View All</a>
+                        </div>
+                        <div class="card-body" id="patDashUpcomingCardBody" style="padding: 20px;">
+                            <div style="background: #F0FDFA; border: 1px solid #99F6E4; border-radius: 12px; padding: 18px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 14px;">
+                                        <div class="avatar avatar-md" style="background: #0D9488; color: #fff; font-weight: 700; font-size: 1.1rem; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                            RK
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 800; font-size: 1.05rem; color: #0F2042;" id="patApptDocName">Dr. Rajesh Kumar</div>
+                                            <div style="color: #0D9488; font-size: 0.85rem; font-weight: 700;" id="patApptDocSpec">Senior Consultant Cardiologist (MD, DM)</div>
+                                            <div style="color: #64748B; font-size: 0.8rem; margin-top: 2px;" id="patApptHospName"><i class="bi bi-geo-alt"></i> MediCare City Hospital (Cardiology OPD Room 104)</div>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-confirmed" id="patApptStatusBadge" style="background: #D1FAE5; color: #065F46; padding: 6px 14px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;">
+                                        <i class="bi bi-check-circle-fill"></i> CONFIRMED
+                                    </span>
                                 </div>
-                            </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                                <div style="background:#fff;border-radius:8px;padding:10px 14px;">
-                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Date</div>
-                                    <div style="font-weight:700;color:#374151;" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMM yyyy')}">Date</div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                                    <div style="background: #fff; border-radius: 8px; padding: 10px 12px; border: 1px solid #CCFBF1;">
+                                        <div style="font-size: 0.68rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700;">Date</div>
+                                        <div style="font-weight: 800; color: #1E293B; font-size: 0.92rem;" id="patApptDate">Tomorrow</div>
+                                    </div>
+                                    <div style="background: #fff; border-radius: 8px; padding: 10px 12px; border: 1px solid #CCFBF1;">
+                                        <div style="font-size: 0.68rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700;">Reporting Time</div>
+                                        <div style="font-weight: 800; color: #0D9488; font-size: 0.92rem;" id="patApptTime">09:30 AM</div>
+                                    </div>
+                                    <div style="background: #fff; border-radius: 8px; padding: 10px 12px; border: 1px solid #CCFBF1;">
+                                        <div style="font-size: 0.68rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700;">Token No.</div>
+                                        <div style="font-weight: 800; color: #4338CA; font-size: 0.92rem;">Token #01</div>
+                                    </div>
                                 </div>
-                                <div style="background:#fff;border-radius:8px;padding:10px 14px;">
-                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Time</div>
-                                    <div style="font-weight:700;color:#374151;" th:text="${#temporals.format(nextAppointment.appointmentTime, 'hh:mm a')}">Time</div>
+
+                                <div style="background: #fff; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; border: 1px solid #CCFBF1; font-size: 0.85rem; color: #334155;">
+                                    <strong style="color: #0F2042;"><i class="bi bi-info-circle"></i> Reason:</strong>
+                                    <span id="patApptReason">Chest pain and shortness of breath during exercise</span>
                                 </div>
-                                <div style="background:#fff;border-radius:8px;padding:10px 14px;grid-column:span 2;">
-                                    <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;">Status</div>
-                                    <span th:class="'badge badge-' + ${#strings.toLowerCase(nextAppointment.status.name())}"
-                                          th:text="${nextAppointment.status.name()}">Status</span>
+
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button onclick="openOpdPassModal()" class="btn btn-teal btn-sm" style="font-weight: 600; cursor: pointer;">
+                                        <i class="bi bi-receipt"></i> Digital OPD Slip
+                                    </button>
+                                    <a href="/patient/book-appointment" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                                        <i class="bi bi-calendar2-plus"></i> Book Another Appointment
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" th:unless="${nextAppointment != null}">
-                        <div class="empty-state" style="padding:30px 20px;">
-                            <div class="empty-state-icon" style="font-size:2.5rem;"><i class="bi bi-calendar-plus"></i></div>
-                            <h3 style="font-size:0.95rem;">No upcoming appointments</h3>
-                            <a href="/patient/book-appointment" class="btn btn-teal mt-3 btn-sm">
-                                <i class="bi bi-plus-circle"></i> Book Now
-                            </a>
+
+                    <!-- Recent Medical Record Card -->
+                    <div class="card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 14px;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                            <h5 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F2042; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-clipboard2-pulse" style="color: #0D9488;"></i> Recent Medical Record
+                            </h5>
+                            <a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Medical History</a>
+                        </div>
+                        <div class="card-body" id="patDashRecentRecordBody" style="padding: 20px;">
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                                    <div>
+                                        <span style="background: #EFF6FF; color: #1D4ED8; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">RECORD #MR-801 • CARDIOLOGY</span>
+                                        <h4 style="margin: 6px 0 2px; font-size: 1.15rem; font-weight: 800; color: #0F2042;" id="patRecDiagnosis">Angina Pectoris / Mild Essential HTN</h4>
+                                        <div style="font-size: 0.82rem; color: #64748B;">ICD-10 Code: <strong>I20.9 (Angina pectoris, unspecified)</strong></div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <span style="font-size: 0.75rem; color: #64748B; font-weight: 600;">CONSULTATION DATE</span>
+                                        <div style="font-weight: 700; color: #0F2042; font-size: 0.95rem;" id="patRecDate">10 Sep 2026</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                                    <div style="background: #fff; border-radius: 8px; padding: 10px 12px; border: 1px solid #E2E8F0;">
+                                        <div style="font-size: 0.68rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700;">Attending Doctor</div>
+                                        <div style="font-weight: 700; color: #1E293B; font-size: 0.9rem;" id="patRecDoctor">Dr. Rajesh Kumar</div>
+                                        <div style="font-size: 0.75rem; color: #64748B;" id="patRecHospital">MediCare City Hospital</div>
+                                    </div>
+                                    <div style="background: #fff; border-radius: 8px; padding: 10px 12px; border: 1px solid #E2E8F0;">
+                                        <div style="font-size: 0.68rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700;">Scheduled Follow-Up</div>
+                                        <div style="font-weight: 700; color: #0D9488; font-size: 0.9rem;">15 Oct 2026</div>
+                                        <div style="font-size: 0.75rem; color: #64748B;">Cardiology Outpatient Clinic</div>
+                                    </div>
+                                </div>
+
+                                <div style="background: #fff; border-radius: 8px; padding: 12px; border: 1px solid #E2E8F0; margin-bottom: 14px; font-size: 0.85rem; color: #334155;">
+                                    <div style="font-size: 0.72rem; color: #9CA3AF; text-transform: uppercase; font-weight: 700; margin-bottom: 3px;">Clinical Observations &amp; Plan:</div>
+                                    <div id="patRecTreatment" style="line-height: 1.5;">Atorvastatin 20mg nocte, Metoprolol Succinate 50mg mane, low-sodium cardiac diet. Advised 2D Echocardiogram in 4 weeks. Avoid strenuous unconditioned exertion.</div>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <a href="/patient/medical-records" class="btn btn-teal btn-sm" style="font-weight: 600;">
+                                        <i class="bi bi-file-earmark-medical"></i> View Full Clinical Record
+                                    </a>
+                                    <a href="/patient/prescriptions" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                                        <i class="bi bi-capsule"></i> View Prescribed Medicines
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- Recent Medical Record -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-clipboard2-pulse" style="color:#0D9488;"></i> Recent Medical Record</h5>
-                        <a href="/patient/medical-records" class="btn btn-sm btn-outline">View All</a>
-                    </div>
-                    <div class="card-body" th:if="${recentRecord != null}">
-                        <div style="display:flex;flex-direction:column;gap:12px;">
-                            <div>
-                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Diagnosis</div>
-                                <div style="font-weight:600;" th:text="${recentRecord.diagnosis ?: 'N/A'}">Diagnosis</div>
+                <!-- RIGHT COLUMN: Active Medications & Connected Hospitals -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                    <!-- Active Medications / Digital Prescriptions -->
+                    <div class="card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 14px;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                            <h5 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F2042; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-capsule-pill" style="color: #6366F1;"></i> Active Daily Medications
+                            </h5>
+                            <a href="/patient/prescriptions" class="btn btn-sm btn-outline"><i class="bi bi-arrow-up-right"></i> All Prescriptions</a>
+                        </div>
+                        <div class="card-body" id="patDashMedicationsBody" style="padding: 20px;">
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+
+                                <!-- Med 1 -->
+                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; border-left: 4px solid #6366F1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                        <div>
+                                            <div style="font-weight: 800; font-size: 1rem; color: #0F2042;">Atorvastatin 20mg</div>
+                                            <div style="font-size: 0.8rem; color: #64748B;">Lipid Lowering • 1 Tablet</div>
+                                        </div>
+                                        <span class="badge" style="background: #D1FAE5; color: #065F46; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                            ACTIVE (Night)
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 0.82rem; color: #475569; background: #fff; padding: 8px 10px; border-radius: 6px; border: 1px solid #F1F5F9; margin-bottom: 8px;">
+                                        <i class="bi bi-moon-stars" style="color: #6366F1;"></i> Take after evening meal with water. Avoid grapefruit.
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8;">
+                                        <span>Prescribed by: <strong>Dr. Rajesh Kumar</strong></span>
+                                        <span>Duration: <strong>30 Days</strong></span>
+                                    </div>
+                                </div>
+
+                                <!-- Med 2 -->
+                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; border-left: 4px solid #0D9488;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                        <div>
+                                            <div style="font-weight: 800; font-size: 1rem; color: #0F2042;">Metoprolol Succinate 50mg</div>
+                                            <div style="font-size: 0.8rem; color: #64748B;">Beta-Blocker / BP • 1 Tablet</div>
+                                        </div>
+                                        <span class="badge" style="background: #D1FAE5; color: #065F46; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                            ACTIVE (Morning)
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 0.82rem; color: #475569; background: #fff; padding: 8px 10px; border-radius: 6px; border: 1px solid #F1F5F9; margin-bottom: 8px;">
+                                        <i class="bi bi-sun" style="color: #F59E0B;"></i> Take after breakfast. Regularly record morning resting pulse.
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8;">
+                                        <span>Prescribed by: <strong>Dr. Rajesh Kumar</strong></span>
+                                        <span>Duration: <strong>30 Days</strong></span>
+                                    </div>
+                                </div>
+
+                                <a href="/patient/prescriptions" class="btn btn-outline btn-sm" style="text-align: center; justify-content: center; font-weight: 600; padding: 9px 0;">
+                                    <i class="bi bi-capsule"></i> View Full Prescription History &amp; Refill Requests
+                                </a>
                             </div>
-                            <div>
-                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Doctor</div>
-                                <div th:text="'Dr. ' + ${recentRecord.doctor.name}">Doctor</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.7rem;color:#9CA3AF;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Date</div>
-                                <div th:text="${#temporals.format(recentRecord.createdAt, 'dd MMM yyyy')}">Date</div>
-                            </div>
-                            <a th:href="@{/patient/medical-records/{id}(id=${recentRecord.id})}" class="btn btn-teal btn-sm">
-                                <i class="bi bi-eye"></i> View Full Record
-                            </a>
                         </div>
                     </div>
-                    <div class="card-body" th:unless="${recentRecord != null}">
-                        <div class="empty-state" style="padding:30px 20px;">
-                            <div class="empty-state-icon" style="font-size:2.5rem;"><i class="bi bi-clipboard2-x"></i></div>
-                            <h3 style="font-size:0.95rem;">No medical records</h3>
-                            <p style="font-size:0.8rem;">Your medical records will appear here after consultations.</p>
+
+                    <!-- Connected Hospitals Network -->
+                    <div class="card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 14px;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                            <h5 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F2042; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-hospital" style="color: #3B82F6;"></i> Connected Hospital Network
+                            </h5>
+                            <a href="/patient/hospitals" class="btn btn-sm btn-outline"><i class="bi bi-gear"></i> Manage</a>
+                        </div>
+                        <div class="card-body" style="padding: 20px;">
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #EDE9FE; color: #6D28D9; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">
+                                            H1
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 0.92rem; color: #0F2042;">MediCare City Hospital</div>
+                                            <div style="font-size: 0.75rem; color: #64748B;">MG Road, Thiruvananthapuram • Patient Code: <strong>TRV-HOSP-01-P-0001</strong></div>
+                                        </div>
+                                    </div>
+                                    <span class="badge" style="background: #ECFDF5; color: #059669; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 6px;">
+                                        PRIMARY
+                                    </span>
+                                </div>
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #CCFBF1; color: #0F766E; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">
+                                            H2
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 0.92rem; color: #0F2042;">Trivandrum Medical Trust</div>
+                                            <div style="font-size: 0.75rem; color: #64748B;">Pattom Palace PO • Patient Code: <strong>TRV-HOSP-02-P-0042</strong></div>
+                                        </div>
+                                    </div>
+                                    <span class="badge" style="background: #EFF6FF; color: #1D4ED8; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 6px;">
+                                        LINKED
+                                    </span>
+                                </div>
+
+                                <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #92400E; display: flex; align-items: center; gap: 8px;">
+                                    <i class="bi bi-shield-lock-fill" style="font-size: 1rem; color: #D97706;"></i>
+                                    <span>Cross-hospital medical records are shared strictly under your digital consent.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
+
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card mt-4">
-                <div class="card-header"><h5><i class="bi bi-lightning-charge" style="color:#F59E0B;"></i> Quick Actions</h5></div>
-                <div class="card-body">
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                        <a href="/patient/book-appointment" class="btn btn-teal"><i class="bi bi-calendar2-plus"></i> Book Appointment</a>
-                        <a href="/patient/doctors" class="btn btn-outline"><i class="bi bi-person-badge"></i> Find Doctors</a>
-                        <a href="/patient/medical-records" class="btn btn-outline"><i class="bi bi-clipboard2-pulse"></i> My Records</a>
-                        <a href="/patient/prescriptions" class="btn btn-outline"><i class="bi bi-capsule"></i> Prescriptions</a>
-                        <a href="/patient/profile" class="btn btn-outline"><i class="bi bi-person-circle"></i> My Profile</a>
+            <!-- Quick Clinical Actions Grid -->
+            <div class="card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 14px; margin-bottom: 24px;">
+                <div class="card-header" style="border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                    <h5 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F2042;">
+                        <i class="bi bi-lightning-charge-fill" style="color: #F59E0B;"></i> Quick Patient Actions
+                    </h5>
+                </div>
+                <div class="card-body" style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+                        <a href="/patient/book-appointment" class="btn btn-teal" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-calendar2-plus"></i> Book Consultation
+                        </a>
+                        <a href="/patient/ai-assistant" class="btn" style="background: #7C3AED; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-robot"></i> AI Symptom Bot
+                        </a>
+                        <a href="/patient/doctors" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-person-badge"></i> Find Doctors
+                        </a>
+                        <a href="/patient/medical-records" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-clipboard2-pulse"></i> Medical Records
+                        </a>
+                        <a href="/patient/prescriptions" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-capsule"></i> Prescriptions
+                        </a>
+                        <a href="/patient/consent-requests" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-shield-check"></i> Manage Consents
+                        </a>
+                        <a href="/patient/profile" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; font-weight: 600;">
+                            <i class="bi bi-person-circle"></i> My Health Profile
+                        </a>
                     </div>
                 </div>
             </div>
 
         </div>
-    </main>
+
+        <!-- Interactive Modals for Health Card & OPD Pass -->
+        <div id="healthCardModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: #fff; width: 100%; max-width: 480px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); animation: popIn 0.25s ease;">
+                <div style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%); color: #fff; padding: 24px 24px 20px; position: relative;">
+                    <button onclick="closeHealthCardModal()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">&times;</button>
+                    <div style="font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #A5B4FC; font-weight: 700;">Government of Kerala • Digital Health Mission</div>
+                    <div style="font-size: 1.3rem; font-weight: 800; margin: 4px 0 2px;">HEALIX CENTRAL HEALTH ID</div>
+                    <div style="font-size: 0.8rem; color: #C7D2FE;">Multi-Hospital Unified Patient Identifier</div>
+                </div>
+                <div style="padding: 24px;">
+                    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; border-bottom: 1px dashed #CBD5E1; padding-bottom: 18px;">
+                        <div style="background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: 12px; padding: 10px; text-align: center;">
+                            <div style="width: 100px; height: 100px; background: repeating-conic-gradient(#0F2042 0% 25%, #fff 0% 50%) 50% / 10px 10px; border-radius: 6px; box-shadow: inset 0 0 0 4px #0F2042;"></div>
+                            <div style="font-size: 0.65rem; color: #64748B; font-weight: 700; margin-top: 4px;">SCAN FOR EHR</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: #0F2042;" class="js-user-name">Arun Chandran</div>
+                            <div style="font-size: 0.85rem; color: #4338CA; font-weight: 700; margin-bottom: 6px;">ID: PAT-TRV-000001</div>
+                            <div style="font-size: 0.8rem; color: #475569; line-height: 1.4;">
+                                <div><strong>Blood Group:</strong> B+ Positive</div>
+                                <div><strong>Age / Gender:</strong> 34 Yrs / Male</div>
+                                <div><strong>Emergency Contact:</strong> +91 98765 10001</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 12px; font-size: 0.8rem; color: #166534; margin-bottom: 20px;">
+                        <i class="bi bi-shield-check"></i> Valid across all registered hospitals in Thiruvananthapuram healthcare federation.
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="window.print()" class="btn btn-teal w-100" style="padding: 10px; font-weight: 600;"><i class="bi bi-printer"></i> Print ID Card</button>
+                        <button onclick="closeHealthCardModal()" class="btn btn-outline w-100" style="padding: 10px; font-weight: 600;">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="opdPassModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: #fff; width: 100%; max-width: 480px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); animation: popIn 0.25s ease;">
+                <div style="background: #0D9488; color: #fff; padding: 20px 24px; position: relative;">
+                    <button onclick="closeOpdPassModal()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">&times;</button>
+                    <div style="font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: #CCFBF1; font-weight: 700;">MediCare City Hospital • Outpatient Department</div>
+                    <div style="font-size: 1.3rem; font-weight: 800; margin: 4px 0 2px;">DIGITAL OPD ENTRY PASS</div>
+                    <div style="font-size: 0.8rem; color: #CCFBF1;">Appointment Token Slip #APT-1082</div>
+                </div>
+                <div style="padding: 24px;">
+                    <div style="text-align: center; background: #F0FDFA; border: 2px dashed #99F6E4; border-radius: 14px; padding: 18px; margin-bottom: 20px;">
+                        <div style="font-size: 0.8rem; color: #0F766E; font-weight: 700; text-transform: uppercase;">OPD Queue Token</div>
+                        <div style="font-size: 3rem; font-weight: 900; color: #0D9488; line-height: 1.1; margin: 4px 0;">#01</div>
+                        <div style="font-size: 0.85rem; color: #065F46; font-weight: 600;">Status: CONFIRMED • Priority Consultation</div>
+                    </div>
+                    <div style="font-size: 0.86rem; color: #334155; line-height: 1.7; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding-bottom: 6px;">
+                            <span style="color: #64748B;">Patient:</span>
+                            <strong class="js-user-name">Arun Chandran</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding: 6px 0;">
+                            <span style="color: #64748B;">Consultant:</span>
+                            <strong>Dr. Rajesh Kumar (Cardiologist)</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding: 6px 0;">
+                            <span style="color: #64748B;">Room / Block:</span>
+                            <strong>Cardiology OPD, Room 104</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #F1F5F9; padding: 6px 0;">
+                            <span style="color: #64748B;">Date &amp; Slot:</span>
+                            <strong style="color: #0D9488;">Tomorrow at 09:30 AM</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-top: 6px;">
+                            <span style="color: #64748B;">Reporting Time:</span>
+                            <strong style="color: #E11D48;">09:15 AM (15 min prior)</strong>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="window.print()" class="btn btn-teal w-100" style="padding: 10px; font-weight: 600;"><i class="bi bi-printer"></i> Print OPD Slip</button>
+                        <button onclick="closeOpdPassModal()" class="btn btn-outline w-100" style="padding: 10px; font-weight: 600;">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div></main>
 </div>
 <script src="/js/main.js"></script>
 
 <script src="/js/clinical-store.js"></script>
 <script>
+    function openHealthCardModal() {
+        const m = document.getElementById('healthCardModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeHealthCardModal() {
+        const m = document.getElementById('healthCardModal');
+        if (m) m.style.display = 'none';
+    }
+    function openOpdPassModal() {
+        const m = document.getElementById('opdPassModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeOpdPassModal() {
+        const m = document.getElementById('opdPassModal');
+        if (m) m.style.display = 'none';
+    }
+
     function renderPatientDashboard() {
         const user = JSON.parse(localStorage.getItem('healix_user') || '{"name":"Arun Chandran","email":"patient@healix.com","role":"PATIENT"}');
         document.querySelectorAll('.js-user-name').forEach(el => el.innerText = user.name || 'Arun Chandran');
 
+        // Appointments synchronization
         const appts = HealixStore.getAppointments().filter(a => a.patientName === 'Arun Chandran' || a.patientId === 'PAT-TRV-000001');
-        const tbody = document.querySelector('table tbody');
-        if (tbody && appts.length > 0) {
-            tbody.innerHTML = appts.map(a => {
-                const statusBadge = a.status === 'CONFIRMED'
-                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
-                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
-                return `
-                    <tr>
-                        <td style="font-weight:600;color:#0F2042;">${a.date}</td>
-                        <td style="font-weight:600;color:#0D9488;">${a.time}</td>
-                        <td>
-                            <div style="font-weight:600;">${a.doctorName}</div>
-                            <div style="font-size:0.75rem;color:#64748B;">${a.hospitalName}</div>
-                        </td>
-                        <td>${statusBadge}</td>
-                        <td><a href="/patient/appointments" class="btn btn-sm btn-outline">View Details</a></td>
-                    </tr>
-                `;
-            }).join('');
+        const totalApptsEl = document.getElementById('patDashTotalAppts');
+        if (totalApptsEl) totalApptsEl.innerText = appts.length;
+
+        const nextApptEl = document.getElementById('patDashNextApptDate');
+        if (appts.length > 0) {
+            const next = appts[0];
+            if (nextApptEl) nextApptEl.innerText = next.date + ', ' + next.time;
+            const docNameEl = document.getElementById('patApptDocName');
+            if (docNameEl) docNameEl.innerText = next.doctorName;
+            const hospNameEl = document.getElementById('patApptHospName');
+            if (hospNameEl) hospNameEl.innerHTML = '<i class="bi bi-geo-alt"></i> ' + next.hospitalName + ' (OPD Block B, Room 104)';
+            const dateEl = document.getElementById('patApptDate');
+            if (dateEl) dateEl.innerText = next.date;
+            const timeEl = document.getElementById('patApptTime');
+            if (timeEl) timeEl.innerText = next.time;
+            const reasonEl = document.getElementById('patApptReason');
+            if (reasonEl) reasonEl.innerText = next.reason || 'General clinical consultation';
+            const statusBadge = document.getElementById('patApptStatusBadge');
+            if (statusBadge) {
+                if (next.status === 'CONFIRMED') {
+                    statusBadge.style.background = '#D1FAE5';
+                    statusBadge.style.color = '#065F46';
+                    statusBadge.innerHTML = '<i class="bi bi-check-circle-fill"></i> CONFIRMED';
+                } else if (next.status === 'COMPLETED') {
+                    statusBadge.style.background = '#E0F2FE';
+                    statusBadge.style.color = '#0369A1';
+                    statusBadge.innerHTML = '<i class="bi bi-check2-all"></i> COMPLETED';
+                } else {
+                    statusBadge.style.background = '#FEF3C7';
+                    statusBadge.style.color = '#92400E';
+                    statusBadge.innerHTML = '<i class="bi bi-clock"></i> PENDING';
+                }
+            }
         }
+
+        // Medical Records synchronization
+        const records = HealixStore.getMedicalRecords().filter(r => r.patientName === 'Arun Chandran' || r.patientId === 'PAT-TRV-000001');
+        if (records.length > 0) {
+            const latestRec = records[0];
+            const diagEl = document.getElementById('patRecDiagnosis');
+            if (diagEl) diagEl.innerText = latestRec.diagnosis || 'Clinical Consultation';
+            const docEl = document.getElementById('patRecDoctor');
+            if (docEl) docEl.innerText = latestRec.doctorName;
+            const hospEl = document.getElementById('patRecHospital');
+            if (hospEl) hospEl.innerText = latestRec.hospitalName;
+            const dateEl = document.getElementById('patRecDate');
+            if (dateEl) dateEl.innerText = latestRec.date;
+            const treatEl = document.getElementById('patRecTreatment');
+            if (treatEl) treatEl.innerText = (latestRec.treatment || '') + ' ' + (latestRec.notes || '');
+        }
+
+        // Prescriptions synchronization
+        const prescriptions = HealixStore.getPrescriptions().filter(p => p.patientName === 'Arun Chandran' || p.patientId === 'PAT-TRV-000001');
+        const rxCountEl = document.getElementById('patDashPrescriptionCount');
+        if (rxCountEl) rxCountEl.innerText = prescriptions.length + ' Active';
     }
+
     renderPatientDashboard();
 </script>
 </body>

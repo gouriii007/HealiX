@@ -16,18 +16,21 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/book-appointment" class="nav-item"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item active"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
-        </nav>
-        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
+        <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
     <main class="main-content">
@@ -64,12 +67,12 @@
             <thead>
                 <tr>
                     <th>#ID</th>
-                    <th>Doctor &amp; Specialty</th>
+                    <th>Doctor &amp; Hospital</th>
                     <th>Date</th>
-                    <th>Time</th>
-                    <th>Reason</th>
+                    <th>Time Slot</th>
+                    <th>Chief Complaint</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="patientApptsTbody"></tbody>
@@ -79,6 +82,30 @@
             <h3 style="font-size:1.1rem; color:#374151; margin-top:12px;">No appointments found</h3>
             <p style="color:#6B7280; font-size:0.9rem;">You haven't scheduled any doctor appointments yet.</p>
             <a href="/patient/book-appointment" class="btn btn-teal btn-sm mt-3"><i class="bi bi-calendar-plus"></i> Book First Appointment</a>
+        </div>
+    </div>
+
+    <!-- Appointment Slip Modal -->
+    <div id="apptsSlipModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.65); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#fff; width:100%; max-width:480px; border-radius:20px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);">
+            <div style="background:#0D9488; color:#fff; padding:20px 24px; position:relative;">
+                <button onclick="document.getElementById('apptsSlipModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.2); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.2rem;">&times;</button>
+                <div style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase; color:#CCFBF1; font-weight:700;">Government of Kerala • Digital OPD Entry Pass</div>
+                <h3 style="font-size:1.25rem; font-weight:800; margin:4px 0 2px;">HEALIX CONSULTATION PASS</h3>
+                <div style="font-size:0.8rem; color:#CCFBF1;" id="modalSlipId">#APT-1082</div>
+            </div>
+            <div style="padding:24px;">
+                <div style="text-align:center; background:#F0FDFA; border:2px dashed #99F6E4; border-radius:14px; padding:16px; margin-bottom:18px;">
+                    <div style="font-size:0.75rem; color:#0F766E; font-weight:700; text-transform:uppercase;">OPD Queue Token</div>
+                    <div style="font-size:2.8rem; font-weight:900; color:#0D9488; margin:2px 0;">#01</div>
+                    <div style="font-size:0.82rem; color:#065F46; font-weight:700;">CONFIRMED CONSULTATION</div>
+                </div>
+                <div style="font-size:0.86rem; color:#334155; line-height:1.7; margin-bottom:18px;" id="modalSlipDetails"></div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="window.print()" class="btn btn-teal w-100" style="padding:10px; font-weight:600;"><i class="bi bi-printer"></i> Print Pass</button>
+                    <button onclick="document.getElementById('apptsSlipModal').style.display='none'" class="btn btn-outline w-100" style="padding:10px; font-weight:600;">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 </div></div></main>
@@ -101,32 +128,75 @@
         if (tbody) {
             tbody.innerHTML = appts.map(a => {
                 const statusBadge = a.status === 'CONFIRMED'
-                    ? '<span class="badge badge-confirmed">CONFIRMED</span>'
-                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed">COMPLETED</span>' : '<span class="badge badge-pending">PENDING</span>');
+                    ? '<span class="badge badge-confirmed" style="background:#D1FAE5;color:#065F46;font-weight:700;"><i class="bi bi-check-circle-fill"></i> CONFIRMED</span>'
+                    : (a.status === 'COMPLETED' ? '<span class="badge badge-completed" style="background:#E0F2FE;color:#0369A1;font-weight:700;"><i class="bi bi-check2-all"></i> COMPLETED</span>' : '<span class="badge badge-pending" style="background:#FEF3C7;color:#92400E;font-weight:700;"><i class="bi bi-clock"></i> PENDING</span>');
                 
-                const actionBtn = a.status === 'CONFIRMED'
-                    ? `<button onclick="alert('Digital Registration Slip #REC-TRV-REG001\\nPatient: ${a.patientName}\\nHospital: ${a.hospitalName}\\nDoctor: ${a.doctorName}\\nStatus: CONFIRMED');" class="btn btn-sm btn-outline"><i class="bi bi-receipt"></i> Slip</button>`
+                const slipAction = a.status === 'CONFIRMED'
+                    ? `<button onclick="viewSlip(${a.id})" class="btn btn-sm btn-teal" style="font-weight:600;"><i class="bi bi-receipt"></i> Digital Slip</button>`
                     : (a.status === 'COMPLETED'
                         ? `<a href="/patient/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-file-earmark-medical"></i> View Record</a>`
-                        : `<button onclick="alert('Appointment is pending doctor confirmation. Once confirmed by Dr. Rajesh Kumar, status updates immediately.');" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Pending</button>`);
+                        : `<button onclick="alert('Doctor confirmation pending. Dr. Rajesh Kumar confirms appointments within 1 hour.');" class="btn btn-sm btn-outline"><i class="bi bi-clock-history"></i> Pending</button>`);
 
                 return `
                     <tr>
-                        <td style="font-weight:700;color:#0F2042;">#APT-${a.id}</td>
+                        <td style="font-weight:800;color:#0F2042;">#APT-${a.id}</td>
                         <td>
-                            <div style="font-weight:700;color:#0F2042;">${a.doctorName}</div>
-                            <div style="font-size:0.75rem;color:#64748B;">${a.hospitalName}</div>
+                            <div style="font-weight:800;color:#0F2042;">${a.doctorName}</div>
+                            <div style="font-size:0.76rem;color:#0D9488;font-weight:600;"><i class="bi bi-geo-alt"></i> ${a.hospitalName}</div>
                         </td>
-                        <td style="font-weight:600;">${a.date}</td>
-                        <td style="font-weight:700;color:#0D9488;">${a.time}</td>
-                        <td style="font-size:0.85rem;color:#475569;">${a.reason}</td>
+                        <td style="font-weight:700;color:#1E293B;">${a.date}</td>
+                        <td style="font-weight:800;color:#0D9488;">${a.time}</td>
+                        <td style="font-size:0.85rem;color:#475569;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.reason}</td>
                         <td>${statusBadge}</td>
-                        <td>${actionBtn}</td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                ${slipAction}
+                                <button onclick="cancelAppt(${a.id})" class="btn btn-sm btn-outline" style="color:#EF4444;border-color:#FCA5A5;" title="Cancel Appointment"><i class="bi bi-x"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             }).join('');
         }
     }
+
+    function viewSlip(apptId) {
+        const appts = HealixStore.getAppointments();
+        const a = appts.find(item => item.id == apptId);
+        if (!a) return;
+        document.getElementById('modalSlipId').innerText = '#APT-' + a.id;
+        document.getElementById('modalSlipDetails').innerHTML = `
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding-bottom:6px;">
+                <span style="color:#64748B;">Patient:</span>
+                <strong>Arun Chandran (PAT-TRV-000001)</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding:6px 0;">
+                <span style="color:#64748B;">Consulting Doctor:</span>
+                <strong>${a.doctorName}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding:6px 0;">
+                <span style="color:#64748B;">Hospital Facility:</span>
+                <strong>${a.hospitalName}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #F1F5F9;padding:6px 0;">
+                <span style="color:#64748B;">Date & Slot:</span>
+                <strong style="color:#0D9488;">${a.date} at ${a.time}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:6px;">
+                <span style="color:#64748B;">Reporting Time:</span>
+                <strong style="color:#E11D48;">15 Minutes Prior</strong>
+            </div>
+        `;
+        document.getElementById('apptsSlipModal').style.display = 'flex';
+    }
+
+    function cancelAppt(apptId) {
+        if (!confirm('Are you sure you want to cancel appointment #APT-' + apptId + '?')) return;
+        let appts = HealixStore.getAppointments().filter(a => a.id != apptId);
+        HealixStore.saveAppointments(appts);
+        renderPatientAppointments();
+    }
+
     renderPatientAppointments();
 </script>
 </body>

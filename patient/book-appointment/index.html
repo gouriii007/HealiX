@@ -30,18 +30,21 @@
             <div><div class="sidebar-title">Healix</div><div class="sidebar-subtitle">Patient Portal</div></div>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Navigation</div>
-            <a href="/patient/dashboard" class="nav-item"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
-            <a href="/patient/book-appointment" class="nav-item active"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
-            <a href="/patient/appointments" class="nav-item"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
-            <a href="/patient/doctors" class="nav-item"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
-            <a href="/patient/medical-records" class="nav-item"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
-            <a href="/patient/prescriptions" class="nav-item"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
-            <div class="nav-section-label">Account</div>
-            <a href="/patient/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
-            <a href="/patient/notifications" class="nav-item"><i class="bi bi-bell nav-icon"></i> Notifications</a>
-        </nav>
-        <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
+        <div class="nav-section-label">Navigation</div>
+        <a href="/patient/dashboard" class="nav-item ${activeKey === 'dashboard' ? 'active' : ''}"><i class="bi bi-speedometer2 nav-icon"></i> Dashboard</a>
+        <a href="/patient/hospitals" class="nav-item ${activeKey === 'hospitals' ? 'active' : ''}"><i class="bi bi-hospital nav-icon"></i> My Hospitals</a>
+        <a href="/patient/ai-assistant" class="nav-item ${activeKey === 'ai' ? 'active' : ''}" style="color: #A78BFA;"><i class="bi bi-robot nav-icon"></i> AI Health Assistant</a>
+        <a href="/patient/book-appointment" class="nav-item ${activeKey === 'book' ? 'active' : ''}"><i class="bi bi-calendar2-plus nav-icon"></i> Book Appointment</a>
+        <a href="/patient/appointments" class="nav-item ${activeKey === 'appointments' ? 'active' : ''}"><i class="bi bi-calendar2-check nav-icon"></i> My Appointments</a>
+        <a href="/patient/doctors" class="nav-item ${activeKey === 'doctors' ? 'active' : ''}"><i class="bi bi-person-badge nav-icon"></i> Find Doctors</a>
+        <a href="/patient/medical-records" class="nav-item ${activeKey === 'records' ? 'active' : ''}"><i class="bi bi-clipboard2-pulse nav-icon"></i> Medical Records</a>
+        <a href="/patient/prescriptions" class="nav-item ${activeKey === 'prescriptions' ? 'active' : ''}"><i class="bi bi-capsule nav-icon"></i> Prescriptions</a>
+        <a href="/patient/consent-requests" class="nav-item ${activeKey === 'consents' ? 'active' : ''}"><i class="bi bi-shield-check nav-icon"></i> Record Consent</a>
+        <div class="nav-section-label">Account</div>
+        <a href="/patient/profile" class="nav-item ${activeKey === 'profile' ? 'active' : ''}"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
+        <a href="/patient/notifications" class="nav-item ${activeKey === 'notifications' ? 'active' : ''}"><i class="bi bi-bell nav-icon"></i> Notifications</a>
+    </nav>
+        <div class="sidebar-footer"><a href="/logout" onclick="localStorage.removeItem('healix_user')" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
     </aside>
 
     <main class="main-content">
@@ -56,170 +59,250 @@
             </div>
         </header>
 
+        
         <div class="page-content">
-
-            <div th:if="${error}" class="alert alert-error mb-4">
-                <i class="bi bi-exclamation-circle-fill"></i> <span th:text="${error}"></span>
-            </div>
+            <div id="bookingAlertBanner" style="display:none; margin-bottom: 20px;"></div>
 
             <div class="grid-2" style="gap: 24px; align-items: flex-start;">
 
-                <!-- Form Card -->
-                <div class="card" style="flex: 1;">
-                    <div class="card-header">
-                        <h5><i class="bi bi-calendar-check" style="color:#0D9488;"></i> Appointment Details</h5>
+                <!-- Booking Form Card -->
+                <div class="card" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 16px;">
+                    <div class="card-header" style="border-bottom: 1px solid #F1F5F9; padding: 18px 24px;">
+                        <h5 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0F2042; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-calendar2-plus" style="color:#0D9488;"></i> Schedule Doctor Consultation
+                        </h5>
                     </div>
-                    <div class="card-body">
-                        <form action="/patient/book-appointment"  method="post">
-                            
+                    <div class="card-body" style="padding: 24px;">
+                        <form id="patientBookForm">
+                            <!-- Hospital Selection -->
+                            <div class="form-group" style="margin-bottom: 18px;">
+                                <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+                                    Participating Hospital Facility <span class="required" style="color:#EF4444;">*</span>
+                                </label>
+                                <select class="form-control form-select" id="bookHospitalSelect" required style="padding: 10px 14px; border-radius: 8px;">
+                                    <option value="MediCare City Hospital" selected>MediCare City Hospital (MG Road, Statue, Thiruvananthapuram)</option>
+                                    <option value="Trivandrum Medical Trust">Trivandrum Medical Trust (Pattom Palace PO, Thiruvananthapuram)</option>
+                                </select>
+                            </div>
 
                             <!-- Doctor Selection -->
-                            <div class="form-group">
-                                <label class="form-label">Select Medical Specialist <span class="required">*</span></label>
-                                <select  class="form-control form-select" required id="doctorSelect">
-                                    <option value="">-- Choose Specialist --</option>
-                                    <option th:each="doc : ${doctors}"
-                                            th:value="${doc.id}"
-                                            th:text="'Dr. ' + ${doc.name} + ' (' + (${doc.department != null ? doc.department.name : doc.specialization}) + ') - ₹' + ${doc.consultationFee}">
-                                    </option>
+                            <div class="form-group" style="margin-bottom: 18px;">
+                                <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+                                    Select Medical Specialist <span class="required" style="color:#EF4444;">*</span>
+                                </label>
+                                <select class="form-control form-select" id="bookDoctorSelect" required style="padding: 10px 14px; border-radius: 8px;">
+                                    <option value="">-- Choose Specialist Doctor --</option>
+                                    <option value="1">Dr. Rajesh Kumar (Cardiology) - MediCare City Hospital • ₹800</option><option value="2">Dr. Sarah Varghese (Neurology) - MediCare City Hospital • ₹750</option><option value="3">Dr. Suresh Menon (Orthopedics & Joint Replacement) - Trivandrum Medical Trust • ₹700</option><option value="4">Dr. Ananya Pillai (General Medicine & Diabetology) - MediCare City Hospital • ₹500</option><option value="5">Dr. Thomas Mathew (Pulmonology & Critical Care) - Trivandrum Medical Trust • ₹650</option><option value="6">Dr. Priyamvada Nair (Pediatrics & Neonatology) - MediCare City Hospital • ₹550</option>
                                 </select>
-                                <div th:if="${#fields.hasErrors('doctorId')}" class="form-error" th:errors="*{doctorId}"></div>
                             </div>
 
-                            <!-- Date Selection -->
-                            <div class="form-group">
-                                <label class="form-label">Preferred Date <span class="required">*</span></label>
-                                <input type="date"  class="form-control" required
-                                       id="appointmentDate"
-                                       th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"/>
-                                <div th:if="${#fields.hasErrors('appointmentDate')}" class="form-error" th:errors="*{appointmentDate}"></div>
+                            <!-- Preferred Date -->
+                            <div class="form-group" style="margin-bottom: 18px;">
+                                <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+                                    Preferred Consultation Date <span class="required" style="color:#EF4444;">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="bookDateInput" required style="padding: 10px 14px; border-radius: 8px;"
+                                       value="2026-10-03"
+                                       min="2026-10-02"/>
                             </div>
 
-                            <!-- Time Slots Selection -->
-                            <div class="form-group">
-                                <label class="form-label">Select Time Slot <span class="required">*</span></label>
-                                <div th:if="${#fields.hasErrors('appointmentTime')}" class="form-error" th:errors="*{appointmentTime}"></div>
+                            <!-- Time Slots -->
+                            <div class="form-group" style="margin-bottom: 18px;">
+                                <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+                                    Select Time Slot <span class="required" style="color:#EF4444;">*</span>
+                                </label>
+                                <input type="hidden" id="selectedTimeSlot" value="09:30 AM" required/>
+                                
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin: 10px 0 6px;">
+                                    Morning Slots
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;" id="morningSlots">
+                                    
+                                        <button type="button" class="slot-pill-btn " onclick="chooseSlot('09:00 AM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">09:00 AM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn selected" onclick="chooseSlot('09:30 AM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #0D9488; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">09:30 AM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn " onclick="chooseSlot('10:00 AM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">10:00 AM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn " onclick="chooseSlot('10:30 AM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">10:30 AM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn " onclick="chooseSlot('11:30 AM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">11:30 AM</button>
+                                    
+                                </div>
 
-                                <div style="margin-top: 10px;">
-                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Morning Slots</div>
-                                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
-                                        <label th:each="slot : ${timeSlots}">
-                                            <input type="radio"  th:value="${slot}" class="slot-radio" required/>
-                                            <span class="slot-pill" th:text="${slot}">09:00</span>
-                                        </label>
-                                    </div>
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin: 10px 0 6px;">
+                                    Afternoon Slots
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;" id="afternoonSlots">
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('02:00 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">02:00 PM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('02:30 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">02:30 PM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('03:30 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">03:30 PM</button>
+                                    
+                                </div>
 
-                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Afternoon Slots</div>
-                                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
-                                        <label th:each="slot : ${afternoonSlots}">
-                                            <input type="radio"  th:value="${slot}" class="slot-radio"/>
-                                            <span class="slot-pill" th:text="${slot}">14:00</span>
-                                        </label>
-                                    </div>
-
-                                    <div style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Evening Slots</div>
-                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                        <label th:each="slot : ${eveningSlots}">
-                                            <input type="radio"  th:value="${slot}" class="slot-radio"/>
-                                            <span class="slot-pill" th:text="${slot}">17:00</span>
-                                        </label>
-                                    </div>
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin: 10px 0 6px;">
+                                    Evening Slots
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="eveningSlots">
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('04:30 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">04:30 PM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('05:00 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">05:00 PM</button>
+                                    
+                                        <button type="button" class="slot-pill-btn" onclick="chooseSlot('05:30 PM', this)" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; color: #334155; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">05:30 PM</button>
+                                    
                                 </div>
                             </div>
 
-                            <!-- Reason / Symptoms -->
-                            <div class="form-group">
-                                <label class="form-label">Reason for Consultation / Symptoms <span class="required">*</span></label>
-                                <textarea  class="form-control" rows="3"
-                                          placeholder="Briefly describe your symptoms or reason for visit..." required></textarea>
-                                <div th:if="${#fields.hasErrors('reason')}" class="form-error" th:errors="*{reason}"></div>
+                            <!-- Reason / Chief Complaint -->
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" style="font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+                                    Reason for Consultation / Symptoms <span class="required" style="color:#EF4444;">*</span>
+                                </label>
+                                <textarea id="bookReasonInput" class="form-control" rows="3" required style="padding: 10px 14px; border-radius: 8px;"
+                                          placeholder="Please describe your primary symptoms or the purpose of your visit..."></textarea>
                             </div>
 
-                            <button type="submit" class="btn btn-teal btn-block btn-lg" style="margin-top: 10px;">
-                                <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
+                            <button type="submit" class="btn btn-teal btn-block btn-lg" style="padding: 12px; font-weight: 700; font-size: 1rem; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="bi bi-calendar2-check-fill"></i> Confirm &amp; Generate OPD Slip
                             </button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Info Card -->
-                <div style="display: flex; flex-direction: column; gap: 18px;">
-                    <div class="card" style="background: linear-gradient(135deg, #F0FDFA, #E6FFFA); border: 1px solid #99F6E4;">
-                        <div class="card-body" style="padding: 22px;">
-                            <h5 style="color: #0F766E; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                <i class="bi bi-info-circle-fill"></i> Booking Guidelines
+                <!-- Right Side Information & Preview -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Doctor Preview Card -->
+                    <div class="card" id="docPreviewCard" style="box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-radius: 16px; border: 1px solid #E2E8F0;">
+                        <div class="card-header" style="border-bottom: 1px solid #F1F5F9; padding: 16px 20px;">
+                            <h5 style="margin:0; font-size: 1rem; font-weight: 700; color: #0F2042;">
+                                <i class="bi bi-person-badge" style="color:#0D9488;"></i> Selected Specialist Profile
                             </h5>
-                            <ul style="padding-left: 18px; color: #334155; font-size: 0.86rem; line-height: 1.7;">
-                                <li>Appointments must be booked at least 1 hour in advance.</li>
-                                <li>Cancellations are allowed up to 2 hours before the scheduled time slot.</li>
-                                <li>Please arrive 10 minutes prior to your allocated appointment time.</li>
-                                <li>Carry any prior medical reports or medication history with you.</li>
-                            </ul>
+                        </div>
+                        <div class="card-body" style="padding: 20px;" id="docPreviewContent">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                                <div style="width: 50px; height: 50px; border-radius: 12px; background: #0D9488; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700;" id="prevAvatar">
+                                    RK
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 1.05rem; color: #0F2042;" id="prevDocName">Dr. Rajesh Kumar</div>
+                                    <div style="color: #0D9488; font-size: 0.85rem; font-weight: 700;" id="prevDocSpec">Cardiology Specialist</div>
+                                    <div style="font-size: 0.78rem; color: #64748B;" id="prevDocHosp">MediCare City Hospital</div>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.84rem; color: #475569; line-height: 1.5; margin-bottom: 14px;" id="prevDocBio">
+                                Senior consultant interventional cardiologist specializing in coronary interventions, hypertension, chest pain triage, and preventive lipidology.
+                            </p>
+                            <div style="background: #F8FAFC; border-radius: 10px; padding: 12px 14px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.84rem; color: #64748B; font-weight: 600;">Consultation Fee:</span>
+                                <span style="font-weight: 800; color: #0D9488; font-size: 1.15rem;" id="prevDocFee">₹800</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card" th:if="${selectedDoctor != null}">
-                        <div class="card-header">
-                            <h5><i class="bi bi-person-badge" style="color:#0D9488;"></i> Selected Doctor</h5>
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
-                                <div class="avatar avatar-md" style="background: #0D9488; color: #fff;"
-                                     th:text="${#strings.substring(selectedDoctor.name, 0, 1)}">D</div>
-                                <div>
-                                    <div style="font-weight: 700; font-size: 1rem;" th:text="'Dr. ' + ${selectedDoctor.name}">Doctor Name</div>
-                                    <div style="color: #0D9488; font-size: 0.82rem; font-weight: 600;" th:text="${selectedDoctor.specialization}">Specialization</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.84rem; color: #4B5563; line-height: 1.5; margin-bottom: 12px;" th:text="${selectedDoctor.bio}">Doctor Bio</div>
-                            <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between;">
-                                <span style="font-size: 0.82rem; color: #64748B;">Consultation Fee:</span>
-                                <span style="font-weight: 700; color: #0D9488;" th:text="'₹' + ${selectedDoctor.consultationFee}">₹500</span>
-                            </div>
+                    <!-- Booking Instructions Card -->
+                    <div class="card" style="background: linear-gradient(135deg, #F0FDFA, #E6FFFA); border: 1px solid #99F6E4; border-radius: 16px;">
+                        <div class="card-body" style="padding: 22px;">
+                            <h5 style="color: #0F766E; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-info-circle-fill"></i> Central Booking Guidelines
+                            </h5>
+                            <ul style="padding-left: 18px; color: #334155; font-size: 0.86rem; line-height: 1.7; margin: 0;">
+                                <li>Single central account valid across all networked hospitals in Thiruvananthapuram.</li>
+                                <li>Upon booking, a digital token and OPD entry pass are instantly generated.</li>
+                                <li>Please arrive 15 minutes prior to your allocated slot for vitals recording.</li>
+                                <li>Carry your Central Patient ID (<strong>PAT-TRV-000001</strong>) or digital health card.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
             </div>
-
         </div>
-    </main>
+</main>
 </div>
 <script src="/js/main.js"></script>
 
 <script src="/js/clinical-store.js"></script>
 <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const hospitalSelect = document.querySelector('select[name="hospitalId"]');
-        const hospital = hospitalSelect && hospitalSelect.selectedIndex >= 0 ? hospitalSelect.options[hospitalSelect.selectedIndex].text : 'MediCare City Hospital';
-        const doctorSelect = document.querySelector('select[name="doctorId"]');
-        const doctor = doctorSelect && doctorSelect.selectedIndex >= 0 ? doctorSelect.options[doctorSelect.selectedIndex].text : 'Dr. Rajesh Kumar (Cardiology)';
-        const dateInput = document.querySelector('input[type="date"]');
-        const date = dateInput && dateInput.value ? dateInput.value : 'Tomorrow';
-        const timeSelect = document.querySelector('select[name="appointmentTime"]');
-        const time = timeSelect && timeSelect.value ? timeSelect.value : '10:00 AM';
-        const reason = document.querySelector('textarea') ? document.querySelector('textarea').value : 'Regular consultation';
+    const doctorsData = [{"id":"1","name":"Rajesh Kumar","specialization":"Cardiology","qualification":"MBBS, MD (Med), DM (Cardiology), FACC","department":"Cardiology","hospital":"MediCare City Hospital","experienceYears":15,"consultationFee":800,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 104)","bio":"Senior consultant interventional cardiologist specializing in coronary interventions, hypertension, chest pain triage, and preventive lipidology."},{"id":"2","name":"Sarah Varghese","specialization":"Neurology","qualification":"MBBS, MD (Medicine), DM (Neurology)","department":"Neurology","hospital":"MediCare City Hospital","experienceYears":11,"consultationFee":750,"availability":"Mon-Fri: 10:00 AM - 02:00 PM (OPD Room 202)","bio":"Specialist in cerebrovascular disorders, migraine management, peripheral neuropathies, neuro-rehabilitation, and clinical EEG diagnostics."},{"id":"3","name":"Suresh Menon","specialization":"Orthopedics & Joint Replacement","qualification":"MBBS, MS (Ortho), MCh (Ortho, UK)","department":"Orthopedics","hospital":"Trivandrum Medical Trust","experienceYears":18,"consultationFee":700,"availability":"Tue, Thu, Sat: 09:30 AM - 01:30 PM (OPD Block A)","bio":"Senior orthopedic joint replacement surgeon renowned for minimally invasive knee and hip arthroplasty, and arthroscopic ligament reconstruction."},{"id":"4","name":"Ananya Pillai","specialization":"General Medicine & Diabetology","qualification":"MBBS, MD (General Medicine)","department":"General Medicine","hospital":"MediCare City Hospital","experienceYears":9,"consultationFee":500,"availability":"Mon-Sat: 08:30 AM - 12:30 PM, 04:00 PM - 06:00 PM","bio":"Experienced physician focusing on evidence-based management of metabolic syndrome, diabetes, hypertension, and preventative adult immunization."},{"id":"5","name":"Thomas Mathew","specialization":"Pulmonology & Critical Care","qualification":"MBBS, MD (Pulmonary Medicine), FCCP","department":"Pulmonology","hospital":"Trivandrum Medical Trust","experienceYears":14,"consultationFee":650,"availability":"Mon, Wed, Fri: 11:00 AM - 03:00 PM (OPD Block C)","bio":"Chest physician and pulmonologist specializing in asthma, COPD, interstitial lung diseases, sleep studies, and post-viral respiratory recovery."},{"id":"6","name":"Priyamvada Nair","specialization":"Pediatrics & Neonatology","qualification":"MBBS, DCH, DNB (Pediatrics)","department":"Pediatrics","hospital":"MediCare City Hospital","experienceYears":10,"consultationFee":550,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 108)","bio":"Dedicated pediatric specialist committed to developmental pediatrics, infant nutrition, childhood asthma, and preventive pediatric care."}];
 
-        // Add to persistent appointments store
-        const appts = HealixStore.getAppointments();
+    function chooseSlot(slot, btn) {
+        document.getElementById('selectedTimeSlot').value = slot;
+        document.querySelectorAll('.slot-pill-btn').forEach(b => {
+            b.style.background = '#fff';
+            b.style.color = '#334155';
+        });
+        btn.style.background = '#0D9488';
+        btn.style.color = '#fff';
+    }
+
+    function updateDocPreview(docId) {
+        const doc = doctorsData.find(d => d.id === docId) || doctorsData[0];
+        document.getElementById('prevAvatar').innerText = doc.name.split(' ').map(w => w[0]).join('').slice(0,2);
+        document.getElementById('prevDocName').innerText = 'Dr. ' + doc.name;
+        document.getElementById('prevDocSpec').innerText = doc.specialization;
+        document.getElementById('prevDocHosp').innerText = doc.hospital;
+        document.getElementById('prevDocBio').innerText = doc.bio;
+        document.getElementById('prevDocFee').innerText = '₹' + doc.consultationFee;
+        
+        const hospSel = document.getElementById('bookHospitalSelect');
+        if (hospSel) {
+            for (let i = 0; i < hospSel.options.length; i++) {
+                if (hospSel.options[i].value === doc.hospital) {
+                    hospSel.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    document.getElementById('bookDoctorSelect').addEventListener('change', function() {
+        if (this.value) updateDocPreview(this.value);
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryDocId = urlParams.get('doctorId');
+    if (queryDocId) {
+        const docSel = document.getElementById('bookDoctorSelect');
+        docSel.value = queryDocId;
+        updateDocPreview(queryDocId);
+    } else {
+        document.getElementById('bookDoctorSelect').value = "1";
+        updateDocPreview("1");
+    }
+
+    document.getElementById('patientBookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const docId = document.getElementById('bookDoctorSelect').value;
+        const doc = doctorsData.find(d => d.id === docId) || doctorsData[0];
+        const hospital = document.getElementById('bookHospitalSelect').value;
+        const date = document.getElementById('bookDateInput').value;
+        const time = document.getElementById('selectedTimeSlot').value || '09:30 AM';
+        const reason = document.getElementById('bookReasonInput').value;
+
         const newApptId = Math.floor(1090 + Math.random() * 500);
-        appts.unshift({
+        const newAppt = {
             id: newApptId,
             patientName: "Arun Chandran",
             patientId: "PAT-TRV-000001",
             patientPhone: "9876510001",
-            doctorName: doctor.split('(')[0].trim(),
+            doctorName: 'Dr. ' + doc.name,
             hospitalName: hospital,
             date: date,
             time: time,
             reason: reason,
-            status: "PENDING",
-            fee: 800
-        });
+            status: "CONFIRMED",
+            fee: doc.consultationFee
+        };
+
+        const appts = HealixStore.getAppointments();
+        appts.unshift(newAppt);
         HealixStore.saveAppointments(appts);
 
-        alert('Appointment successfully booked with ' + doctor + ' at ' + hospital + ' on ' + date + ' (' + time + ')! Digital OPD registration token generated: #APT-' + newApptId);
+        alert('Consultation Confirmed with Dr. ' + doc.name + ' at ' + hospital + ' on ' + date + ' at ' + time + '!\n\nDigital OPD Token: #01\nRegistration Slip: #APT-' + newApptId + '\n\nRedirecting to My Appointments...');
         window.location.href = '/patient/appointments';
     });
 </script>
