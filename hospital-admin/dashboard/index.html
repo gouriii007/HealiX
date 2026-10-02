@@ -32,10 +32,19 @@
 </nav>
 
 <div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
-    <div style="margin-bottom: 2rem;">
-        <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Administration (Strict Isolation)</div>
-        <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;">MediCare City Hospital Overview</h2>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Administration (Doctor Credentialing Scope)</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;">MediCare City Hospital Overview</h2>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/hospital-admin/doctors?action=addDoctor" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(128,112,166,0.25); text-decoration: none;">
+                <i class="bi bi-person-plus-fill"></i> Add Doctor
+            </a>
+        </div>
     </div>
+    
 
     <!-- Scoped Stats -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
@@ -46,7 +55,7 @@
         </div>
         <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
             <div style="font-size: 0.82rem; color: #6B7280; margin-bottom: 0.25rem;">Active Doctors</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;">18</div>
+            <div id="haActiveDoctorCount" style="font-size: 1.8rem; font-weight: 800; color: #8070A6;">4</div>
             <span style="font-size: 0.78rem; color: #6B7280;">Affiliated specialists</span>
         </div>
         <div style="background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid #E5E7EB;">
@@ -108,5 +117,13 @@
     </table>
 </div></div>
 
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    if (window.HealixStore) {
+        const docCountEl = document.getElementById('haActiveDoctorCount');
+        if (docCountEl) docCountEl.innerText = HealixStore.getHospitalDoctors().length;
+    }
+</script>
 </body>
 </html>

@@ -228,7 +228,34 @@
 <script src="/js/clinical-store.js"></script>
 <script src="/js/patient-features.js"></script>
 <script>
-    const doctorsData = [{"id":"1","name":"Rajesh Kumar","specialization":"Cardiology","qualification":"MBBS, MD (Med), DM (Cardiology), FACC","department":"Cardiology","hospital":"MediCare City Hospital","experienceYears":15,"consultationFee":800,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 104)","bio":"Senior consultant interventional cardiologist specializing in coronary interventions, hypertension, chest pain triage, and preventive lipidology."},{"id":"2","name":"Sarah Varghese","specialization":"Neurology","qualification":"MBBS, MD (Medicine), DM (Neurology)","department":"Neurology","hospital":"MediCare City Hospital","experienceYears":11,"consultationFee":750,"availability":"Mon-Fri: 10:00 AM - 02:00 PM (OPD Room 202)","bio":"Specialist in cerebrovascular disorders, migraine management, peripheral neuropathies, neuro-rehabilitation, and clinical EEG diagnostics."},{"id":"3","name":"Suresh Menon","specialization":"Orthopedics & Joint Replacement","qualification":"MBBS, MS (Ortho), MCh (Ortho, UK)","department":"Orthopedics","hospital":"Trivandrum Medical Trust","experienceYears":18,"consultationFee":700,"availability":"Tue, Thu, Sat: 09:30 AM - 01:30 PM (OPD Block A)","bio":"Senior orthopedic joint replacement surgeon renowned for minimally invasive knee and hip arthroplasty, and arthroscopic ligament reconstruction."},{"id":"4","name":"Ananya Pillai","specialization":"General Medicine & Diabetology","qualification":"MBBS, MD (General Medicine)","department":"General Medicine","hospital":"MediCare City Hospital","experienceYears":9,"consultationFee":500,"availability":"Mon-Sat: 08:30 AM - 12:30 PM, 04:00 PM - 06:00 PM","bio":"Experienced physician focusing on evidence-based management of metabolic syndrome, diabetes, hypertension, and preventative adult immunization."},{"id":"5","name":"Thomas Mathew","specialization":"Pulmonology & Critical Care","qualification":"MBBS, MD (Pulmonary Medicine), FCCP","department":"Pulmonology","hospital":"Trivandrum Medical Trust","experienceYears":14,"consultationFee":650,"availability":"Mon, Wed, Fri: 11:00 AM - 03:00 PM (OPD Block C)","bio":"Chest physician and pulmonologist specializing in asthma, COPD, interstitial lung diseases, sleep studies, and post-viral respiratory recovery."},{"id":"6","name":"Priyamvada Nair","specialization":"Pediatrics & Neonatology","qualification":"MBBS, DCH, DNB (Pediatrics)","department":"Pediatrics","hospital":"MediCare City Hospital","experienceYears":10,"consultationFee":550,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 108)","bio":"Dedicated pediatric specialist committed to developmental pediatrics, infant nutrition, childhood asthma, and preventive pediatric care."}];
+    let doctorsData = [{"id":"1","name":"Rajesh Kumar","specialization":"Cardiology","qualification":"MBBS, MD (Med), DM (Cardiology), FACC","department":"Cardiology","hospital":"MediCare City Hospital","experienceYears":15,"consultationFee":800,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 104)","bio":"Senior consultant interventional cardiologist specializing in coronary interventions, hypertension, chest pain triage, and preventive lipidology."},{"id":"2","name":"Sarah Varghese","specialization":"Neurology","qualification":"MBBS, MD (Medicine), DM (Neurology)","department":"Neurology","hospital":"MediCare City Hospital","experienceYears":11,"consultationFee":750,"availability":"Mon-Fri: 10:00 AM - 02:00 PM (OPD Room 202)","bio":"Specialist in cerebrovascular disorders, migraine management, peripheral neuropathies, neuro-rehabilitation, and clinical EEG diagnostics."},{"id":"3","name":"Suresh Menon","specialization":"Orthopedics & Joint Replacement","qualification":"MBBS, MS (Ortho), MCh (Ortho, UK)","department":"Orthopedics","hospital":"Trivandrum Medical Trust","experienceYears":18,"consultationFee":700,"availability":"Tue, Thu, Sat: 09:30 AM - 01:30 PM (OPD Block A)","bio":"Senior orthopedic joint replacement surgeon renowned for minimally invasive knee and hip arthroplasty, and arthroscopic ligament reconstruction."},{"id":"4","name":"Ananya Pillai","specialization":"General Medicine & Diabetology","qualification":"MBBS, MD (General Medicine)","department":"General Medicine","hospital":"MediCare City Hospital","experienceYears":9,"consultationFee":500,"availability":"Mon-Sat: 08:30 AM - 12:30 PM, 04:00 PM - 06:00 PM","bio":"Experienced physician focusing on evidence-based management of metabolic syndrome, diabetes, hypertension, and preventative adult immunization."},{"id":"5","name":"Thomas Mathew","specialization":"Pulmonology & Critical Care","qualification":"MBBS, MD (Pulmonary Medicine), FCCP","department":"Pulmonology","hospital":"Trivandrum Medical Trust","experienceYears":14,"consultationFee":650,"availability":"Mon, Wed, Fri: 11:00 AM - 03:00 PM (OPD Block C)","bio":"Chest physician and pulmonologist specializing in asthma, COPD, interstitial lung diseases, sleep studies, and post-viral respiratory recovery."},{"id":"6","name":"Priyamvada Nair","specialization":"Pediatrics & Neonatology","qualification":"MBBS, DCH, DNB (Pediatrics)","department":"Pediatrics","hospital":"MediCare City Hospital","experienceYears":10,"consultationFee":550,"availability":"Mon-Sat: 09:00 AM - 01:00 PM (OPD Room 108)","bio":"Dedicated pediatric specialist committed to developmental pediatrics, infant nutrition, childhood asthma, and preventive pediatric care."}];
+    if (window.HealixStore && typeof HealixStore.getHospitalDoctors === 'function') {
+        const storedDocs = HealixStore.getHospitalDoctors();
+        storedDocs.forEach(sd => {
+            const rawName = sd.name.replace(/^Dr\.\s*/i, '');
+            if (!doctorsData.some(d => d.name.toLowerCase() === rawName.toLowerCase())) {
+                doctorsData.push({
+                    id: sd.id,
+                    name: rawName,
+                    specialization: sd.department,
+                    qualification: sd.qualification,
+                    department: sd.department,
+                    hospital: sd.hospital || 'MediCare City Hospital',
+                    experienceYears: sd.experienceYears || 5,
+                    consultationFee: sd.consultationFee || 600,
+                    availability: sd.availability || 'Mon-Sat: 09:00 AM - 01:00 PM',
+                    bio: sd.bio || 'Clinical specialist consultant at MediCare City Hospital.'
+                });
+                const sel = document.getElementById('bookDoctorSelect');
+                if (sel) {
+                    const opt = document.createElement('option');
+                    opt.value = sd.id;
+                    opt.text = 'Dr. ' + rawName + ' (' + sd.department + ') - ' + (sd.hospital || 'MediCare City Hospital') + ' • ₹' + (sd.consultationFee || 600);
+                    sel.appendChild(opt);
+                }
+            }
+        });
+    }
 
     function chooseSlot(slot, btn) {
         document.getElementById('selectedTimeSlot').value = slot;

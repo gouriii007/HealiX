@@ -1597,7 +1597,34 @@ const richBookScript = `
 <script src="/js/clinical-store.js"></script>
 <script src="/js/patient-features.js"></script>
 <script>
-    const doctorsData = ${JSON.stringify(PATIENT_DOCTORS)};
+    let doctorsData = ${JSON.stringify(PATIENT_DOCTORS)};
+    if (window.HealixStore && typeof HealixStore.getHospitalDoctors === 'function') {
+        const storedDocs = HealixStore.getHospitalDoctors();
+        storedDocs.forEach(sd => {
+            const rawName = sd.name.replace(/^Dr\\.\\s*/i, '');
+            if (!doctorsData.some(d => d.name.toLowerCase() === rawName.toLowerCase())) {
+                doctorsData.push({
+                    id: sd.id,
+                    name: rawName,
+                    specialization: sd.department,
+                    qualification: sd.qualification,
+                    department: sd.department,
+                    hospital: sd.hospital || 'MediCare City Hospital',
+                    experienceYears: sd.experienceYears || 5,
+                    consultationFee: sd.consultationFee || 600,
+                    availability: sd.availability || 'Mon-Sat: 09:00 AM - 01:00 PM',
+                    bio: sd.bio || 'Clinical specialist consultant at MediCare City Hospital.'
+                });
+                const sel = document.getElementById('bookDoctorSelect');
+                if (sel) {
+                    const opt = document.createElement('option');
+                    opt.value = sd.id;
+                    opt.text = 'Dr. ' + rawName + ' (' + sd.department + ') - ' + (sd.hospital || 'MediCare City Hospital') + ' • ₹' + (sd.consultationFee || 600);
+                    sel.appendChild(opt);
+                }
+            }
+        });
+    }
 
     function chooseSlot(slot, btn) {
         document.getElementById('selectedTimeSlot').value = slot;
@@ -3489,10 +3516,22 @@ let haDashHtml = cleanThymeleaf(rawHaDash);
 
 haDashHtml = haDashHtml
     .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', '<span>MediCare City Hospital</span>')
-    .replace('<h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;" th:text="${hospital.hospitalName} + \' Overview\'">Hospital Overview</h2>', '<h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;">MediCare City Hospital Overview</h2>')
+    .replace(/<div style="margin-bottom: 2rem;">\s*<div style="font-size: 0\.85rem; color: #6B7280;">Hospital Scoped Administration \(Strict Isolation\)<\/div>\s*<h2 style="font-size: 1\.85rem; font-weight: 800; color: #111827;" th:text="\${hospital\.hospitalName} \+ ' Overview'">Hospital Overview<\/h2>\s*<\/div>/, `
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Administration (Doctor Credentialing Scope)</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;">MediCare City Hospital Overview</h2>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/hospital-admin/doctors?action=addDoctor" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(128,112,166,0.25); text-decoration: none;">
+                <i class="bi bi-person-plus-fill"></i> Add Doctor
+            </a>
+        </div>
+    </div>
+    `)
     .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', '<span class="hospital-badge">TRV-HOSP-01</span>')
     .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;" th:text="${patientCount}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;">142</div>')
-    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" th:text="${doctorCount}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;">18</div>')
+    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" th:text="${doctorCount}">0</div>', '<div id="haActiveDoctorCount" style="font-size: 1.8rem; font-weight: 800; color: #8070A6;">4</div>')
     .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" th:text="${todayAppointments}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;">14</div>')
     .replace('<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;" th:text="${pendingAppointments} + \' Pending\'">0 Pending</span>', '<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;">2 Pending</span>')
     .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #059669;" th:text="\'₹\' + ${registrationRevenue}">₹0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #059669;">₹38,500</div>');
@@ -3541,6 +3580,17 @@ const haRecentApptsHtml = `
     </table>
 `;
 haDashHtml = haDashHtml.replace(/<div th:if="\${#lists.isEmpty\(recentAppointments\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haRecentApptsHtml}</div></div>`);
+
+const haDashScript = `
+<script src="/js/clinical-store.js"></script>
+<script>
+    if (window.HealixStore) {
+        const docCountEl = document.getElementById('haActiveDoctorCount');
+        if (docCountEl) docCountEl.innerText = HealixStore.getHospitalDoctors().length;
+    }
+</script>
+`;
+haDashHtml = haDashHtml.replace('</body>', `${haDashScript}</body>`);
 writePage('hospital-admin/dashboard/index.html', haDashHtml);
 
 // ----------------------------------------------------
@@ -3551,71 +3601,316 @@ let haDocsHtml = cleanThymeleaf(rawHaDocs);
 
 haDocsHtml = haDocsHtml
     .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', 'MediCare City Hospital')
-    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01')
-    .replace('<h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;" th:text="${hospital.hospitalName} + \' Doctors\'">Doctors</h2>', '<h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;">MediCare City Hospital Doctors</h2>')
-    .replace('th:text="${doctors != null ? doctors.size() : 0} + \' Doctors\'"', '');
+    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01');
 
-const haDocsTableHtml = `
-    <table class="table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
-                <th style="padding: 0.75rem;">Specialist</th>
-                <th style="padding: 0.75rem;">Department</th>
-                <th style="padding: 0.75rem;">Qualification</th>
-                <th style="padding: 0.75rem;">OPD Room</th>
-                <th style="padding: 0.75rem;">Fee</th>
-                <th style="padding: 0.75rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;">
-                    <div style="font-weight: 700; color: #111827;">Dr. Rajesh Kumar</div>
-                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-001 • doctor@healix.com</div>
-                </td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Cardiology</span></td>
-                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD, DM (15 yrs exp)</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Room 104</td>
-                <td style="padding: 0.75rem; font-weight: 700;">₹800.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;">
-                    <div style="font-weight: 700; color: #111827;">Dr. Priya Nair</div>
-                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-002 • priya.nair@healix.com</div>
-                </td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Neurology</span></td>
-                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD, DM (10 yrs exp)</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Room 202</td>
-                <td style="padding: 0.75rem; font-weight: 700;">₹900.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;">
-                    <div style="font-weight: 700; color: #111827;">Dr. Suresh Menon</div>
-                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-003 • suresh.menon@healix.com</div>
-                </td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">Orthopedics</span></td>
-                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MS (Ortho) (12 yrs exp)</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Room 108</td>
-                <td style="padding: 0.75rem; font-weight: 700;">₹750.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;">
-                    <div style="font-weight: 700; color: #111827;">Dr. Anita Sen</div>
-                    <div style="font-size: 0.75rem; color: #6B7280;">DOC-TRV-008 • anita.sen@healix.com</div>
-                </td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;">General Medicine</span></td>
-                <td style="padding: 0.75rem; color: #4B5563;">MBBS, MD (General Medicine) (9 yrs exp)</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Room 101</td>
-                <td style="padding: 0.75rem; font-weight: 700;">₹500.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-        </tbody>
-    </table>
+// Replace header with Add Doctor button, search bar, count badge, and admin scope notice
+const haDocsHeaderHtml = `
+    <!-- Hospital Admin Role Scope Callout -->
+    <div style="background: linear-gradient(135deg, #F0FDF4, #ECFDF5); border: 1px solid #A7F3D0; border-radius: 12px; padding: 12px 18px; margin-bottom: 1.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #065F46; font-size: 0.92rem;">Hospital Admin Access: Doctor Credentialing Only</div>
+                <div style="font-size: 0.8rem; color: #047857;">Hospital Admins can only add doctors for their designated facility. Administrative appointments are governed by Super Admin.</div>
+            </div>
+        </div>
+        <span class="hospital-badge" style="background: #D1FAE5; color: #065F46; font-size: 0.78rem; font-weight: 700;">HOSPITAL ADMIN SCOPE</span>
+    </div>
+
+    <!-- Header with Add Doctor Button -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.85rem; color: #6B7280;">MediCare City Hospital (TRV-HOSP-01)</div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin: 0;">Specialist Doctors Directory</h2>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <div style="position: relative;">
+                <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                <input type="text" id="doctorSearch" placeholder="Search doctor, specialty…" 
+                       style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 220px; background: #fff;"
+                       onkeyup="filterDoctors()"/>
+            </div>
+            <span id="haDocCountBadge" class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: #EDE7F6; color: #5E35B1; font-weight: 700;">4 Doctors</span>
+            <button type="button" onclick="openAddDoctorModal()" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(128,112,166,0.25); cursor: pointer;">
+                <i class="bi bi-person-plus-fill"></i> Add Doctor
+            </button>
+        </div>
+    </div>
 `;
-haDocsHtml = haDocsHtml.replace(/<div th:if="\${#lists.isEmpty\(doctors\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haDocsTableHtml}</div></div>`);
+
+haDocsHtml = haDocsHtml.replace(/<!-- Header -->[\s\S]*?<\/div>\s*<\/div>/, haDocsHeaderHtml);
+
+// Replace table container with dynamic container
+const haDocsDynamicContainer = `
+    <!-- Doctors Table Container -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div id="haDoctorsTableContainer" style="overflow-x: auto;"></div>
+    </div>
+`;
+haDocsHtml = haDocsHtml.replace(/<!-- Doctors Table Container -->[\s\S]*?<script>[\s\S]*?<\/script>/, haDocsDynamicContainer + '\n</div>');
+
+const haDocsInteractiveScript = `
+<!-- Add Doctor Modal -->
+<div id="addDoctorModal" style="display:none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 20px; max-width: 660px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #E2E8F0; overflow: hidden; margin: auto;">
+        <div style="background: linear-gradient(135deg, #EDE7F6, #F3E8FF); padding: 1.5rem 1.75rem; border-bottom: 1px solid #E9D5FF; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #8070A6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #1E1B4B; margin: 0;">Add Doctor to Roster</h3>
+                    <p style="font-size: 0.82rem; color: #6B7280; margin: 2px 0 0 0;">Hospital Admin credentialing for MediCare City Hospital</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddDoctorModal()" style="background: transparent; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        
+        <form id="addDoctorForm" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Doctor Name <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="docNameInput" placeholder="e.g. Dr. Priya Nair" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Department / Specialty <span style="color:#DC2626;">*</span></label>
+                    <select id="docDeptInput" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Orthopedics">Orthopedics</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Gynecology">Gynecology</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Ophthalmology">Ophthalmology</option>
+                        <option value="General Medicine" selected>General Medicine</option>
+                        <option value="ENT">ENT</option>
+                        <option value="Pulmonology">Pulmonology</option>
+                        <option value="Nephrology">Nephrology</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Degrees &amp; Qualifications <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="docQualInput" placeholder="e.g. MBBS, MD, DM (Cardiology)" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Experience (Yrs)</label>
+                    <input type="number" id="docExpInput" placeholder="8" min="1" max="50" value="8"
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Consultation Fee (INR) <span style="color:#DC2626;">*</span></label>
+                    <input type="number" id="docFeeInput" placeholder="600" min="100" step="50" value="650" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">OPD Room / Cabin</label>
+                    <input type="text" id="docRoomInput" placeholder="Room 105" value="Room 105"
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Doctor Official Email <span style="color:#DC2626;">*</span></label>
+                    <input type="email" id="docEmailInput" placeholder="doctor.name@healix.com" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Phone Number <span style="color:#DC2626;">*</span></label>
+                    <input type="tel" id="docPhoneInput" placeholder="+91 98765 00000" value="+91 98765 " required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">OPD Timings &amp; Availability</label>
+                <input type="text" id="docScheduleInput" placeholder="Mon-Sat: 09:00 AM - 01:00 PM" value="Mon-Sat: 09:00 AM - 01:00 PM"
+                       style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Clinical Bio &amp; Specialty Focus</label>
+                <textarea id="docBioInput" rows="2" placeholder="Brief clinical background and specialty interest…"
+                          style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; resize: vertical;">Experienced clinical specialist focused on high-quality evidence-based patient consultations.</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid #E5E7EB;">
+                <button type="button" onclick="closeAddDoctorModal()" class="btn" style="border: 1px solid #D1D5DB; background: #fff; color: #4B5563; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Cancel
+                </button>
+                <button type="submit" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="bi bi-person-check-fill"></i> Save &amp; Add Doctor
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderDoctors() {
+        const list = HealixStore.getHospitalDoctors();
+        const container = document.getElementById('haDoctorsTableContainer');
+        const badge = document.getElementById('haDocCountBadge');
+        if (badge) badge.innerText = list.length + ' Doctors';
+
+        if (!list || list.length === 0) {
+            container.innerHTML = \`
+                <div style="color: #6B7280; text-align: center; padding: 3rem 1rem;">
+                    <i class="bi bi-person-slash" style="font-size: 2.5rem; color: #D1D5DB; display: block; margin-bottom: 0.75rem;"></i>
+                    <h4 style="font-size: 1.1rem; color: #374151; margin-bottom: 0.25rem;">No Doctors Registered</h4>
+                    <p style="font-size: 0.88rem; color: #9CA3AF;">Click "+ Add Doctor" above to onboard your first medical specialist.</p>
+                </div>
+            \`;
+            return;
+        }
+
+        let tableHtml = \`
+            <table id="doctorsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.85rem 1rem;">Doctor / Specialist</th>
+                        <th style="padding: 0.85rem 1rem;">Department</th>
+                        <th style="padding: 0.85rem 1rem;">Qualifications &amp; Exp</th>
+                        <th style="padding: 0.85rem 1rem;">OPD Room</th>
+                        <th style="padding: 0.85rem 1rem;">Consultation Fee</th>
+                        <th style="padding: 0.85rem 1rem;">Schedule</th>
+                        <th style="padding: 0.85rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        \`;
+
+        list.forEach(doc => {
+            const rawName = doc.name.replace(/^Dr\\.\\s*/i, '');
+            const initial = rawName.charAt(0).toUpperCase() || 'D';
+            tableHtml += \`
+                <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; border: 1px solid #DDD6FE;">
+                                \${initial}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #111827;">\${doc.name}</div>
+                                <div style="font-size: 0.78rem; color: #6B7280;">\${doc.id} • \${doc.email}</div>
+                                <div style="font-size: 0.74rem; color: #9CA3AF;">\${doc.phone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <span style="background: #EFF6FF; color: #1D4ED8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                            \${doc.department}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; color: #4B5563;">
+                        <div style="font-weight: 600; color: #1E293B;">\${doc.qualification}</div>
+                        <div style="font-size: 0.78rem; color: #64748B;">\${doc.experienceYears} Years Experience</div>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <span style="background: #F1F5F9; color: #334155; padding: 3px 8px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;">
+                            \${doc.room || 'Room 101'}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; font-weight: 700; color: #059669;">
+                        ₹\${Number(doc.consultationFee).toFixed(2)}
+                    </td>
+                    <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">
+                        \${doc.availability || 'Mon - Sat'}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">
+                            \${doc.status || 'ACTIVE'}
+                        </span>
+                    </td>
+                </tr>
+            \`;
+        });
+
+        tableHtml += \`
+                </tbody>
+            </table>
+        \`;
+
+        container.innerHTML = tableHtml;
+    }
+
+    function filterDoctors() {
+        const input = document.getElementById("doctorSearch").value.toLowerCase();
+        const rows = document.querySelectorAll("#doctorsTable tbody tr");
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    function openAddDoctorModal() {
+        document.getElementById('addDoctorModal').style.display = 'flex';
+        document.getElementById('docNameInput').focus();
+    }
+
+    function closeAddDoctorModal() {
+        document.getElementById('addDoctorModal').style.display = 'none';
+        document.getElementById('addDoctorForm').reset();
+    }
+
+    document.getElementById('addDoctorForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const rawName = document.getElementById('docNameInput').value.trim();
+        const docName = rawName.startsWith('Dr.') ? rawName : 'Dr. ' + rawName;
+        const dept = document.getElementById('docDeptInput').value;
+        const qual = document.getElementById('docQualInput').value.trim();
+        const exp = document.getElementById('docExpInput').value;
+        const fee = document.getElementById('docFeeInput').value;
+        const room = document.getElementById('docRoomInput').value.trim();
+        const email = document.getElementById('docEmailInput').value.trim();
+        const phone = document.getElementById('docPhoneInput').value.trim();
+        const schedule = document.getElementById('docScheduleInput').value.trim();
+        const bio = document.getElementById('docBioInput').value.trim();
+
+        const createdDoc = HealixStore.addHospitalDoctor({
+            name: docName,
+            department: dept,
+            qualification: qual,
+            experienceYears: exp,
+            consultationFee: fee,
+            room: room,
+            email: email,
+            phone: phone,
+            availability: schedule,
+            bio: bio,
+            hospital: 'MediCare City Hospital',
+            hospitalCode: 'TRV-HOSP-01'
+        });
+
+        closeAddDoctorModal();
+        renderDoctors();
+
+        alert('Success: ' + createdDoc.name + ' has been credentialed and added to MediCare City Hospital directory!');
+    });
+
+    // Check query params for quick action
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'add' || urlParams.get('action') === 'addDoctor') {
+        openAddDoctorModal();
+    }
+
+    renderDoctors();
+</script>
+`;
+
+haDocsHtml = haDocsHtml.replace('</body>', `${haDocsInteractiveScript}</body>`);
 writePage('hospital-admin/doctors/index.html', haDocsHtml);
 
 // ----------------------------------------------------
@@ -3808,6 +4103,25 @@ writePage('hospital-admin/payments/index.html', haPaymentsHtml);
 const rawSaDash = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'super-admin', 'dashboard.html'), 'utf8');
 let saDashHtml = cleanThymeleaf(rawSaDash);
 
+// Update Header with Add Hospital Admin Action
+const saDashHeaderHtml = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0 0 4px 0;">Platform Operations Dashboard</h2>
+            <p style="color: #6B7280; font-size: 0.95rem; margin: 0;">Multi-hospital network management and administrative delegation across Thiruvananthapuram district.</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="openAddAdminModal()" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.6rem 1.35rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(128,112,166,0.25); cursor: pointer;">
+                <i class="bi bi-shield-plus"></i> Add Hospital Admin
+            </button>
+            <a href="/super-admin/hospitals" class="ref-pill-btn" style="padding: 0.55rem 1.25rem; font-size: 0.85rem; text-decoration: none;">
+                <i class="bi bi-hospital"></i> Register Hospital
+            </a>
+        </div>
+    </div>
+`;
+saDashHtml = saDashHtml.replace(/<div style="margin-bottom: 2rem;">\s*<h2 style="font-size: 2rem; font-weight: 800; color: #111827;">Platform Operations Dashboard<\/h2>\s*<p style="color: #6B7280; font-size: 0\.95rem;">Multi-hospital network management across Thiruvananthapuram district\.<\/p>\s*<\/div>/, saDashHeaderHtml);
+
 const saHospitalRowsHtml = `
     <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
         <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#EDE7F6;color:#5E35B1;font-weight:700;">TRV-HOSP-01</span></td>
@@ -3853,6 +4167,256 @@ const saHospitalRowsHtml = `
     </tr>
 `;
 saDashHtml = saDashHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${saHospitalRowsHtml}</tbody>`);
+
+// Add Hospital Administrators Section
+const saAdminsSectionHtml = `
+    <!-- Hospital Administrators Directory (Scoped Authority) -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 4px 0;">Hospital Administrators (Scoped Authority)</h3>
+                <p style="color: #6B7280; font-size: 0.85rem; margin: 0;">Super Admin delegates administration per hospital. Hospital Admins can only add doctors for their designated facility.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="position: relative;">
+                    <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                    <input type="text" id="saAdminSearch" placeholder="Search administrator…" 
+                           style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 220px; background: #fff;"
+                           onkeyup="filterHospitalAdmins()"/>
+                </div>
+                <span id="saAdminCountBadge" class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: #EDE7F6; color: #5E35B1; font-weight: 700;">3 Administrators</span>
+                <button type="button" onclick="openAddAdminModal()" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(128,112,166,0.25); cursor: pointer;">
+                    <i class="bi bi-shield-plus"></i> Add Hospital Admin
+                </button>
+            </div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table id="saAdminsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.75rem 1rem;">Administrator</th>
+                        <th style="padding: 0.75rem 1rem;">Assigned Hospital</th>
+                        <th style="padding: 0.75rem 1rem;">Official Designation</th>
+                        <th style="padding: 0.75rem 1rem;">Authority Scope</th>
+                        <th style="padding: 0.75rem 1rem;">Status</th>
+                        <th style="padding: 0.75rem 1rem;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="saAdminsTbody"></tbody>
+            </table>
+        </div>
+    </div>
+`;
+
+saDashHtml = saDashHtml.replace(/<\/div>\s*<\/div>\s*<\/body>/, `${saAdminsSectionHtml}</div></div></body>`);
+
+const saDashInteractiveScript = `
+<!-- Add Hospital Admin Modal -->
+<div id="addAdminModal" style="display:none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 20px; max-width: 620px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #E2E8F0; overflow: hidden; margin: auto;">
+        <div style="background: linear-gradient(135deg, #EDE7F6, #F3E8FF); padding: 1.5rem 1.75rem; border-bottom: 1px solid #E9D5FF; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #8070A6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="bi bi-shield-plus"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #1E1B4B; margin: 0;">Add Hospital Administrator</h3>
+                    <p style="font-size: 0.82rem; color: #6B7280; margin: 2px 0 0 0;">Super Admin Platform Provisioning</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddAdminModal()" style="background: transparent; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        
+        <form id="addAdminForm" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.1rem;">
+            <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: #92400E; display: flex; align-items: center; gap: 10px;">
+                <i class="bi bi-info-circle-fill" style="color: #D97706; font-size: 1.2rem;"></i>
+                <span><strong>Role Governance:</strong> Hospital Admins have scoped authority strictly for their designated hospital (e.g. adding doctors) and cannot add other administrators.</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Administrator Name <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="adminNameInput" placeholder="e.g. Sandeep Krishnan" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Official Email <span style="color:#DC2626;">*</span></label>
+                    <input type="email" id="adminEmailInput" placeholder="sandeep.admin@healix.com" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Phone Number <span style="color:#DC2626;">*</span></label>
+                    <input type="tel" id="adminPhoneInput" placeholder="+91 98765 88990" value="+91 98765 " required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Assigned Hospital <span style="color:#DC2626;">*</span></label>
+                    <select id="adminHospSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="MediCare City Hospital|TRV-HOSP-01">MediCare City Hospital (TRV-HOSP-01)</option>
+                        <option value="Trivandrum Medical Trust|TRV-HOSP-02">Trivandrum Medical Trust (TRV-HOSP-02)</option>
+                        <option value="Sree Chitra Speciality Hospital|TRV-HOSP-03">Sree Chitra Speciality Hospital (TRV-HOSP-03)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Designation / Title <span style="color:#DC2626;">*</span></label>
+                    <select id="adminDesignationSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="Chief Administrative Officer">Chief Administrative Officer</option>
+                        <option value="Hospital Operations Director">Hospital Operations Director</option>
+                        <option value="Medical Superintendent">Medical Superintendent</option>
+                        <option value="Clinical Registrar & Administrator">Clinical Registrar & Administrator</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Authority Scope <span style="color:#DC2626;">*</span></label>
+                    <select id="adminPermissionsSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="Full Management (Doctors, Staff, Billing)">Full Management (Doctors, Staff, Billing)</option>
+                        <option value="Clinical Staff & Doctor Onboarding Only">Clinical Staff & Doctor Onboarding Only</option>
+                        <option value="Billing & OPD Queue Management">Billing & OPD Queue Management</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #334155;">Default Officer Credentials</div>
+                    <div style="font-size: 0.75rem; color: #64748B;">Preconfigured password: <code style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Admin@123</code></div>
+                </div>
+                <span class="hospital-badge" style="background: #D1FAE5; color: #065F46; font-size: 0.75rem;">ROLE: HOSPITAL_ADMIN</span>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid #E5E7EB;">
+                <button type="button" onclick="closeAddAdminModal()" class="btn" style="border: 1px solid #D1D5DB; background: #fff; color: #4B5563; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Cancel
+                </button>
+                <button type="submit" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="bi bi-shield-check"></i> Provision Administrator
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderHospitalAdmins() {
+        const list = HealixStore.getHospitalAdmins();
+        const tbody = document.getElementById('saAdminsTbody');
+        const badge = document.getElementById('saAdminCountBadge');
+        if (badge) badge.innerText = list.length + ' Administrators';
+
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        list.forEach(adm => {
+            const initial = adm.name.charAt(0).toUpperCase() || 'A';
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid #F3F4F6';
+            tr.style.fontSize = '0.9rem';
+            tr.innerHTML = \`
+                <td style="padding: 0.85rem 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; border: 1px solid #DDD6FE;">
+                            \${initial}
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: #111827;">\${adm.name}</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">\${adm.id} • \${adm.email}</div>
+                            <div style="font-size: 0.74rem; color: #9CA3AF;">\${adm.phone}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <div style="font-weight: 600; color: #1E293B;">\${adm.hospital}</div>
+                    <span class="hospital-badge" style="background: #EDE7F6; color: #5E35B1; font-size: 0.75rem;">\${adm.hospitalCode}</span>
+                </td>
+                <td style="padding: 0.85rem 1rem; color: #4B5563; font-weight: 500;">
+                    \${adm.designation}
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span style="background: #F1F5F9; color: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                        \${adm.permissions}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span class="hospital-badge" style="background: #D1FAE5; color: #065F46; font-size: 0.75rem;">
+                        \${adm.status || 'ACTIVE'}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <a href="/hospital-admin/dashboard" class="btn" style="border: 1px solid #D1D5DB; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: #374151; background: #fff;">
+                        <i class="bi bi-box-arrow-in-right"></i> Switch Scope
+                    </a>
+                </td>
+            \`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterHospitalAdmins() {
+        const input = document.getElementById("saAdminSearch").value.toLowerCase();
+        const rows = document.querySelectorAll("#saAdminsTable tbody tr");
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    function openAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'flex';
+        document.getElementById('adminNameInput').focus();
+    }
+
+    function closeAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'none';
+        document.getElementById('addAdminForm').reset();
+    }
+
+    document.getElementById('addAdminForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('adminNameInput').value.trim();
+        const email = document.getElementById('adminEmailInput').value.trim();
+        const phone = document.getElementById('adminPhoneInput').value.trim();
+        const hospVal = document.getElementById('adminHospSelect').value.split('|');
+        const hospital = hospVal[0];
+        const hospitalCode = hospVal[1];
+        const designation = document.getElementById('adminDesignationSelect').value;
+        const permissions = document.getElementById('adminPermissionsSelect').value;
+
+        const newAdmin = HealixStore.addHospitalAdmin({
+            name: name,
+            email: email,
+            phone: phone,
+            hospital: hospital,
+            hospitalCode: hospitalCode,
+            designation: designation,
+            permissions: permissions
+        });
+
+        closeAddAdminModal();
+        renderHospitalAdmins();
+
+        alert('Success: Hospital Administrator ' + newAdmin.name + ' (' + newAdmin.id + ') has been provisioned with scoped authority for ' + hospital + '!');
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'addAdmin') {
+        openAddAdminModal();
+    }
+
+    renderHospitalAdmins();
+</script>
+`;
+
+saDashHtml = saDashHtml.replace('</body>', `${saDashInteractiveScript}</body>`);
 writePage('super-admin/dashboard/index.html', saDashHtml);
 
 // ----------------------------------------------------
@@ -3860,6 +4424,22 @@ writePage('super-admin/dashboard/index.html', saDashHtml);
 // ----------------------------------------------------
 const rawSaHosps = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'super-admin', 'hospitals.html'), 'utf8');
 let saHospsHtml = cleanThymeleaf(rawSaHosps);
+
+// Add action button to Add Hospital Admin in super-admin/hospitals header
+const saHospsHeaderHtml = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: #111827; margin-bottom: 0.25rem;">Register New Hospital Institution</h2>
+            <p style="color: #6B7280; font-size: 0.95rem;">Add hospitals in Thiruvananthapuram to the common network platform.</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/super-admin/dashboard?action=addAdmin" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(128,112,166,0.25); text-decoration: none;">
+                <i class="bi bi-shield-plus"></i> Add Hospital Admin
+            </a>
+        </div>
+    </div>
+`;
+saHospsHtml = saHospsHtml.replace(/<div style="margin-bottom: 2rem;">\s*<h2 style="font-size: 1\.8rem; font-weight: 800; color: #111827; margin-bottom: 0\.25rem;">Register New Hospital Institution<\/h2>\s*<p style="color: #6B7280; font-size: 0\.95rem;">Add hospitals in Thiruvananthapuram to the common network platform\.<\/p>\s*<\/div>/, saHospsHeaderHtml);
 
 const saHospsScript = `
 <script>

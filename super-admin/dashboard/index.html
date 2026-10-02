@@ -29,10 +29,22 @@
 </nav>
 
 <div style="max-width: 1200px; margin: 2.5rem auto; padding: 0 1rem;">
-    <div style="margin-bottom: 2rem;">
-        <h2 style="font-size: 2rem; font-weight: 800; color: #111827;">Platform Operations Dashboard</h2>
-        <p style="color: #6B7280; font-size: 0.95rem;">Multi-hospital network management across Thiruvananthapuram district.</p>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0 0 4px 0;">Platform Operations Dashboard</h2>
+            <p style="color: #6B7280; font-size: 0.95rem; margin: 0;">Multi-hospital network management and administrative delegation across Thiruvananthapuram district.</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="openAddAdminModal()" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.6rem 1.35rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(128,112,166,0.25); cursor: pointer;">
+                <i class="bi bi-shield-plus"></i> Add Hospital Admin
+            </button>
+            <a href="/super-admin/hospitals" class="ref-pill-btn" style="padding: 0.55rem 1.25rem; font-size: 0.85rem; text-decoration: none;">
+                <i class="bi bi-hospital"></i> Register Hospital
+            </a>
+        </div>
     </div>
+
 
     <!-- Stats Grid -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
@@ -124,8 +136,246 @@
 </tbody>
             </table>
         </div>
+    
+    <!-- Hospital Administrators Directory (Scoped Authority) -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 4px 0;">Hospital Administrators (Scoped Authority)</h3>
+                <p style="color: #6B7280; font-size: 0.85rem; margin: 0;">Super Admin delegates administration per hospital. Hospital Admins can only add doctors for their designated facility.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="position: relative;">
+                    <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                    <input type="text" id="saAdminSearch" placeholder="Search administrator…" 
+                           style="padding: 0.55rem 1rem 0.55rem 2.25rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; width: 220px; background: #fff;"
+                           onkeyup="filterHospitalAdmins()"/>
+                </div>
+                <span id="saAdminCountBadge" class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: #EDE7F6; color: #5E35B1; font-weight: 700;">3 Administrators</span>
+                <button type="button" onclick="openAddAdminModal()" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(128,112,166,0.25); cursor: pointer;">
+                    <i class="bi bi-shield-plus"></i> Add Hospital Admin
+                </button>
+            </div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table id="saAdminsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.75rem 1rem;">Administrator</th>
+                        <th style="padding: 0.75rem 1rem;">Assigned Hospital</th>
+                        <th style="padding: 0.75rem 1rem;">Official Designation</th>
+                        <th style="padding: 0.75rem 1rem;">Authority Scope</th>
+                        <th style="padding: 0.75rem 1rem;">Status</th>
+                        <th style="padding: 0.75rem 1rem;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="saAdminsTbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div></div>
+<!-- Add Hospital Admin Modal -->
+<div id="addAdminModal" style="display:none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 20px; max-width: 620px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #E2E8F0; overflow: hidden; margin: auto;">
+        <div style="background: linear-gradient(135deg, #EDE7F6, #F3E8FF); padding: 1.5rem 1.75rem; border-bottom: 1px solid #E9D5FF; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #8070A6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="bi bi-shield-plus"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #1E1B4B; margin: 0;">Add Hospital Administrator</h3>
+                    <p style="font-size: 0.82rem; color: #6B7280; margin: 2px 0 0 0;">Super Admin Platform Provisioning</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddAdminModal()" style="background: transparent; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        
+        <form id="addAdminForm" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.1rem;">
+            <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: #92400E; display: flex; align-items: center; gap: 10px;">
+                <i class="bi bi-info-circle-fill" style="color: #D97706; font-size: 1.2rem;"></i>
+                <span><strong>Role Governance:</strong> Hospital Admins have scoped authority strictly for their designated hospital (e.g. adding doctors) and cannot add other administrators.</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Administrator Name <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="adminNameInput" placeholder="e.g. Sandeep Krishnan" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Official Email <span style="color:#DC2626;">*</span></label>
+                    <input type="email" id="adminEmailInput" placeholder="sandeep.admin@healix.com" required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Phone Number <span style="color:#DC2626;">*</span></label>
+                    <input type="tel" id="adminPhoneInput" placeholder="+91 98765 88990" value="+91 98765 " required
+                           style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box;"/>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Assigned Hospital <span style="color:#DC2626;">*</span></label>
+                    <select id="adminHospSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="MediCare City Hospital|TRV-HOSP-01">MediCare City Hospital (TRV-HOSP-01)</option>
+                        <option value="Trivandrum Medical Trust|TRV-HOSP-02">Trivandrum Medical Trust (TRV-HOSP-02)</option>
+                        <option value="Sree Chitra Speciality Hospital|TRV-HOSP-03">Sree Chitra Speciality Hospital (TRV-HOSP-03)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Designation / Title <span style="color:#DC2626;">*</span></label>
+                    <select id="adminDesignationSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="Chief Administrative Officer">Chief Administrative Officer</option>
+                        <option value="Hospital Operations Director">Hospital Operations Director</option>
+                        <option value="Medical Superintendent">Medical Superintendent</option>
+                        <option value="Clinical Registrar & Administrator">Clinical Registrar & Administrator</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #374151; margin-bottom: 4px;">Authority Scope <span style="color:#DC2626;">*</span></label>
+                    <select id="adminPermissionsSelect" required
+                            style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.88rem; outline: none; box-sizing: border-box; background: #fff;">
+                        <option value="Full Management (Doctors, Staff, Billing)">Full Management (Doctors, Staff, Billing)</option>
+                        <option value="Clinical Staff & Doctor Onboarding Only">Clinical Staff & Doctor Onboarding Only</option>
+                        <option value="Billing & OPD Queue Management">Billing & OPD Queue Management</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #334155;">Default Officer Credentials</div>
+                    <div style="font-size: 0.75rem; color: #64748B;">Preconfigured password: <code style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Admin@123</code></div>
+                </div>
+                <span class="hospital-badge" style="background: #D1FAE5; color: #065F46; font-size: 0.75rem;">ROLE: HOSPITAL_ADMIN</span>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid #E5E7EB;">
+                <button type="button" onclick="closeAddAdminModal()" class="btn" style="border: 1px solid #D1D5DB; background: #fff; color: #4B5563; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Cancel
+                </button>
+                <button type="submit" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="bi bi-shield-check"></i> Provision Administrator
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
+<script src="/js/clinical-store.js"></script>
+<script>
+    function renderHospitalAdmins() {
+        const list = HealixStore.getHospitalAdmins();
+        const tbody = document.getElementById('saAdminsTbody');
+        const badge = document.getElementById('saAdminCountBadge');
+        if (badge) badge.innerText = list.length + ' Administrators';
+
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        list.forEach(adm => {
+            const initial = adm.name.charAt(0).toUpperCase() || 'A';
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid #F3F4F6';
+            tr.style.fontSize = '0.9rem';
+            tr.innerHTML = `
+                <td style="padding: 0.85rem 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; border: 1px solid #DDD6FE;">
+                            ${initial}
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: #111827;">${adm.name}</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">${adm.id} • ${adm.email}</div>
+                            <div style="font-size: 0.74rem; color: #9CA3AF;">${adm.phone}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <div style="font-weight: 600; color: #1E293B;">${adm.hospital}</div>
+                    <span class="hospital-badge" style="background: #EDE7F6; color: #5E35B1; font-size: 0.75rem;">${adm.hospitalCode}</span>
+                </td>
+                <td style="padding: 0.85rem 1rem; color: #4B5563; font-weight: 500;">
+                    ${adm.designation}
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span style="background: #F1F5F9; color: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                        ${adm.permissions}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span class="hospital-badge" style="background: #D1FAE5; color: #065F46; font-size: 0.75rem;">
+                        ${adm.status || 'ACTIVE'}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <a href="/hospital-admin/dashboard" class="btn" style="border: 1px solid #D1D5DB; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: #374151; background: #fff;">
+                        <i class="bi bi-box-arrow-in-right"></i> Switch Scope
+                    </a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterHospitalAdmins() {
+        const input = document.getElementById("saAdminSearch").value.toLowerCase();
+        const rows = document.querySelectorAll("#saAdminsTable tbody tr");
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    function openAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'flex';
+        document.getElementById('adminNameInput').focus();
+    }
+
+    function closeAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'none';
+        document.getElementById('addAdminForm').reset();
+    }
+
+    document.getElementById('addAdminForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('adminNameInput').value.trim();
+        const email = document.getElementById('adminEmailInput').value.trim();
+        const phone = document.getElementById('adminPhoneInput').value.trim();
+        const hospVal = document.getElementById('adminHospSelect').value.split('|');
+        const hospital = hospVal[0];
+        const hospitalCode = hospVal[1];
+        const designation = document.getElementById('adminDesignationSelect').value;
+        const permissions = document.getElementById('adminPermissionsSelect').value;
+
+        const newAdmin = HealixStore.addHospitalAdmin({
+            name: name,
+            email: email,
+            phone: phone,
+            hospital: hospital,
+            hospitalCode: hospitalCode,
+            designation: designation,
+            permissions: permissions
+        });
+
+        closeAddAdminModal();
+        renderHospitalAdmins();
+
+        alert('Success: Hospital Administrator ' + newAdmin.name + ' (' + newAdmin.id + ') has been provisioned with scoped authority for ' + hospital + '!');
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'addAdmin') {
+        openAddAdminModal();
+    }
+
+    renderHospitalAdmins();
+</script>
 </body>
 </html>

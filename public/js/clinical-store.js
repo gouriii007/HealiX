@@ -136,6 +136,171 @@ const HealixStore = {
                 bio: "Senior interventional cardiologist with 15+ years of clinical experience in preventative and interventional cardiology."
             }));
         }
+
+        if (!localStorage.getItem('healix_hospital_doctors')) {
+            localStorage.setItem('healix_hospital_doctors', JSON.stringify([
+                {
+                    id: "DOC-TRV-001",
+                    name: "Dr. Rajesh Kumar",
+                    email: "doctor@healix.com",
+                    phone: "+91 98765 01234",
+                    department: "Cardiology",
+                    qualification: "MBBS, MD, DM (Cardiology)",
+                    experienceYears: 15,
+                    room: "Room 104",
+                    consultationFee: 800,
+                    hospital: "MediCare City Hospital",
+                    hospitalCode: "TRV-HOSP-01",
+                    availability: "Mon-Sat: 09:00 AM - 01:00 PM",
+                    status: "ACTIVE"
+                },
+                {
+                    id: "DOC-TRV-002",
+                    name: "Dr. Priya Nair",
+                    email: "priya.nair@healix.com",
+                    phone: "+91 98765 02234",
+                    department: "Neurology",
+                    qualification: "MBBS, MD, DM (Neurology)",
+                    experienceYears: 10,
+                    room: "Room 202",
+                    consultationFee: 900,
+                    hospital: "MediCare City Hospital",
+                    hospitalCode: "TRV-HOSP-01",
+                    availability: "Mon-Fri: 10:00 AM - 02:00 PM",
+                    status: "ACTIVE"
+                },
+                {
+                    id: "DOC-TRV-003",
+                    name: "Dr. Suresh Menon",
+                    email: "suresh.menon@healix.com",
+                    phone: "+91 98765 03234",
+                    department: "Orthopedics",
+                    qualification: "MBBS, MS (Ortho), M.Ch",
+                    experienceYears: 12,
+                    room: "Room 108",
+                    consultationFee: 750,
+                    hospital: "MediCare City Hospital",
+                    hospitalCode: "TRV-HOSP-01",
+                    availability: "Mon-Sat: 09:00 AM - 01:00 PM",
+                    status: "ACTIVE"
+                },
+                {
+                    id: "DOC-TRV-008",
+                    name: "Dr. Anita Sen",
+                    email: "anita.sen@healix.com",
+                    phone: "+91 98765 08234",
+                    department: "General Medicine",
+                    qualification: "MBBS, MD (General Medicine)",
+                    experienceYears: 9,
+                    room: "Room 101",
+                    consultationFee: 500,
+                    hospital: "MediCare City Hospital",
+                    hospitalCode: "TRV-HOSP-01",
+                    availability: "Mon-Sat: 08:30 AM - 01:30 PM",
+                    status: "ACTIVE"
+                }
+            ]));
+        }
+
+        if (!localStorage.getItem('healix_hospital_admins')) {
+            localStorage.setItem('healix_hospital_admins', JSON.stringify([
+                {
+                    id: "ADM-TRV-001",
+                    name: "Arun Varma",
+                    email: "admin.medicare@healix.com",
+                    phone: "+91 98765 11001",
+                    hospital: "MediCare City Hospital",
+                    hospitalCode: "TRV-HOSP-01",
+                    designation: "Chief Administrative Officer",
+                    permissions: "Full Management (Doctors, Staff, Billing)",
+                    status: "ACTIVE",
+                    joinedDate: "12 Jan 2025"
+                },
+                {
+                    id: "ADM-TRV-002",
+                    name: "Radhika Pillai",
+                    email: "admin.tmt@healix.com",
+                    phone: "+91 98765 22002",
+                    hospital: "Trivandrum Medical Trust",
+                    hospitalCode: "TRV-HOSP-02",
+                    designation: "Hospital Operations Director",
+                    permissions: "Clinical & Staff Operations",
+                    status: "ACTIVE",
+                    joinedDate: "05 Mar 2025"
+                },
+                {
+                    id: "ADM-TRV-003",
+                    name: "Dr. George Varghese",
+                    email: "admin.kims@healix.com",
+                    phone: "+91 98765 33003",
+                    hospital: "Sree Chitra Speciality Hospital",
+                    hospitalCode: "TRV-HOSP-03",
+                    designation: "Medical Superintendent",
+                    permissions: "Full Hospital Administration",
+                    status: "ACTIVE",
+                    joinedDate: "18 Jun 2025"
+                }
+            ]));
+        }
+    },
+
+    getHospitalDoctors() {
+        this.init();
+        return JSON.parse(localStorage.getItem('healix_hospital_doctors') || '[]');
+    },
+    saveHospitalDoctors(list) {
+        localStorage.setItem('healix_hospital_doctors', JSON.stringify(list));
+    },
+    addHospitalDoctor(data) {
+        const list = this.getHospitalDoctors();
+        const newDocId = 'DOC-TRV-' + String(Math.floor(100 + Math.random() * 900));
+        const newDoctor = {
+            id: newDocId,
+            name: data.name.startsWith('Dr.') ? data.name : 'Dr. ' + data.name,
+            email: data.email || 'doctor@healix.com',
+            phone: data.phone || '+91 98765 00000',
+            department: data.department || 'General Medicine',
+            qualification: data.qualification || 'MBBS, MD',
+            experienceYears: Number(data.experienceYears) || 5,
+            room: data.room || 'Room 105',
+            consultationFee: Number(data.consultationFee) || 500,
+            hospital: data.hospital || 'MediCare City Hospital',
+            hospitalCode: data.hospitalCode || 'TRV-HOSP-01',
+            availability: data.availability || 'Mon-Sat: 09:00 AM - 01:00 PM',
+            bio: data.bio || 'Clinical specialist consultant.',
+            status: 'ACTIVE'
+        };
+        list.unshift(newDoctor);
+        this.saveHospitalDoctors(list);
+        return newDoctor;
+    },
+
+    getHospitalAdmins() {
+        this.init();
+        return JSON.parse(localStorage.getItem('healix_hospital_admins') || '[]');
+    },
+    saveHospitalAdmins(list) {
+        localStorage.setItem('healix_hospital_admins', JSON.stringify(list));
+    },
+    addHospitalAdmin(data) {
+        const list = this.getHospitalAdmins();
+        const newAdmId = 'ADM-TRV-' + String(Math.floor(10 + Math.random() * 90)).padStart(3, '0');
+        const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        const newAdmin = {
+            id: newAdmId,
+            name: data.name,
+            email: data.email,
+            phone: data.phone || '+91 98765 00000',
+            hospital: data.hospital || 'MediCare City Hospital',
+            hospitalCode: data.hospitalCode || 'TRV-HOSP-01',
+            designation: data.designation || 'Hospital Administrator',
+            permissions: data.permissions || 'Full Management (Doctors, Staff, Billing)',
+            status: 'ACTIVE',
+            joinedDate: todayStr
+        };
+        list.unshift(newAdmin);
+        this.saveHospitalAdmins(list);
+        return newAdmin;
     },
 
     getAppointments() {
