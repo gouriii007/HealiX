@@ -26,7 +26,7 @@
             <a href="/doctor/profile" class="nav-item"><i class="bi bi-person-circle nav-icon"></i> Profile</a>
             <a href="/doctor/notifications" class="nav-item">
                 <i class="bi bi-bell nav-icon"></i> Notifications
-                <span class="badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">0</span>
+                <span class="badge"  >0</span>
             </a>
         </nav>
         <div class="sidebar-footer"><a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.6);"><i class="bi bi-box-arrow-left nav-icon"></i> Logout</a></div>
@@ -35,13 +35,13 @@
         <header class="top-header">
             <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
             <div>
-                <div class="header-title">Good Morning, <span id="docHeaderName">Dr. Rajesh Kumar</span></div>
-                <div class="header-subtitle" th:text="Friday, October 2, 2026">Today</div>
+                <div class="header-title">Good Morning, <span >Doctor</span></div>
+                <div class="header-subtitle" >Today</div>
             </div>
             <div class="header-actions">
                 <a href="/doctor/notifications" class="header-btn" title="Notifications">
                     <i class="bi bi-bell"></i>
-                    <span class="notif-dot" th:if="${unreadCount != null and unreadCount > 0}"></span>
+                    <span class="notif-dot" ></span>
                 </a>
                 <div class="avatar avatar-sm" style="background:#6366F1;color:#fff;"
                      >D</div>
@@ -54,28 +54,28 @@
                 <div class="stat-card">
                     <div class="stat-icon indigo"><i class="bi bi-calendar-day-fill"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" id="docStatToday">3</div>
+                        <div class="stat-value" >0</div>
                         <div class="stat-label">Today's Appointments</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" id="docStatPending">1</div>
+                        <div class="stat-value" >0</div>
                         <div class="stat-label">Pending</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon blue"><i class="bi bi-calendar-check-fill"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" id="docStatConfirmed">2</div>
+                        <div class="stat-value" >0</div>
                         <div class="stat-label">Confirmed</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
                     <div class="stat-info">
-                        <div class="stat-value" id="docStatCompleted">5</div>
+                        <div class="stat-value" >0</div>
                         <div class="stat-label">Completed</div>
                     </div>
                 </div>
@@ -90,29 +90,29 @@
                     </div>
                     <div class="card-body">
                         <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
-                            <div class="avatar avatar-lg" style="background:#6366F1;color:#fff;" th:text="${#strings.substring(doctor.name, 0, 1)}">D</div>
+                            <div class="avatar avatar-lg" style="background:#6366F1;color:#fff;" >D</div>
                             <div>
-                                <div style="font-size:1.1rem;font-weight:700;" id="docCardName">Dr. Rajesh Kumar</div>
-                                <div style="color:#6366F1;font-weight:600;font-size:0.875rem;" id="docCardSpec">Senior Cardiologist</div>
-                                <div style="color:#9CA3AF;font-size:0.78rem;" id="docCardQual">MBBS, MD (Cardiology), DM (Cardiology)</div>
+                                <div style="font-size:1.1rem;font-weight:700;" >Dr. Name</div>
+                                <div style="color:#6366F1;font-weight:600;font-size:0.875rem;" >Specialization</div>
+                                <div style="color:#9CA3AF;font-size:0.78rem;" >Qualification</div>
                             </div>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:10px;">
-                            <div class="doctor-info-item" th:if="${doctor.department != null}">
+                            <div class="doctor-info-item" >
                                 <i class="bi bi-building"></i>
-                                <span id="docCardDept">Cardiology • MediCare City Hospital</span>
+                                <span >Department</span>
                             </div>
-                            <div class="doctor-info-item" th:if="${doctor.experienceYears != null}">
+                            <div class="doctor-info-item" >
                                 <i class="bi bi-award"></i>
-                                <span id="docCardExp">15 years clinical experience</span>
+                                <span >Exp</span>
                             </div>
-                            <div class="doctor-info-item" th:if="${doctor.availability != null}">
+                            <div class="doctor-info-item" >
                                 <i class="bi bi-clock"></i>
-                                <span id="docCardAvail">Mon-Sat: 9AM-1PM, 3PM-6PM (OPD Room 104)</span>
+                                <span >Availability</span>
                             </div>
                             <div class="doctor-info-item">
                                 <i class="bi bi-envelope"></i>
-                                <span id="docCardEmail">doctor@healix.com (Fee: ₹800.00)</span>
+                                <span >Email</span>
                             </div>
                         </div>
                     </div>
@@ -125,25 +125,25 @@
                         <a href="/doctor/appointments" class="btn btn-sm btn-outline">View All</a>
                     </div>
                     <div class="table-container">
-                        <table class="data-table" th:if="${todayAppointments != null and !todayAppointments.isEmpty()}">
+                        <table class="data-table" >
                             <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th></tr></thead>
                             <tbody>
                             <tr th:each="appt : ${todayAppointments}">
-                                <td style="font-weight:600;color:#6366F1;" th:text="${#temporals.format(appt.appointmentTime, 'hh:mm a')}">10:00</td>
+                                <td style="font-weight:600;color:#6366F1;" >10:00</td>
                                 <td>
-                                    <div style="font-weight:600;" th:text="${appt.patient.name}">Patient</div>
-                                    <div style="font-size:0.72rem;color:#9CA3AF;" th:text="${appt.patient.phone}">Phone</div>
+                                    <div style="font-weight:600;" >Patient</div>
+                                    <div style="font-size:0.72rem;color:#9CA3AF;" >Phone</div>
                                 </td>
                                 <td style="font-size:0.82rem;color:#4B5563;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-                                    th:text="${appt.reason}">Reason</td>
+                                    >Reason</td>
                                 <td>
                                     <span th:class="'badge badge-' + ${#strings.toLowerCase(appt.status.name())}"
-                                          th:text="${appt.status.name()}">Status</span>
+                                          >Status</span>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
-                        <div class="empty-state" th:if="${todayAppointments == null or todayAppointments.isEmpty()}">
+                        <div class="empty-state" >
                             <div class="empty-state-icon" style="font-size:2.5rem;"><i class="bi bi-calendar-check"></i></div>
                             <h3 style="font-size:0.95rem;">No appointments today</h3>
                             <p style="font-size:0.8rem;">Your schedule is clear for today.</p>

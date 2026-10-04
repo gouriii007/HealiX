@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${hospital.hospitalName} + ' | Hospital Doctors'">Hospital Doctors</title>
+    <title >Hospital Doctors</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
@@ -14,8 +14,8 @@
 <nav class="public-nav">
     <a href="/hospital-admin/dashboard" class="public-nav-brand">
         <div class="logo-icon">H</div>
-        MediCare City Hospital
-        TRV-HOSP-01
+        <span >Hospital Name</span>
+        <span class="hospital-badge" >TRV-HOSP-01</span>
     </a>
     <div class="public-nav-links">
         <a href="/hospital-admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>

@@ -36,11 +36,11 @@
     </p>
 
     <!-- Alerts -->
-    <div th:if="${success}" class="alert alert-success mb-3" style="background: #D1FAE5; color: #065F46; padding: 1rem; border-radius: 8px;">
-        <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+    <div  class="alert alert-success mb-3" style="background: #D1FAE5; color: #065F46; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-check-circle-fill"></i> <span ></span>
     </div>
-    <div th:if="${info}" class="alert alert-info mb-3" style="background: #EDE7F6; color: #5E35B1; padding: 1rem; border-radius: 8px;">
-        <i class="bi bi-info-circle-fill"></i> <span th:text="${info}"></span>
+    <div  class="alert alert-info mb-3" style="background: #EDE7F6; color: #5E35B1; padding: 1rem; border-radius: 8px;">
+        <i class="bi bi-info-circle-fill"></i> <span ></span>
     </div>
 
     <!-- Pending Requests -->
@@ -48,32 +48,45 @@
         <i class="bi bi-clock-history" style="color: #F59E0B;"></i> Pending Authorization Requests
     </h3>
 
-    
-    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 2.5rem;">
-        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+    <div  style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid #E5E7EB; text-align: center; color: #6B7280; margin-bottom: 2rem;">
+        No pending record access requests.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(pendingRequests)}" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem;">
+        <div th:each="req : ${pendingRequests}" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                 <div>
-                    <h4 style="font-size: 1.15rem; font-weight: 700; color: #111827; margin:0 0 4px;">Dr. Suresh Menon (Orthopedics)</h4>
-                    <div style="font-size: 0.85rem; color: #6B7280;">Trivandrum Medical Trust • TRV-HOSP-02</div>
+                    <h4 style="font-size: 1.15rem; font-weight: 700; color: #111827;" >Dr. Rahul Kumar</h4>
+                    <div style="font-size: 0.85rem; color: #6B7280;" >Treating Hospital</div>
                 </div>
-                <span class="badge" style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 9999px; font-weight: 700; font-size: 0.75rem;">ACTION REQUIRED</span>
+                <span class="hospital-badge" >PENDING</span>
             </div>
-            <p style="font-size: 0.88rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
-                Dr. Suresh Menon has requested temporary read-only access to your previous cardiac evaluation records and medications from MediCare City Hospital for upcoming joint replacement surgical clearance.
-            </p>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="alert('Access Granted! MediCare City Hospital records shared securely with Dr. Suresh Menon for 30 days.'); this.parentElement.innerHTML='<span style=\'color:#10B981;font-weight:700;\'><i class=\'bi bi-check-circle-fill\'></i> Authorization Granted</span>';"
-                        class="btn btn-sm btn-teal" style="background:#0D9488;color:#fff;border-radius:8px;padding:6px 16px;font-weight:600;">
-                    <i class="bi bi-shield-check"></i> Grant Access
-                </button>
-                <button onclick="alert('Access Request Denied.'); this.parentElement.innerHTML='<span style=\'color:#EF4444;font-weight:700;\'><i class=\'bi bi-x-circle-fill\'></i> Authorization Denied</span>';"
-                        class="btn btn-sm btn-outline" style="border-radius:8px;padding:6px 16px;">
-                    Decline
-                </button>
+
+            <div style="background: #F9FAFB; padding: 1rem; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 1.25rem;">
+                <div style="font-size: 0.8rem; color: #6B7280; margin-bottom: 0.25rem;">Requesting access to records from:</div>
+                <strong style="color: #111827;" >Source Hospital</strong>
+                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #4B5563;">
+                    <strong>Reason for access:</strong> <span >Continuity of treatment</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <form th:action="@{/patient/consent-requests/{id}/reject(id=${req.id})}" method="post">
+                    
+                    <button type="submit" class="btn" style="border: 1px solid #D1D5DB; color: #DC2626; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600;">
+                        Reject
+                    </button>
+                </form>
+                <form th:action="@{/patient/consent-requests/{id}/approve(id=${req.id})}" method="post">
+                    
+                    <input type="hidden" name="validDays" value="7"/>
+                    <button type="submit" class="ref-pill-btn" style="padding: 0.5rem 1.5rem;">
+                        Approve (7 Days Access)
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-</div></div>
 
 </div>
 

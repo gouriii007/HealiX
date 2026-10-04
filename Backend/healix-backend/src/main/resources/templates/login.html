@@ -131,13 +131,13 @@
         </div>
 
         <!-- Flash messages -->
-        <div th:if="${error}" class="alert alert-error w-full" style="border-radius:10px;">
+        <div id="login-error-alert" th:if="${error}" th:style="'border-radius:10px; display: flex;'" class="alert alert-error w-full" style="border-radius:10px; display: none;">
             <i class="bi bi-exclamation-circle-fill"></i>
-            <span th:text="${error}">Invalid credentials.</span>
+            <span id="login-error-text" th:text="${error}"></span>
         </div>
-        <div th:if="${success}" class="alert alert-success w-full" style="border-radius:10px;">
+        <div id="login-success-alert" th:if="${success}" th:style="'border-radius:10px; display: flex;'" class="alert alert-success w-full" style="border-radius:10px; display: none;">
             <i class="bi bi-check-circle-fill"></i>
-            <span th:text="${success}">Success!</span>
+            <span id="login-success-text" th:text="${success}"></span>
         </div>
 
         <!-- Login Form (POST handled by Spring Security) -->
@@ -225,6 +225,33 @@
         document.getElementById('email').value = email;
         document.getElementById('password').value = password;
     }
+
+    (function checkLoginAlerts() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            const errAlert = document.getElementById('login-error-alert');
+            const errText = document.getElementById('login-error-text');
+            if (errAlert && errText) {
+                errText.textContent = urlParams.get('error') || 'Invalid email or password. Please try again.';
+                errAlert.style.display = 'flex';
+            }
+        }
+        if (urlParams.has('logout')) {
+            const successAlert = document.getElementById('login-success-alert');
+            const successText = document.getElementById('login-success-text');
+            if (successAlert && successText) {
+                successText.textContent = 'You have been logged out successfully.';
+                successAlert.style.display = 'flex';
+            }
+        } else if (urlParams.has('registered') || urlParams.has('success')) {
+            const successAlert = document.getElementById('login-success-alert');
+            const successText = document.getElementById('login-success-text');
+            if (successAlert && successText) {
+                successText.textContent = urlParams.get('success') || 'Registration successful! Please sign in.';
+                successAlert.style.display = 'flex';
+            }
+        }
+    })();
 </script>
 </body>
 </html>

@@ -37,13 +37,13 @@
         <header class="top-header">
             <button id="sidebarToggle" class="sidebar-toggle"><i class="bi bi-list"></i></button>
             <div>
-                <div class="header-title">Welcome, <span class="js-user-name">Arun Chandran</span>!</div>
-                <div class="header-subtitle" th:text="Friday, October 2, 2026">Today</div>
+                <div class="header-title">Welcome, <span >Patient</span>!</div>
+                <div class="header-subtitle" >Today</div>
             </div>
             <div class="header-actions">
                 <a href="/patient/notifications" class="header-btn" title="Notifications">
                     <i class="bi bi-bell"></i>
-                    <span class="notif-dot" th:if="${unreadCount != null and unreadCount > 0}"></span>
+                    <span class="notif-dot" ></span>
                 </a>
                 <a href="/patient/book-appointment" class="btn btn-teal btn-sm"><i class="bi bi-calendar2-plus"></i> Book Appointment</a>
             </div>

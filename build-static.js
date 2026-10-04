@@ -56,7 +56,10 @@ function cleanThymeleaf(html) {
         .replace(/th:field="[^"]*"/g, '')
         .replace(/th:object="[^"]*"/g, '')
         .replace(/th:classappend="[^"]*"/g, '')
-        .replace(/th:styleappend="[^"]*"/g, '');
+        .replace(/th:styleappend="[^"]*"/g, '')
+        .replace(/th:style="[^"]*"/g, '')
+        .replace(/th:text="[^"]*"/g, '')
+        .replace(/th:if="[^"]*"/g, '');
 }
 
 // 3. Write page to both public/<path>/index.html and <path>/index.html
@@ -495,10 +498,43 @@ const loginScript = `
         window.location.href = targetUrl;
     }
 
+    // Dynamic Flash Alert Handler for URL Query Params
+    (function checkFlashParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errAlert = document.getElementById('login-error-alert');
+        const errText = document.getElementById('login-error-text');
+        const successAlert = document.getElementById('login-success-alert');
+        const successText = document.getElementById('login-success-text');
+
+        if (urlParams.has('error') && errAlert && errText) {
+            errText.textContent = urlParams.get('error') || 'Invalid email or password. Please try again.';
+            errAlert.style.display = 'flex';
+        }
+        if (urlParams.has('logout') && successAlert && successText) {
+            successText.textContent = 'You have been logged out successfully.';
+            successAlert.style.display = 'flex';
+        } else if ((urlParams.has('registered') || urlParams.has('success')) && successAlert && successText) {
+            successText.textContent = urlParams.get('success') || 'Registration successful! Please sign in with your credentials.';
+            successAlert.style.display = 'flex';
+        }
+    })();
+
     document.querySelector('.login-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        const errAlert = document.getElementById('login-error-alert');
+        const errText = document.getElementById('login-error-text');
+        if (errAlert) errAlert.style.display = 'none';
+
         const email = document.getElementById('email').value.trim();
         const pwd = document.getElementById('password').value.trim();
+
+        if (!email || !pwd) {
+            if (errAlert && errText) {
+                errText.textContent = 'Please enter both your email address and password.';
+                errAlert.style.display = 'flex';
+            }
+            return;
+        }
 
         if (email === 'admin@healix.com') {
             localStorage.setItem('healix_user', JSON.stringify({ name: 'Dr. Ananya Krishnan', email, role: 'SUPER_ADMIN' }));
