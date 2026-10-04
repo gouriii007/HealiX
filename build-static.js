@@ -318,142 +318,83 @@ const rawLogin = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'l
 let loginHtml = cleanThymeleaf(rawLogin);
 
 const richRoleDetailsHtml = `
-    <!-- Comprehensive Portal Role Details & 1-Click Access -->
-    <div class="demo-accounts" style="margin-top: 28px; padding: 22px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-size: 0.88rem; font-weight: 800; color: #0F2042; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
-                <i class="bi bi-shield-lock-fill" style="color: #6366F1; font-size: 1.05rem;"></i> Role Details &amp; Demo Access
+    <!-- Minimal 1-Click Demo Sign In -->
+    <div class="demo-accounts" style="margin-top: 20px; padding: 14px 16px; background: #F8FAFC; border-radius: 14px; border: 1px solid #E2E8F0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 0.78rem; font-weight: 800; color: #0F2042; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+                <i class="bi bi-lightning-charge-fill" style="color: #6366F1; font-size: 0.95rem;"></i> Quick Demo Access
             </div>
-            <span style="font-size: 0.72rem; color: #4338CA; background: #EEF2FF; padding: 3px 10px; border-radius: 9999px; font-weight: 700;">1-Click Login</span>
+            <span style="font-size: 0.7rem; color: #4338CA; background: #EEF2FF; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">1-Click Login</span>
         </div>
-        <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 16px; line-height: 1.45;">
-            Select any healthcare role below to inspect credentials, clinical scope, and login directly:
-        </p>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
             <!-- 1. Patient -->
-            <div class="role-card-item" onclick="fillAndSelectRole('patient@healix.com', 'Patient@123', 'patient')"
-                 style="background: #ffffff; border: 1.5px solid #CCFBF1; border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
-                 onmouseover="this.style.borderColor='#14B8A6'; this.style.transform='translateY(-2px)';"
-                 onmouseout="this.style.borderColor='#CCFBF1'; this.style.transform='none';">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #CCFBF1; color: #0F766E; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 700; color: #0F2042; font-size: 0.95rem;">Arun Chandran <span style="font-size: 0.75rem; color: #64748B; font-weight: normal;">(Patient #PAT-TRV-000001)</span></div>
-                            <div style="font-size: 0.76rem; color: #0F766E; font-weight: 600;">B+ Positive • MediCare City Hospital OPD</div>
-                        </div>
+            <button type="button" onclick="quickLogin('patient@healix.com', 'Patient@123', 'PATIENT', '/patient/dashboard')"
+                    style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #ffffff; border: 1.5px solid #CCFBF1; border-radius: 10px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+                    onmouseover="this.style.borderColor='#14B8A6'; this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.borderColor='#CCFBF1'; this.style.transform='none';">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #CCFBF1; color: #0F766E; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                        <span style="font-weight: 700; color: #0F2042; font-size: 0.8rem;">Patient</span>
+                        <span style="font-size: 0.65rem; color: #0D9488; font-weight: 700;">⚡ Login</span>
                     </div>
-                    <span style="background: #F0FDFA; color: #0F766E; border: 1px solid #99F6E4; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">PATIENT</span>
+                    <div style="font-size: 0.68rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arun Chandran</div>
                 </div>
-                <div style="font-size: 0.78rem; color: #475569; margin-bottom: 10px; line-height: 1.4;">
-                    <strong>Features:</strong> Book OPD appointments, 24/7 AI triage assistant, view digital prescriptions &amp; clinical records.
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #E2E8F0; padding-top: 8px;">
-                    <div style="font-size: 0.76rem; color: #64748B;">
-                        <code>patient@healix.com</code> • <code>Patient@123</code>
-                    </div>
-                    <button type="button" onclick="quickLogin('patient@healix.com', 'Patient@123', 'PATIENT', '/patient/dashboard', event)"
-                            class="btn btn-sm" style="background: #0D9488; color: #fff; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 600;">
-                        <i class="bi bi-lightning-fill"></i> Quick Sign In
-                    </button>
-                </div>
-            </div>
+            </button>
 
             <!-- 2. Doctor -->
-            <div class="role-card-item" onclick="fillAndSelectRole('doctor@healix.com', 'Doctor@123', 'doctor')"
-                 style="background: #ffffff; border: 1.5px solid #E0E7FF; border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
-                 onmouseover="this.style.borderColor='#6366F1'; this.style.transform='translateY(-2px)';"
-                 onmouseout="this.style.borderColor='#E0E7FF'; this.style.transform='none';">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #E0E7FF; color: #4338CA; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;">
-                            <i class="bi bi-heart-pulse-fill"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 700; color: #0F2042; font-size: 0.95rem;">Dr. Rajesh Kumar <span style="font-size: 0.75rem; color: #64748B; font-weight: normal;">(DOC-TRV-001)</span></div>
-                            <div style="font-size: 0.76rem; color: #4338CA; font-weight: 600;">Senior Cardiologist • MBBS, MD, DM (15 yrs exp)</div>
-                        </div>
+            <button type="button" onclick="quickLogin('doctor@healix.com', 'Doctor@123', 'DOCTOR', '/doctor/dashboard')"
+                    style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #ffffff; border: 1.5px solid #E0E7FF; border-radius: 10px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+                    onmouseover="this.style.borderColor='#6366F1'; this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.borderColor='#E0E7FF'; this.style.transform='none';">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #E0E7FF; color: #4338CA; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                        <span style="font-weight: 700; color: #0F2042; font-size: 0.8rem;">Doctor</span>
+                        <span style="font-size: 0.65rem; color: #4F46E5; font-weight: 700;">⚡ Login</span>
                     </div>
-                    <span style="background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">DOCTOR</span>
+                    <div style="font-size: 0.68rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dr. Rajesh Kumar</div>
                 </div>
-                <div style="font-size: 0.78rem; color: #475569; margin-bottom: 10px; line-height: 1.4;">
-                    <strong>Features:</strong> Outpatient queue, diagnosis entries, electronic prescriptions, weekly consultation schedule.
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #E2E8F0; padding-top: 8px;">
-                    <div style="font-size: 0.76rem; color: #64748B;">
-                        <code>doctor@healix.com</code> • <code>Doctor@123</code>
-                    </div>
-                    <button type="button" onclick="quickLogin('doctor@healix.com', 'Doctor@123', 'DOCTOR', '/doctor/dashboard', event)"
-                            class="btn btn-sm" style="background: #4F46E5; color: #fff; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 600;">
-                        <i class="bi bi-lightning-fill"></i> Quick Sign In
-                    </button>
-                </div>
-            </div>
+            </button>
 
             <!-- 3. Hospital Admin -->
-            <div class="role-card-item" onclick="fillAndSelectRole('admin.medicare@healix.com', 'Admin@123', 'hosp-admin')"
-                 style="background: #ffffff; border: 1.5px solid #F3E8FF; border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
-                 onmouseover="this.style.borderColor='#9333EA'; this.style.transform='translateY(-2px)';"
-                 onmouseout="this.style.borderColor='#F3E8FF'; this.style.transform='none';">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #F3E8FF; color: #7E22CE; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;">
-                            <i class="bi bi-hospital"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 700; color: #0F2042; font-size: 0.95rem;">Rahul Sharma <span style="font-size: 0.75rem; color: #64748B; font-weight: normal;">(H1-ADM01)</span></div>
-                            <div style="font-size: 0.76rem; color: #7E22CE; font-weight: 600;">Administrator • MediCare City Hospital (TRV-HOSP-01)</div>
-                        </div>
+            <button type="button" onclick="quickLogin('admin.medicare@healix.com', 'Admin@123', 'HOSPITAL_ADMIN', '/hospital-admin/dashboard')"
+                    style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #ffffff; border: 1.5px solid #F3E8FF; border-radius: 10px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+                    onmouseover="this.style.borderColor='#9333EA'; this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.borderColor='#F3E8FF'; this.style.transform='none';">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #F3E8FF; color: #7E22CE; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+                    <i class="bi bi-hospital"></i>
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                        <span style="font-weight: 700; color: #0F2042; font-size: 0.8rem;">Hosp Admin</span>
+                        <span style="font-size: 0.65rem; color: #7E22CE; font-weight: 700;">⚡ Login</span>
                     </div>
-                    <span style="background: #FAF5FF; color: #7E22CE; border: 1px solid #E9D5FF; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">HOSPITAL ADMIN</span>
+                    <div style="font-size: 0.68rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rahul (MediCare)</div>
                 </div>
-                <div style="font-size: 0.78rem; color: #475569; margin-bottom: 10px; line-height: 1.4;">
-                    <strong>Features:</strong> Scoped hospital isolation, 18 affiliated specialists, departments, OPD tokens &amp; ₹38,500 revenue tracking.
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #E2E8F0; padding-top: 8px;">
-                    <div style="font-size: 0.76rem; color: #64748B;">
-                        <code>admin.medicare@healix.com</code> • <code>Admin@123</code>
-                    </div>
-                    <button type="button" onclick="quickLogin('admin.medicare@healix.com', 'Admin@123', 'HOSPITAL_ADMIN', '/hospital-admin/dashboard', event)"
-                            class="btn btn-sm" style="background: #7E22CE; color: #fff; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 600;">
-                        <i class="bi bi-lightning-fill"></i> Quick Sign In
-                    </button>
-                </div>
-            </div>
+            </button>
 
             <!-- 4. Super Admin -->
-            <div class="role-card-item" onclick="fillAndSelectRole('admin@healix.com', 'Admin@123', 'super-admin')"
-                 style="background: #ffffff; border: 1.5px solid #EDE7F6; border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
-                 onmouseover="this.style.borderColor='#8070A6'; this.style.transform='translateY(-2px)';"
-                 onmouseout="this.style.borderColor='#EDE7F6'; this.style.transform='none';">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 700; color: #0F2042; font-size: 0.95rem;">Dr. Ananya Krishnan <span style="font-size: 0.75rem; color: #64748B; font-weight: normal;">(Chief Director)</span></div>
-                            <div style="font-size: 0.76rem; color: #5E35B1; font-weight: 600;">Platform Super Admin • All 3 Network Institutions</div>
-                        </div>
+            <button type="button" onclick="quickLogin('admin@healix.com', 'Admin@123', 'SUPER_ADMIN', '/super-admin/dashboard')"
+                    style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #ffffff; border: 1.5px solid #EDE7F6; border-radius: 10px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+                    onmouseover="this.style.borderColor='#8070A6'; this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.borderColor='#EDE7F6'; this.style.transform='none';">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                        <span style="font-weight: 700; color: #0F2042; font-size: 0.8rem;">Super Admin</span>
+                        <span style="font-size: 0.65rem; color: #5E35B1; font-weight: 700;">⚡ Login</span>
                     </div>
-                    <span style="background: #EDE7F6; color: #5E35B1; border: 1px solid #D1C4E9; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">SUPER ADMIN</span>
+                    <div style="font-size: 0.68rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dr. Ananya K.</div>
                 </div>
-                <div style="font-size: 0.78rem; color: #475569; margin-bottom: 10px; line-height: 1.4;">
-                    <strong>Features:</strong> Multi-hospital network governance, institutional onboarding, 1,240 central patient records, system audit.
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #E2E8F0; padding-top: 8px;">
-                    <div style="font-size: 0.76rem; color: #64748B;">
-                        <code>admin@healix.com</code> • <code>Admin@123</code>
-                    </div>
-                    <button type="button" onclick="quickLogin('admin@healix.com', 'Admin@123', 'SUPER_ADMIN', '/super-admin/dashboard', event)"
-                            class="btn btn-sm" style="background: #5E35B1; color: #fff; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 600;">
-                        <i class="bi bi-lightning-fill"></i> Quick Sign In
-                    </button>
-                </div>
-            </div>
+            </button>
         </div>
     </div>
 `;
