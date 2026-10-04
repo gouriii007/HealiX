@@ -45,6 +45,14 @@ if (fs.existsSync(frontendStatic)) {
 
 // 2. Clean Thymeleaf attributes helper
 function cleanThymeleaf(html) {
+    // Remove server-side flash message alert divs (unless they have an explicit id for client JS)
+    html = html.replace(/<div\b(?=[^>]*\bclass="[^"]*alert[^"]*")(?=[^>]*\bth:if=)[^>]*>[\s\S]*?<\/div>/gi, (match) => {
+        if (match.includes('id=')) {
+            return match;
+        }
+        return '';
+    });
+
     return html
         .replace(/th:href="@\{([^}]+)\}"/g, 'href="$1"')
         .replace(/th:src="@\{([^}]+)\}"/g, 'src="$1"')

@@ -22,14 +22,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- Auto-dismiss alerts after 5 seconds ----
-    const alerts = document.querySelectorAll('.alert-auto-dismiss');
+    // ---- Auto-hide empty alerts & auto-dismiss active alerts ----
+    const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function (alert) {
-        setTimeout(function () {
-            alert.style.transition = 'opacity 0.4s';
-            alert.style.opacity = '0';
-            setTimeout(function () { alert.remove(); }, 400);
-        }, 5000);
+        if (!alert.textContent.trim()) {
+            alert.style.display = 'none';
+        } else if (alert.classList.contains('alert-auto-dismiss')) {
+            setTimeout(function () {
+                alert.style.transition = 'opacity 0.4s';
+                alert.style.opacity = '0';
+                setTimeout(function () { alert.remove(); }, 400);
+            }, 5000);
+        }
     });
 
     // ---- Filter by department (doctor listing) ----

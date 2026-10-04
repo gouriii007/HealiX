@@ -446,6 +446,13 @@ a:hover { color: var(--navy); }
 .alert-info { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
 .alert-warning { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
 
+/* Automatically hide any alert element that has no text content */
+.alert:empty,
+.alert:has(> span:empty:only-child),
+.alert:has(> i:first-child:nth-last-child(2) + span:empty) {
+    display: none !important;
+}
+
 /* =====================================================================
    AVATAR / PROFILE
    ===================================================================== */

@@ -455,3 +455,13 @@ function showToast(message, type = 'success') {
         setTimeout(() => toast.remove(), 350);
     }, 4000);
 }
+
+// Global safeguard: Hide empty flash message alerts on page load
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.alert').forEach(function (alert) {
+        if (!alert.textContent.trim()) {
+            alert.style.display = 'none';
+        }
+    });
+});
+
