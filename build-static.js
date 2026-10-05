@@ -54,6 +54,9 @@ function cleanThymeleaf(html) {
     });
 
     return html
+        .replace(/<span\b(?=[^>]*\bth:text="\${hospital\.hospitalName}")[^>]*>[\s\S]*?<\/span>/gi, '<span>MediCare City Hospital</span>')
+        .replace(/<span\s*>Hospital Name<\/span>/gi, '<span>MediCare City Hospital</span>')
+        .replace(/<span>Hospital Name<\/span>/gi, '<span>MediCare City Hospital</span>')
         .replace(/th:href="@\{([^}]+)\}"/g, 'href="$1"')
         .replace(/th:src="@\{([^}]+)\}"/g, 'src="$1"')
         .replace(/th:action="@\{([^}]+)\}"/g, 'action="$1"')
@@ -3776,15 +3779,16 @@ writePage('doctor/notifications/index.html', docNotifsHtml);
 // 27. Generate Hospital Admin Dashboard (/hospital-admin/dashboard/index.html)
 // ----------------------------------------------------
 const rawHaDash = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'hospital-admin', 'dashboard.html'), 'utf8');
-let haDashHtml = cleanThymeleaf(rawHaDash);
 
-haDashHtml = haDashHtml
-    .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', '<span>MediCare City Hospital</span>')
-    .replace(/<div style="margin-bottom: 2rem;">\s*<div style="font-size: 0\.85rem; color: #6B7280;">Hospital Scoped Administration \(Strict Isolation\)<\/div>\s*<h2 style="font-size: 1\.85rem; font-weight: 800; color: #111827;" th:text="\${hospital\.hospitalName} \+ ' Overview'">Hospital Overview<\/h2>\s*<\/div>/, `
+let haDashHtml = rawHaDash
+    .replace('<title th:text="${hospital.hospitalName} + \' | Hospital Admin Portal\'">Hospital Admin Dashboard</title>', '<title>MediCare City Hospital | Hospital Admin Dashboard</title>')
+    .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', '<span id="haHospitalName">MediCare City Hospital</span>')
+    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', '<span class="hospital-badge">TRV-HOSP-01</span>')
+    .replace(/<div style="margin-bottom: 2rem;">[\s\S]*?<\/div>\s*<!-- Scoped Stats -->/, `
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <div style="font-size: 0.85rem; color: #6B7280;">Hospital Scoped Administration (Doctor Credentialing Scope)</div>
-            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827;">MediCare City Hospital Overview</h2>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #111827; margin:0;">MediCare City Hospital Overview</h2>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
             <a href="/hospital-admin/doctors?action=addDoctor" class="btn" style="background: linear-gradient(135deg, #8070A6, #6B5B95); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(128,112,166,0.25); text-decoration: none;">
@@ -3792,13 +3796,19 @@ haDashHtml = haDashHtml
             </a>
         </div>
     </div>
-    `)
-    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', '<span class="hospital-badge">TRV-HOSP-01</span>')
-    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;" th:text="${patientCount}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;">142</div>')
-    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" th:text="${doctorCount}">0</div>', '<div id="haActiveDoctorCount" style="font-size: 1.8rem; font-weight: 800; color: #8070A6;">4</div>')
-    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" th:text="${todayAppointments}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;">14</div>')
-    .replace('<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;" th:text="${pendingAppointments} + \' Pending\'">0 Pending</span>', '<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;">2 Pending</span>')
-    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #059669;" th:text="\'₹\' + ${registrationRevenue}">₹0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #059669;">₹38,500</div>');
+
+    <!-- Scoped Stats -->`)
+    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;" th:text="${patientCount}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #3B82F6;" id="haPatientCount">4</div>')
+    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" th:text="${doctorCount}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #8070A6;" id="haActiveDoctorCount">4</div>')
+    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" th:text="${todayAppointments}">0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #10B981;" id="haTodayAppts">4</div>')
+    .replace('<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;" th:text="${pendingAppointments} + \' Pending\'">0 Pending</span>', '<span style="font-size: 0.78rem; color: #F59E0B; font-weight: 600;" id="haPendingAppts">1 Pending</span>')
+    .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #059669;" th:text="\'₹\' + ${registrationRevenue}">₹0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #059669;" id="haRevenue">₹38,500</div>');
+
+haDashHtml = cleanThymeleaf(haDashHtml);
+
+haDashHtml = haDashHtml
+    .replace('<span>Hospital Name</span>', '<span id="haHospitalName">MediCare City Hospital</span>')
+    .replace('<span >Hospital Name</span>', '<span id="haHospitalName">MediCare City Hospital</span>');
 
 const haRecentApptsHtml = `
     <!-- Scoped Appointments Table -->
@@ -3856,20 +3866,44 @@ const haRecentApptsHtml = `
     </div>
 </div>
 `;
-haDashHtml = haDashHtml.replace(/<!-- Scoped Appointments Table -->[\s\S]*?<\/body>/, `${haRecentApptsHtml}</body>`);
+haDashHtml = haDashHtml.replace(/<!-- Scoped Appointments Table -->[\s\S]*?<\/body>/, `${haRecentApptsHtml}\n</body>`);
 
 const haDashScript = `
+<script src="/js/main.js"></script>
 <script src="/js/clinical-store.js"></script>
 <script>
-    if (window.HealixStore) {
-        const docCountEl = document.getElementById('haActiveDoctorCount');
-        if (docCountEl) docCountEl.innerText = HealixStore.getHospitalDoctors().length;
-        const appts = HealixStore.getAppointments();
-        const todayEl = document.getElementById('haTodayAppts');
-        if (todayEl) todayEl.innerText = appts.length + 10;
-        const pendingEl = document.getElementById('haPendingAppts');
-        if (pendingEl) pendingEl.innerText = appts.filter(a => a.status === 'PENDING').length + ' Pending';
+    function renderHospitalAdminDashboard() {
+        if (typeof HealixStore !== 'undefined') {
+            HealixStore.init();
+            
+            const docCountEl = document.getElementById('haActiveDoctorCount');
+            if (docCountEl) {
+                const docs = HealixStore.getHospitalDoctors();
+                docCountEl.innerText = (docs && docs.length) ? docs.length : 4;
+            }
+
+            const appts = HealixStore.getAppointments();
+            const todayEl = document.getElementById('haTodayAppts');
+            if (todayEl) {
+                todayEl.innerText = (appts && appts.length) ? (appts.length + 1) : 4;
+            }
+
+            const pendingEl = document.getElementById('haPendingAppts');
+            if (pendingEl) {
+                const pendingCount = (appts && appts.length) ? appts.filter(a => a.status === 'PENDING').length : 1;
+                pendingEl.innerText = pendingCount + ' Pending';
+            }
+
+            const patEl = document.getElementById('haPatientCount');
+            if (patEl) patEl.innerText = '4';
+
+            const revEl = document.getElementById('haRevenue');
+            if (revEl) revEl.innerText = '₹38,500';
+        }
     }
+
+    document.addEventListener('DOMContentLoaded', renderHospitalAdminDashboard);
+    renderHospitalAdminDashboard();
 </script>
 `;
 haDashHtml = haDashHtml.replace('</body>', `${haDashScript}</body>`);
