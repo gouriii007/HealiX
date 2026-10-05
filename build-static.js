@@ -67,7 +67,19 @@ function cleanThymeleaf(html) {
         .replace(/th:styleappend="[^"]*"/g, '')
         .replace(/th:style="[^"]*"/g, '')
         .replace(/th:text="[^"]*"/g, '')
-        .replace(/th:if="[^"]*"/g, '');
+        .replace(/th:utext="[^"]*"/g, '')
+        .replace(/th:if="[^"]*"/g, '')
+        .replace(/th:unless="[^"]*"/g, '')
+        .replace(/th:each="[^"]*"/g, '')
+        .replace(/th:class="[^"]*"/g, '')
+        .replace(/th:value="[^"]*"/g, '')
+        .replace(/th:selected="[^"]*"/g, '')
+        .replace(/th:attr="[^"]*"/g, '')
+        .replace(/th:id="[^"]*"/g, '')
+        .replace(/th:checked="[^"]*"/g, '')
+        .replace(/th:remove="[^"]*"/g, '')
+        .replace(/sec:authorize="[^"]*"/g, '')
+        .replace(/sec:authentication="[^"]*"/g, '');
 }
 
 // 3. Write page to both public/<path>/index.html and <path>/index.html
@@ -2536,6 +2548,47 @@ docDashHtml = docDashHtml
     .replace('<span th:text="${doctor.availability}">Availability</span>', '<span id="docCardAvail">Mon-Sat: 9AM-1PM, 3PM-6PM (OPD Room 104)</span>')
     .replace('<span th:text="${doctor.email}">Email</span>', '<span id="docCardEmail">doctor@healix.com (Fee: ₹800.00)</span>');
 
+const docDashStaticTodayTable = `
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:700;color:#6366F1;">09:30 AM</td>
+                    <td>
+                        <div style="font-weight:600;">Arun Chandran</div>
+                        <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
+                    </td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Chest pain evaluation &amp; ECG triage</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td><a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-pencil-square"></i> Record</a></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
+                    <td>
+                        <div style="font-weight:600;">Divya Rajan</div>
+                        <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
+                    </td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Hypertension checkup &amp; medication review</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td><a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-pencil-square"></i> Record</a></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700;color:#6366F1;">03:30 PM</td>
+                    <td>
+                        <div style="font-weight:600;">Mohammed Faisal</div>
+                        <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
+                    </td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
+                    <td><span class="badge badge-pending">PENDING</span></td>
+                    <td><button onclick="confirmAppt(3)" class="btn btn-sm btn-indigo"><i class="bi bi-check-lg"></i> Confirm</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+`;
+docDashHtml = docDashHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${docDashStaticTodayTable}</div></div></div></main>`);
+
 const doctorDashboardScript = `
 <script src="/js/clinical-store.js"></script>
 <script>
@@ -2615,6 +2668,23 @@ writePage('doctor/dashboard/index.html', docDashHtml);
 const rawDocAppts = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'doctor', 'appointments.html'), 'utf8');
 let docApptsHtml = cleanThymeleaf(rawDocAppts);
 
+const docApptsFilterBarHtml = `
+    <!-- Filter Bar -->
+    <div class="card mb-4">
+        <div class="card-body" style="padding:14px 22px;">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
+                <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
+                <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
+                <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
+                <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
+            </div>
+        </div>
+    </div>
+`;
+docApptsHtml = docApptsHtml.replace(/<!-- Filter Bar -->[\s\S]*?<\/form>\s*<\/div>\s*<\/div>/, docApptsFilterBarHtml);
+docApptsHtml = docApptsHtml.replace(/<span style="font-size:0\.78rem;font-weight:400;color:#9CA3AF;margin-left:8px;"[\s\S]*?<\/span>/, '<span id="docApptCountBadge" style="font-size:0.78rem;font-weight:400;color:#9CA3AF;margin-left:8px;">(3)</span>');
+
 const docApptsTableBlock = `
     <div class="table-container">
         <table class="data-table">
@@ -2623,7 +2693,72 @@ const docApptsTableBlock = `
                     <th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="docApptsTbody"></tbody>
+            <tbody id="docApptsTbody">
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#1</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">A</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Arun Chandran</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">Tomorrow</td>
+                    <td style="font-weight:600;color:#6366F1;">09:30 AM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Chest pain &amp; shortness of breath</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#2</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">D</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Divya Rajan</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">In 2 Days</td>
+                    <td style="font-weight:600;color:#6366F1;">11:00 AM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Hypertension checkup</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#3</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">M</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Mohammed Faisal</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">Today</td>
+                    <td style="font-weight:600;color:#6366F1;">03:30 PM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
+                    <td><span class="badge badge-pending">PENDING</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <button onclick="confirmAppointmentItem(3)" class="btn btn-sm btn-indigo" style="font-weight:700;"><i class="bi bi-check-lg"></i> Confirm</button>
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
         </table>
         <div id="docApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
             <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
@@ -2632,7 +2767,7 @@ const docApptsTableBlock = `
         </div>
     </div>
 `;
-docApptsHtml = docApptsHtml.replace(/<div class="table-container">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/main>/, `${docApptsTableBlock}</div></div></main>`);
+docApptsHtml = docApptsHtml.replace(/<div class="table-container">[\s\S]*?<\/main>/, `${docApptsTableBlock}</div></div></main>`);
 
 const docApptsScript = `
 <script src="/js/clinical-store.js"></script>
@@ -2707,18 +2842,6 @@ const docApptsScript = `
         }
     }
 
-    // Add filter buttons
-    const filterForm = document.querySelector('form');
-    if (filterForm) {
-        filterForm.innerHTML = \`
-            <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
-            <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
-            <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
-            <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
-            <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
-        \`;
-    }
-
     renderAppointmentsTable();
 </script>
 `;
@@ -2730,6 +2853,11 @@ writePage('doctor/appointments/index.html', docApptsHtml);
 // ----------------------------------------------------
 const rawDocPatients = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'templates', 'doctor', 'patients.html'), 'utf8');
 let docPatientsHtml = cleanThymeleaf(rawDocPatients);
+
+docPatientsHtml = docPatientsHtml.replace(
+    /<span style="font-size:0\.8rem;\s*font-weight:400;\s*color:#9CA3AF;\s*margin-left:8px;"[\s\S]*?<\/span>/,
+    '<span style="font-size:0.8rem; font-weight:400; color:#9CA3AF; margin-left:8px;">(4 Patients)</span>'
+);
 
 const docPatientsTableHtml = `
     <tr>
@@ -2785,6 +2913,25 @@ const docPatientsTableHtml = `
         <td>MALE</td>
         <td><span class="badge" style="background:#FEE2E2;color:#991B1B;font-weight:700;">O+</span></td>
         <td>46 yrs</td>
+        <td>
+            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record / Rx</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="avatar avatar-sm avatar-teal">S</div>
+                <div>
+                    <div style="font-weight:700;color:#0F2042;">Sunita Sharma</div>
+                    <div style="font-size:0.72rem;color:#9CA3AF;">PAT-TRV-000004</div>
+                </div>
+            </div>
+        </td>
+        <td>sunita.sharma@healix.com</td>
+        <td>9876510007</td>
+        <td>FEMALE</td>
+        <td><span class="badge" style="background:#FEE2E2;color:#991B1B;font-weight:700;">AB+</span></td>
+        <td>29 yrs</td>
         <td>
             <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record / Rx</a>
         </td>
@@ -3212,32 +3359,72 @@ const rawDocSchedule = fs.readFileSync(path.join(ROOT_DIR, 'Frontend', 'template
 let docScheduleHtml = cleanThymeleaf(rawDocSchedule);
 
 const docScheduleTableHtml = `
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">Tomorrow</td>
-        <td style="font-weight:700;color:#6366F1;">09:30 AM</td>
-        <td style="font-weight:600;">Arun Chandran</td>
-        <td>Chest pain &amp; shortness of breath</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">In 2 Days</td>
-        <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
-        <td style="font-weight:600;">Divya Rajan</td>
-        <td>Hypertension checkup</td>
-        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-        <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
-    </tr>
-    <tr>
-        <td style="font-weight:700;color:#0F2042;">Today</td>
-        <td style="font-weight:700;color:#6366F1;">03:30 PM</td>
-        <td style="font-weight:600;">Mohammed Faisal</td>
-        <td>Cardiac stress test review</td>
-        <td><span class="badge badge-pending">PENDING</span></td>
-        <td><a href="/doctor/appointments" class="btn btn-sm btn-outline">Review</a></td>
-    </tr>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Patient</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:700;color:#0F2042;">Tomorrow</td>
+                    <td style="font-weight:700;color:#6366F1;">09:30 AM</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="avatar avatar-sm avatar-teal">A</div>
+                            <div>
+                                <div style="font-weight:600;">Arun Chandran</div>
+                                <div style="font-size:0.75rem; color:#9CA3AF;">9876510001</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>Chest pain &amp; shortness of breath</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700;color:#0F2042;">In 2 Days</td>
+                    <td style="font-weight:700;color:#6366F1;">11:00 AM</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="avatar avatar-sm avatar-teal">D</div>
+                            <div>
+                                <div style="font-weight:600;">Divya Rajan</div>
+                                <div style="font-size:0.75rem; color:#9CA3AF;">9876510003</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>Hypertension checkup</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td><a href="/doctor/medical-records" class="btn btn-sm btn-indigo">Start OPD</a></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700;color:#0F2042;">Today</td>
+                    <td style="font-weight:700;color:#6366F1;">03:30 PM</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="avatar avatar-sm avatar-teal">M</div>
+                            <div>
+                                <div style="font-weight:600;">Mohammed Faisal</div>
+                                <div style="font-size:0.75rem; color:#9CA3AF;">9876510005</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>Cardiac stress test review</td>
+                    <td><span class="badge badge-pending">PENDING</span></td>
+                    <td><a href="/doctor/appointments" class="btn btn-sm btn-outline">Review</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 `;
-docScheduleHtml = docScheduleHtml.replace(/<tbody>[\s\S]*?<\/tbody>/, `<tbody>${docScheduleTableHtml}</tbody>`);
+docScheduleHtml = docScheduleHtml.replace(/<div class="table-container">[\s\S]*?<\/main>/, `${docScheduleTableHtml}</div></div></main>`);
 writePage('doctor/schedule/index.html', docScheduleHtml);
 
 // ----------------------------------------------------
@@ -3506,49 +3693,62 @@ haDashHtml = haDashHtml
     .replace('<div style="font-size: 1.8rem; font-weight: 800; color: #059669;" th:text="\'₹\' + ${registrationRevenue}">₹0</div>', '<div style="font-size: 1.8rem; font-weight: 800; color: #059669;">₹38,500</div>');
 
 const haRecentApptsHtml = `
-    <table class="table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
-                <th style="padding: 0.75rem;">Date &amp; Time</th>
-                <th style="padding: 0.75rem;">Patient</th>
-                <th style="padding: 0.75rem;">Doctor</th>
-                <th style="padding: 0.75rem;">Reason</th>
-                <th style="padding: 0.75rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">09:30 AM</div></td>
-                <td style="padding: 0.75rem; font-weight: 600;">Arun Chandran</td>
-                <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
-                <td style="padding: 0.75rem; color: #4B5563;">Chest pain evaluation</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">10:15 AM</div></td>
-                <td style="padding: 0.75rem; font-weight: 600;">Suresh Pillai</td>
-                <td style="padding: 0.75rem; color: #8070A6;">Dr. Priya Nair (Neuro)</td>
-                <td style="padding: 0.75rem; color: #4B5563;">Chronic migraine consultation</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">11:00 AM</div></td>
-                <td style="padding: 0.75rem; font-weight: 600;">Divya Rajan</td>
-                <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
-                <td style="padding: 0.75rem; color: #4B5563;">Blood pressure titration</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">03:30 PM</div></td>
-                <td style="padding: 0.75rem; font-weight: 600;">Mohammed Faisal</td>
-                <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
-                <td style="padding: 0.75rem; color: #4B5563;">Cardiac stress test review</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#FEF3C7;color:#92400E;">PENDING</span></td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Scoped Appointments Table -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+            <div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin:0 0 4px 0;">Recent Outpatient Appointments</h3>
+                <div style="font-size:0.8rem; color:#6B7280;">Live clinical queue for MediCare City Hospital OPD</div>
+            </div>
+            <span id="haApptBadge" class="hospital-badge" style="background:#EDE7F6; color:#5E35B1; font-weight:700; padding:6px 12px; font-size:0.8rem;">4 Today</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
+                        <th style="padding: 0.75rem;">Date &amp; Time</th>
+                        <th style="padding: 0.75rem;">Patient</th>
+                        <th style="padding: 0.75rem;">Doctor</th>
+                        <th style="padding: 0.75rem;">Reason</th>
+                        <th style="padding: 0.75rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="haRecentApptsTbody">
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">09:30 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Arun Chandran</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Chest pain evaluation</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">10:15 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Suresh Pillai</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Priya Nair (Neuro)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Chronic migraine consultation</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">11:00 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Divya Rajan</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Blood pressure titration</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">03:30 PM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Mohammed Faisal</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Cardiac stress test review</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#FEF3C7;color:#92400E;">PENDING</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 `;
-haDashHtml = haDashHtml.replace(/<div th:if="\${#lists.isEmpty\(recentAppointments\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haRecentApptsHtml}</div></div>`);
+haDashHtml = haDashHtml.replace(/<!-- Scoped Appointments Table -->[\s\S]*?<\/body>/, `${haRecentApptsHtml}</body>`);
 
 const haDashScript = `
 <script src="/js/clinical-store.js"></script>
@@ -3556,6 +3756,11 @@ const haDashScript = `
     if (window.HealixStore) {
         const docCountEl = document.getElementById('haActiveDoctorCount');
         if (docCountEl) docCountEl.innerText = HealixStore.getHospitalDoctors().length;
+        const appts = HealixStore.getAppointments();
+        const todayEl = document.getElementById('haTodayAppts');
+        if (todayEl) todayEl.innerText = appts.length + 10;
+        const pendingEl = document.getElementById('haPendingAppts');
+        if (pendingEl) pendingEl.innerText = appts.filter(a => a.status === 'PENDING').length + ' Pending';
     }
 </script>
 `;
@@ -3890,80 +4095,99 @@ let haDeptsHtml = cleanThymeleaf(rawHaDepts);
 
 haDeptsHtml = haDeptsHtml
     .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', 'MediCare City Hospital')
-    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01');
+    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01')
+    .replace(/<span style="font-size: 0\.85rem; color: #6B7280;"\s*th:text="\${departments \!= null \? departments\.size\(\) : 0} \+ ' Departments'">0 Departments<\/span>/, '<span style="font-size: 0.85rem; color: #6B7280;">6 Departments</span>');
 
 const haDeptsCardsHtml = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
-                    <i class="bi bi-heart-pulse"></i>
+    <!-- Departments Grid -->
+    <div id="deptGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-heart-pulse-fill"></i>
                 </div>
-                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
             </div>
-            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Cardiology</h3>
-            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
-                Advanced cardiovascular interventions, coronary care, and heart rhythm diagnostics.
-            </p>
-            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
-                <span>Affiliated Specialists:</span>
-                <strong>4 Doctors</strong>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Cardiology</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Comprehensive cardiovascular care, coronary intervention, electrophysiology, and non-invasive diagnostics.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
             </div>
         </div>
-
-        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
                     <i class="bi bi-activity"></i>
                 </div>
-                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
             </div>
-            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Neurology</h3>
-            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
-                Expert neurosciences center dealing with stroke rehabilitation, epilepsy, and brain disorders.
-            </p>
-            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
-                <span>Affiliated Specialists:</span>
-                <strong>3 Doctors</strong>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Neurology</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Advanced clinical care for cerebrovascular conditions, epilepsy, headache disorders, and neurodegenerative illnesses.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
             </div>
         </div>
-
-        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
-                    <i class="bi bi-bandaid"></i>
-                </div>
-                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
-            </div>
-            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">Orthopedics</h3>
-            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
-                Joint reconstruction, sports trauma, spinal therapy, and robotic joint replacement.
-            </p>
-            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
-                <span>Affiliated Specialists:</span>
-                <strong>4 Doctors</strong>
-            </div>
-        </div>
-
-        <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                <div style="width:44px; height:44px; border-radius:12px; background:#EDE7F6; color:#5E35B1; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
                     <i class="bi bi-hospital"></i>
                 </div>
-                <span class="hospital-badge" style="background:#D1FAE5; color:#065F46;">ACTIVE</span>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
             </div>
-            <h3 style="font-size:1.2rem; font-weight:700; color:#111827; margin:0 0 6px;">General Medicine</h3>
-            <p style="font-size:0.85rem; color:#6B7280; line-height:1.4; margin-bottom:1rem;">
-                Primary healthcare triage, chronic illness management, and preventative health checks.
-            </p>
-            <div style="border-top:1px solid #F3F4F6; padding-top:0.75rem; font-size:0.8rem; color:#4B5563; display:flex; justify-content:space-between;">
-                <span>Affiliated Specialists:</span>
-                <strong>7 Doctors</strong>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">General Medicine</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Primary adult care, metabolic disorder management, lifestyle medicine, and continuous OPD consultations.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-emoji-smile"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Pediatrics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Neonatal and child healthcare, developmental assessments, immunization programs, and pediatric emergency triage.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">1 Doctor</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-bandaid"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Orthopedics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Musculoskeletal trauma surgery, joint reconstruction, spinal therapy, and physical rehabilitation.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-gender-female"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Gynecology &amp; Obstetrics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Women's reproductive health, prenatal diagnostics, modern labor wards, and minimally invasive laparoscopic surgery.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
             </div>
         </div>
     </div>
 `;
-haDeptsHtml = haDeptsHtml.replace(/<div th:if="\${#lists.isEmpty\(departments\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haDeptsCardsHtml}</div></div>`);
+haDeptsHtml = haDeptsHtml.replace(/<!-- Empty State -->[\s\S]*?<script>/, `${haDeptsCardsHtml}\n</div>\n<script>`);
 writePage('hospital-admin/departments/index.html', haDeptsHtml);
 
 // ----------------------------------------------------
@@ -3974,49 +4198,116 @@ let haPatientsHtml = cleanThymeleaf(rawHaPatients);
 
 haPatientsHtml = haPatientsHtml
     .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', 'MediCare City Hospital')
-    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01');
+    .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01')
+    .replace(/<span class="hospital-badge" style="padding: 0\.55rem 1rem; font-size: 0\.85rem; background: #EFF6FF; color: #1D4ED8; font-weight: 700;"\s*th:text="\${patientHospitals \!= null \? patientHospitals\.size\(\) : 0} \+ ' Patients'">0 Patients<\/span>/, '<span class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: #EFF6FF; color: #1D4ED8; font-weight: 700;">4 Patients</span>');
 
-const haPatientsTableHtml = `
-    <table class="table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
-                <th style="padding: 0.75rem;">Hospital Reg #</th>
-                <th style="padding: 0.75rem;">Patient Name</th>
-                <th style="padding: 0.75rem;">Contact</th>
-                <th style="padding: 0.75rem;">Registered On</th>
-                <th style="padding: 0.75rem;">Receipt</th>
-                <th style="padding: 0.75rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem; font-weight: 700; color: #0F2042;">TRV-HOSP-01-P-0001</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Arun Chandran</td>
-                <td style="padding: 0.75rem; color: #4B5563;">9876510001</td>
-                <td style="padding: 0.75rem;">30 days ago</td>
-                <td style="padding: 0.75rem;"><span style="color:#6366F1; font-weight:600;">REC-TRV-REG001</span></td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem; font-weight: 700; color: #0F2042;">TRV-HOSP-01-P-0002</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Divya Rajan</td>
-                <td style="padding: 0.75rem; color: #4B5563;">9876510003</td>
-                <td style="padding: 0.75rem;">20 days ago</td>
-                <td style="padding: 0.75rem;"><span style="color:#6366F1; font-weight:600;">REC-TRV-REG003</span></td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem; font-weight: 700; color: #0F2042;">TRV-HOSP-01-P-0003</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Mohammed Faisal</td>
-                <td style="padding: 0.75rem; color: #4B5563;">9876510005</td>
-                <td style="padding: 0.75rem;">15 days ago</td>
-                <td style="padding: 0.75rem;"><span style="color:#6366F1; font-weight:600;">REC-TRV-REG005</span></td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">ACTIVE</span></td>
-            </tr>
-        </tbody>
-    </table>
+const haPatientsTableContainer = `
+    <!-- Patients Table Container -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="overflow-x: auto;">
+            <table id="patientsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.85rem 1rem;">Hospital Patient No.</th>
+                        <th style="padding: 0.85rem 1rem;">Patient</th>
+                        <th style="padding: 0.85rem 1rem;">Central ID</th>
+                        <th style="padding: 0.85rem 1rem;">Contact Info</th>
+                        <th style="padding: 0.85rem 1rem;">Blood Group</th>
+                        <th style="padding: 0.85rem 1rem;">Registered On</th>
+                        <th style="padding: 0.85rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0001</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Arun Chandran</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Male • 34 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000001</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510001</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">patient@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">B+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-01</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0002</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Divya Rajan</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Female • 39 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000002</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510003</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">divya.rajan@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">A+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-12</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0003</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Mohammed Faisal</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Male • 46 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000003</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510005</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">faisal@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">O+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-18</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0004</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Sunita Sharma</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Female • 29 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000004</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510007</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">sunita.sharma@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">AB+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-22</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 `;
-haPatientsHtml = haPatientsHtml.replace(/<div th:if="\${#lists.isEmpty\(hospitalPatients\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haPatientsTableHtml}</div></div>`);
+haPatientsHtml = haPatientsHtml.replace(/<!-- Patients Table Container -->[\s\S]*?<script>/, `${haPatientsTableContainer}\n</div>\n<script>`);
 writePage('hospital-admin/patients/index.html', haPatientsHtml);
 
 // ----------------------------------------------------
@@ -4029,41 +4320,116 @@ haPaymentsHtml = haPaymentsHtml
     .replace('<span th:text="${hospital.hospitalName}">Hospital Name</span>', 'MediCare City Hospital')
     .replace('<span class="hospital-badge" th:text="${hospital.hospitalCode}">TRV-HOSP-01</span>', 'TRV-HOSP-01')
     .replace(/th:text="'₹' \+ \${totalRevenue \?: 0}"/g, '')
-    .replace(/<div class="stat-number">.*?<\/div>/, '<div class="stat-number">₹38,500.00</div>');
+    .replace(/<div class="stat-number">.*?<\/div>/, '<div class="stat-number">₹38,500.00</div>')
+    .replace(/<span class="hospital-badge" style="padding: 0\.55rem 1rem; font-size: 0\.85rem; background: #EDE7F6; color: #5E35B1; font-weight: 700;"\s*th:text="\${payments \!= null \? payments\.size\(\) : 0} \+ ' Records'">0 Records<\/span>/, '<span class="hospital-badge" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: #EDE7F6; color: #5E35B1; font-weight: 700;">4 Records</span>');
 
-const haPaymentsTableHtml = `
-    <table class="table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
-                <th style="padding: 0.75rem;">Receipt #</th>
-                <th style="padding: 0.75rem;">Patient</th>
-                <th style="padding: 0.75rem;">Date</th>
-                <th style="padding: 0.75rem;">Purpose</th>
-                <th style="padding: 0.75rem;">Amount</th>
-                <th style="padding: 0.75rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem; font-weight: 700; color: #0F2042;">REC-TRV-REG001</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Arun Chandran</td>
-                <td style="padding: 0.75rem;">Today</td>
-                <td style="padding: 0.75rem; color: #4B5563;">OPD Registration &amp; Hospital Token</td>
-                <td style="padding: 0.75rem; font-weight: 700; color: #059669;">₹250.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">PAID</span></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                <td style="padding: 0.75rem; font-weight: 700; color: #0F2042;">REC-TRV-REG003</td>
-                <td style="padding: 0.75rem; font-weight: 600;">Divya Rajan</td>
-                <td style="padding: 0.75rem;">Yesterday</td>
-                <td style="padding: 0.75rem; color: #4B5563;">OPD Registration &amp; Hospital Token</td>
-                <td style="padding: 0.75rem; font-weight: 700; color: #059669;">₹250.00</td>
-                <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">PAID</span></td>
-            </tr>
-        </tbody>
-    </table>
+const haPaymentsTableContainer = `
+    <!-- Payments Table Container -->
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="overflow-x: auto;">
+            <table id="paymentsTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <th style="padding: 0.85rem 1rem;">Receipt No. / Ref</th>
+                        <th style="padding: 0.85rem 1rem;">Patient</th>
+                        <th style="padding: 0.85rem 1rem;">Payment Type</th>
+                        <th style="padding: 0.85rem 1rem;">Method</th>
+                        <th style="padding: 0.85rem 1rem;">Amount</th>
+                        <th style="padding: 0.85rem 1rem;">Date</th>
+                        <th style="padding: 0.85rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG001</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99214</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Arun Chandran</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000001</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">OPD_CONSULTATION</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-wallet2" style="margin-right: 4px; color:#5E35B1;"></i> UPI / GPay
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹800.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">Today, 09:15 AM</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG002</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99182</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Divya Rajan</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000002</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">OPD_CONSULTATION</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-credit-card-2-front" style="margin-right: 4px; color:#5E35B1;"></i> Debit Card
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹750.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">Yesterday, 02:30 PM</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG003</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99055</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Mohammed Faisal</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000003</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">DIAGNOSTIC_FEE</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-bank" style="margin-right: 4px; color:#5E35B1;"></i> Net Banking
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹1,200.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">3 days ago</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG004</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-98920</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Sunita Sharma</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000004</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">REGISTRATION_FEE</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-cash" style="margin-right: 4px; color:#5E35B1;"></i> Cash Counter
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹250.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">4 days ago</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 `;
-haPaymentsHtml = haPaymentsHtml.replace(/<div th:if="\${#lists.isEmpty\(payments\)}"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/, `${haPaymentsTableHtml}</div></div>`);
+haPaymentsHtml = haPaymentsHtml.replace(/<!-- Payments Table Container -->[\s\S]*?<script>/, `${haPaymentsTableContainer}\n</div>\n<script>`);
 writePage('hospital-admin/payments/index.html', haPaymentsHtml);
 
 // ----------------------------------------------------

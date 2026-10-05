@@ -49,34 +49,96 @@
         </div>
     </div>
 
-    <!-- Empty State -->
-    <div  style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 3rem 1rem; text-align: center;">
-        <i class="bi bi-building-slash" style="font-size: 2.5rem; color: #D1D5DB; display: block; margin-bottom: 0.75rem;"></i>
-        <h4 style="font-size: 1.1rem; color: #374151; margin-bottom: 0.25rem;">No Departments Found</h4>
-        <p style="font-size: 0.88rem; color: #9CA3AF;">There are currently no clinical departments configured for this hospital.</p>
-    </div>
-
+    
     <!-- Departments Grid -->
-    <div th:unless="${#lists.isEmpty(departments)}" id="deptGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-        <div th:each="dept : ${departments}" class="dept-card" 
-             style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column;">
+    <div id="deptGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
-                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-                    <i th:class="${dept.iconClass != null and !dept.iconClass.isEmpty() ? dept.iconClass : 'bi bi-hospital'}"></i>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-heart-pulse-fill"></i>
                 </div>
-                <span  class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
-                <span th:unless="${dept.active}" class="hospital-badge" style="background: #F3F4F6; color: #6B7280; border-color: #E5E7EB;">Inactive</span>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
             </div>
-            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;" >Cardiology</h3>
-            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;" >Department description</p>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Cardiology</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Comprehensive cardiovascular care, coronary intervention, electrophysiology, and non-invasive diagnostics.</p>
             <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
                 <span style="color: #6B7280;">Staffed Specialists:</span>
-                <span style="font-weight: 700; color: #4F46E5;" >0 Doctors</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Neurology</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Advanced clinical care for cerebrovascular conditions, epilepsy, headache disorders, and neurodegenerative illnesses.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-hospital"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">General Medicine</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Primary adult care, metabolic disorder management, lifestyle medicine, and continuous OPD consultations.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-emoji-smile"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Pediatrics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Neonatal and child healthcare, developmental assessments, immunization programs, and pediatric emergency triage.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">1 Doctor</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-bandaid"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Orthopedics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Musculoskeletal trauma surgery, joint reconstruction, spinal therapy, and physical rehabilitation.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
+            </div>
+        </div>
+        <div class="dept-card" style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #EDE7F6; color: #5E35B1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-gender-female"></i>
+                </div>
+                <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Active</span>
+            </div>
+            <h3 class="dept-title" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">Gynecology &amp; Obstetrics</h3>
+            <p class="dept-desc" style="font-size: 0.88rem; color: #6B7280; margin: 0 0 1.5rem 0; flex-grow: 1; line-height: 1.5;">Women's reproductive health, prenatal diagnostics, modern labor wards, and minimally invasive laparoscopic surgery.</p>
+            <div style="border-top: 1px solid #F3F4F6; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span style="color: #6B7280;">Staffed Specialists:</span>
+                <span style="font-weight: 700; color: #5E35B1;">2 Doctors</span>
             </div>
         </div>
     </div>
-</div>
 
+</div>
 <script>
 function filterDepartments() {
     const input = document.getElementById("deptSearch").value.toLowerCase();

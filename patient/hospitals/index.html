@@ -51,8 +51,8 @@
     <div  style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid #E5E7EB; text-align: center; color: #6B7280; margin-bottom: 2rem;">
         You have not registered with any hospitals yet. Select an affiliated hospital below to register and receive your hospital-specific patient number.
     </div>
-    <div th:unless="${#lists.isEmpty(registeredHospitals)}" class="hospital-grid" style="margin-bottom: 2.5rem;">
-        <div th:each="ph : ${registeredHospitals}" class="hospital-card" style="border-top: 4px solid #8070A6;">
+    <div  class="hospital-grid" style="margin-bottom: 2.5rem;">
+        <div  class="hospital-card" style="border-top: 4px solid #8070A6;">
             <div>
                 <span class="hospital-badge" >TRV-HOSP-01</span>
                 <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-top: 0.5rem;" >MediCare Hospital</h4>
@@ -75,7 +75,7 @@
         <i class="bi bi-plus-circle" style="color: #10B981;"></i> Available Hospitals in Network
     </h3>
     <div class="hospital-grid">
-        <div th:each="hosp : ${allHospitals}" class="hospital-card">
+        <div  class="hospital-card">
             <div>
                 <span class="hospital-badge" >TRV-HOSP-01</span>
                 <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-top: 0.5rem;" >Hospital Name</h4>

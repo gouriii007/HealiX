@@ -61,13 +61,17 @@
         </div>
     </div>
 
+    
     <!-- Scoped Appointments Table -->
-    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem;">
-        <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem;">Recent Outpatient Appointments</h3>
-        <div  style="color: #6B7280; text-align: center; padding: 2rem;">
-            No appointments scheduled for this hospital.
+    <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+            <div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin:0 0 4px 0;">Recent Outpatient Appointments</h3>
+                <div style="font-size:0.8rem; color:#6B7280;">Live clinical queue for MediCare City Hospital OPD</div>
+            </div>
+            <span id="haApptBadge" class="hospital-badge" style="background:#EDE7F6; color:#5E35B1; font-weight:700; padding:6px 12px; font-size:0.8rem;">4 Today</span>
         </div>
-        <div th:unless="${#lists.isEmpty(recentAppointments)}" style="overflow-x: auto;">
+        <div style="overflow-x: auto;">
             <table class="table" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.85rem; color: #6B7280;">
@@ -78,18 +82,34 @@
                         <th style="padding: 0.75rem;">Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr th:each="appt : ${recentAppointments}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                        <td style="padding: 0.75rem;">
-                            <strong >Date</strong>
-                            <div style="font-size: 0.8rem; color: #6B7280;" >Time</div>
-                        </td>
-                        <td style="padding: 0.75rem; font-weight: 600;" >Patient Name</td>
-                        <td style="padding: 0.75rem; color: #8070A6;" >Doctor Name</td>
-                        <td style="padding: 0.75rem; color: #4B5563;" >Reason</td>
-                        <td style="padding: 0.75rem;">
-                            <span class="hospital-badge" >CONFIRMED</span>
-                        </td>
+                <tbody id="haRecentApptsTbody">
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">09:30 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Arun Chandran</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Chest pain evaluation</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">10:15 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Suresh Pillai</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Priya Nair (Neuro)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Chronic migraine consultation</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">11:00 AM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Divya Rajan</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Blood pressure titration</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#D1FAE5;color:#065F46;">CONFIRMED</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 0.75rem;"><strong>Today</strong><div style="font-size: 0.8rem; color: #6B7280;">03:30 PM</div></td>
+                        <td style="padding: 0.75rem; font-weight: 600;">Mohammed Faisal</td>
+                        <td style="padding: 0.75rem; color: #8070A6;">Dr. Rajesh Kumar (Cardio)</td>
+                        <td style="padding: 0.75rem; color: #4B5563;">Cardiac stress test review</td>
+                        <td style="padding: 0.75rem;"><span class="hospital-badge" style="background:#FEF3C7;color:#92400E;">PENDING</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -97,12 +117,16 @@
     </div>
 </div>
 
-
 <script src="/js/clinical-store.js"></script>
 <script>
     if (window.HealixStore) {
         const docCountEl = document.getElementById('haActiveDoctorCount');
         if (docCountEl) docCountEl.innerText = HealixStore.getHospitalDoctors().length;
+        const appts = HealixStore.getAppointments();
+        const todayEl = document.getElementById('haTodayAppts');
+        if (todayEl) todayEl.innerText = appts.length + 10;
+        const pendingEl = document.getElementById('haPendingAppts');
+        if (pendingEl) pendingEl.innerText = appts.filter(a => a.status === 'PENDING').length + ' Pending';
     }
 </script>
 </body>

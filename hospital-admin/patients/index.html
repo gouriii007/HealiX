@@ -49,15 +49,10 @@
         </div>
     </div>
 
+    
     <!-- Patients Table Container -->
     <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-        <div  style="color: #6B7280; text-align: center; padding: 3rem 1rem;">
-            <i class="bi bi-people-slash" style="font-size: 2.5rem; color: #D1D5DB; display: block; margin-bottom: 0.75rem;"></i>
-            <h4 style="font-size: 1.1rem; color: #374151; margin-bottom: 0.25rem;">No Registered Patients</h4>
-            <p style="font-size: 0.88rem; color: #9CA3AF;">No patients have registered or checked into this hospital yet.</p>
-        </div>
-
-        <div th:unless="${#lists.isEmpty(patientHospitals)}" style="overflow-x: auto;">
+        <div style="overflow-x: auto;">
             <table id="patientsTable" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
@@ -71,36 +66,96 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="ph : ${patientHospitals}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
-                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;" >HOSP-001-PAT-001</td>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0001</td>
                         <td style="padding: 1rem;">
-                            <div style="font-weight: 600; color: #111827;" >Patient Name</div>
-                            <div style="font-size: 0.78rem; color: #6B7280;" >Male</div>
+                            <div style="font-weight: 600; color: #111827;">Arun Chandran</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Male • 34 yrs</div>
                         </td>
                         <td style="padding: 1rem;">
-                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;"
-                                  >PAT-001</span>
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000001</span>
                         </td>
                         <td style="padding: 1rem; font-size: 0.85rem;">
-                            <div style="color: #111827;" >+91 9876543210</div>
-                            <div style="color: #6B7280; font-size: 0.78rem;" >patient@example.com</div>
+                            <div style="color: #111827;">+91 9876510001</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">patient@healix.com</div>
                         </td>
                         <td style="padding: 1rem;">
-                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;" 
-                                  >O+</span>
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">B+</span>
                         </td>
-                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;" 
-                            >2026-03-20</td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-01</td>
                         <td style="padding: 1rem;">
-                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;" >ACTIVE</span>
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0002</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Divya Rajan</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Female • 39 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000002</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510003</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">divya.rajan@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">A+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-12</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0003</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Mohammed Faisal</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Male • 46 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000003</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510005</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">faisal@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">O+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-18</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem; font-family: monospace; font-weight: 700; color: #3B82F6;">TRV-HOSP-01-P-0004</td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Sunita Sharma</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">Female • 29 yrs</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="font-family: monospace; font-size: 0.82rem; background: #F3F4F6; padding: 3px 8px; border-radius: 6px; color: #4B5563;">PAT-TRV-000004</span>
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem;">
+                            <div style="color: #111827;">+91 9876510007</div>
+                            <div style="color: #6B7280; font-size: 0.78rem;">sunita.sharma@healix.com</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">AB+</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">2026-03-22</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">ACTIVE</span>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-</div>
 
+</div>
 <script>
 function filterPatients() {
     const input = document.getElementById("patientSearch").value.toLowerCase();

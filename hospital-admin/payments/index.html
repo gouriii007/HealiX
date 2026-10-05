@@ -49,15 +49,10 @@
         </div>
     </div>
 
+    
     <!-- Payments Table Container -->
     <div style="background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-        <div  style="color: #6B7280; text-align: center; padding: 3rem 1rem;">
-            <i class="bi bi-receipt" style="font-size: 2.5rem; color: #D1D5DB; display: block; margin-bottom: 0.75rem;"></i>
-            <h4 style="font-size: 1.1rem; color: #374151; margin-bottom: 0.25rem;">No Payment Records</h4>
-            <p style="font-size: 0.88rem; color: #9CA3AF;">No fee collections or payment slips recorded for this hospital yet.</p>
-        </div>
-
-        <div th:unless="${#lists.isEmpty(payments)}" style="overflow-x: auto;">
+        <div style="overflow-x: auto;">
             <table id="paymentsTable" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 0.82rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
@@ -71,44 +66,96 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="pay : ${payments}" style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
                         <td style="padding: 1rem;">
-                            <div style="font-family: monospace; font-weight: 700; color: #111827;" 
-                                 >REC-1001</div>
-                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;" 
-                                 >Txn: TXN123</div>
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG001</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99214</div>
                         </td>
                         <td style="padding: 1rem;">
-                            <div style="font-weight: 600; color: #111827;" >Patient Name</div>
-                            <div style="font-size: 0.78rem; color: #6B7280;" >PAT-001</div>
+                            <div style="font-weight: 600; color: #111827;">Arun Chandran</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000001</div>
                         </td>
                         <td style="padding: 1rem;">
-                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"
-                                  >REGISTRATION_FEE</span>
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">OPD_CONSULTATION</span>
                         </td>
                         <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
-                            <i class="bi bi-wallet2" style="margin-right: 4px;"></i>
-                            <span >UPI</span>
+                            <i class="bi bi-wallet2" style="margin-right: 4px; color:#5E35B1;"></i> UPI / GPay
                         </td>
-                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;" 
-                            >₹250</td>
-                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;" 
-                            >2026-03-20</td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹800.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">Today, 09:15 AM</td>
                         <td style="padding: 1rem;">
-                            <span  
-                                  class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
-                            <span  
-                                  class="hospital-badge" style="background: #FEF3C7; color: #B45309; border-color: #FDE68A;">PENDING</span>
-                            <span  
-                                  class="hospital-badge" style="background: #FEE2E2; color: #B91C1C; border-color: #FECACA;">FAILED</span>
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG002</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99182</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Divya Rajan</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000002</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">OPD_CONSULTATION</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-credit-card-2-front" style="margin-right: 4px; color:#5E35B1;"></i> Debit Card
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹750.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">Yesterday, 02:30 PM</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG003</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-99055</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Mohammed Faisal</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000003</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">DIAGNOSTIC_FEE</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-bank" style="margin-right: 4px; color:#5E35B1;"></i> Net Banking
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹1,200.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">3 days ago</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #F3F4F6; font-size: 0.9rem;">
+                        <td style="padding: 1rem;">
+                            <div style="font-family: monospace; font-weight: 700; color: #111827;">REC-TRV-REG004</div>
+                            <div style="font-size: 0.75rem; color: #9CA3AF; font-family: monospace;">Txn: TXN-MED-98920</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600; color: #111827;">Sunita Sharma</div>
+                            <div style="font-size: 0.78rem; color: #6B7280;">PAT-TRV-000004</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span style="background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">REGISTRATION_FEE</span>
+                        </td>
+                        <td style="padding: 1rem; color: #4B5563; font-size: 0.85rem;">
+                            <i class="bi bi-cash" style="margin-right: 4px; color:#5E35B1;"></i> Cash Counter
+                        </td>
+                        <td style="padding: 1rem; font-weight: 800; color: #059669; font-size: 1rem;">₹250.00</td>
+                        <td style="padding: 1rem; color: #6B7280; font-size: 0.85rem;">4 days ago</td>
+                        <td style="padding: 1rem;">
+                            <span class="hospital-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">COMPLETED</span>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-</div>
 
+</div>
 <script>
 function filterPayments() {
     const input = document.getElementById("paymentSearch").value.toLowerCase();

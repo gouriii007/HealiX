@@ -37,26 +37,25 @@
             
             
 
-            <!-- Filter Bar -->
-            <div class="card mb-4">
-                <div class="card-body" style="padding:14px 22px;">
-                    <form action="/doctor/appointments" method="get" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
-                        <a href="/doctor/appointments" class="btn btn-sm" >All</a>
-                        <a th:each="s : ${statuses}"
-                           th:href="@{/doctor/appointments(status=${s.name()})}"
-                           class="btn btn-sm"
-                           
-                           >STATUS</a>
-                    </form>
-                </div>
+            
+    <!-- Filter Bar -->
+    <div class="card mb-4">
+        <div class="card-body" style="padding:14px 22px;">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
+                <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
+                <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
+                <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
+                <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
             </div>
+        </div>
+    </div>
+
 
             <div class="card">
                 <div class="card-header">
                     <h5><i class="bi bi-calendar2-check" style="color:#6366F1;"></i> Appointments
-                        <span style="font-size:0.78rem;font-weight:400;color:#9CA3AF;margin-left:8px;"
-                              ></span>
+                        <span id="docApptCountBadge" style="font-size:0.78rem;font-weight:400;color:#9CA3AF;margin-left:8px;">(3)</span>
                     </h5>
                 </div>
                 
@@ -67,7 +66,72 @@
                     <th>#ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="docApptsTbody"></tbody>
+            <tbody id="docApptsTbody">
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#1</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">A</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Arun Chandran</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510001 • PAT-TRV-000001</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">Tomorrow</td>
+                    <td style="font-weight:600;color:#6366F1;">09:30 AM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Chest pain &amp; shortness of breath</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#2</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">D</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Divya Rajan</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510003 • PAT-TRV-000002</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">In 2 Days</td>
+                    <td style="font-weight:600;color:#6366F1;">11:00 AM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Hypertension checkup</td>
+                    <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.78rem;color:#9CA3AF;">#3</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar avatar-sm avatar-teal">M</div>
+                            <div>
+                                <div style="font-weight:600;color:#0F2042;">Mohammed Faisal</div>
+                                <div style="font-size:0.72rem;color:#9CA3AF;">9876510005 • PAT-TRV-000003</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">Today</td>
+                    <td style="font-weight:600;color:#6366F1;">03:30 PM</td>
+                    <td style="font-size:0.82rem;color:#4B5563;">Cardiac stress test review</td>
+                    <td><span class="badge badge-pending">PENDING</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <button onclick="confirmAppointmentItem(3)" class="btn btn-sm btn-indigo" style="font-weight:700;"><i class="bi bi-check-lg"></i> Confirm</button>
+                            <a href="/doctor/medical-records" class="btn btn-sm btn-outline"><i class="bi bi-clipboard2-pulse"></i> Write Record &amp; Rx</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
         </table>
         <div id="docApptsEmpty" class="empty-state" style="display:none; padding:48px 24px;">
             <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
@@ -149,18 +213,6 @@
             showToast('Appointment #' + id + ' confirmed! Patient will see CONFIRMED status.');
             renderAppointmentsTable();
         }
-    }
-
-    // Add filter buttons
-    const filterForm = document.querySelector('form');
-    if (filterForm) {
-        filterForm.innerHTML = `
-            <div style="font-size:0.85rem;font-weight:600;color:#374151;">Filter:</div>
-            <button type="button" data-status="ALL" onclick="setFilter('ALL')" class="btn btn-sm btn-indigo filter-btn">All</button>
-            <button type="button" data-status="PENDING" onclick="setFilter('PENDING')" class="btn btn-sm btn-outline filter-btn">Pending</button>
-            <button type="button" data-status="CONFIRMED" onclick="setFilter('CONFIRMED')" class="btn btn-sm btn-outline filter-btn">Confirmed</button>
-            <button type="button" data-status="COMPLETED" onclick="setFilter('COMPLETED')" class="btn btn-sm btn-outline filter-btn">Completed</button>
-        `;
     }
 
     renderAppointmentsTable();
